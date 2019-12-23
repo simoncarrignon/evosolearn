@@ -44,6 +44,7 @@ plot(test$meanf,type="l",ylab="meanf")
 plot(test$env,type="l",col="red",ylab="environment")
 plot(test$popsize,type="l",col="blue",ylab="popsize")
 ```
+![alt text](images/env_fit_pop.pdf)
 
 
 To get the mean and standard deviation of z for each time step:
@@ -54,8 +55,18 @@ meansdz=sapply(test$allpop,function(i)c(sd(i[["z"]]),mean(i[["z"]])))
 To check the evolution of the mean of each genes 
 
 ```R
+pdf("allgenes.pdf" ,width=10,height=6)
 genes=c("x","y","z")
 par(mfrow=c(3,1))
 par(mar=c(2,4,1,1))
 sapply(genes,function(g)plot(sapply(test$allpop,function(i)mean(i[[g]])),ylab=paste("gene",g),type="l",ylim=c(0,1)))
+dev.off()
+```
+![alt text](images/allgenes.pdf)
+
+3d plot of the mean fitness given time and environment
+
+```R
+library(rgl)
+plot3d(test$meanf,test$env,col=cols,pch=20)
 ```
