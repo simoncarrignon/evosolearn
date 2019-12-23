@@ -27,8 +27,8 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
         pop$slp=pop$ilp+pop$z*(P-pop$ilp)+e3
 
         ##phenotype check
-        pop$p=(1-pop$y)*(1-pop$z)*pop$x+(1-pop$z)*pop$y*env$theta[t]+pop$z*P+(e1*(1-pop$y)*(1-pop$z)+e2*(1-pop$z)+e3)
-        print(mean(pop$p - pop$slp))
+        #pop$p=(1-pop$y)*(1-pop$z)*pop$x+(1-pop$z)*pop$y*env$theta[t]+pop$z*P+(e1*(1-pop$y)*(1-pop$z)+e2*(1-pop$z)+e3)
+        #print(mean(pop$p - pop$slp))
 
         ##computation of the fitness
         pop$fitness = exp(-((pop$slp-env$theta[t])^2)/(2*sigma['s']^2)-((pop$y)^2)/(2*sigma['y']^2)-((pop$z)^2)/(2*sigma['z']^2))
@@ -63,14 +63,6 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
     }
     return(list(meanf=meanf,env=env$theta,pop=pop,popsize=popsize,allpop=allpop))
 }
-
-
-replictes=replicate(100,simpleEvoModel(200,100))
-plot(apply(replictes,1,mean),type="l")
-lapply(3:4,function(n){
-       r=replicate(100,simpleEvoModel(10^n,100))
-       lines(apply(r,1,mean),type="l")
-})
 
 
 
