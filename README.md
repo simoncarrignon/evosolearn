@@ -92,4 +92,4 @@ axis(2)
 axis(1,1:length(omegas),label = omegas)
 box()
 ```
-![follow the link if image not shown](images/omegas_vs_z.png)
+![follow the link if image not shown](images/omegas_vs_z_random.png)
