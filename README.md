@@ -81,6 +81,8 @@ axis(2)
 axis(1,1:length(omegas),label = omegas)
 box()
 ```
+![follow the link if image not shown](images/omegas_vs_z.png)
+
 By default `simpleEvoModel` use the best mechanism to copy, we can compare this when using random by simply doing:
 
 ```R
@@ -90,3 +92,4 @@ axis(2)
 axis(1,1:length(omegas),label = omegas)
 box()
 ```
+![follow the link if image not shown](images/omegas_vs_z.png)
