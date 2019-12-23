@@ -1,16 +1,18 @@
-simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu,genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),type="best"){
+#Return a list that stores different metrics of interest
+simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu,genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),type="best",log=T){
     env=c()
     env$theta=environment(tstep,omega,delta)
     env$b=b
     env$K=K
     a=1:n
+    #Generate initial population (here all gene are randomly selected
     pop=cbind.data.frame(id=a,parent_id=a,x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1),fitness=rep(0,n))
     parents=NULL
     meanf=c()
     popsize=c()
     allpop=list()
     for( t in 1:tstep){
-        print(t)
+        if(log)print(paste(" timestep:",t))
         popsize=c(popsize,n)
 
         ##genetic phase
