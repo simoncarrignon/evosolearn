@@ -1,0 +1,66 @@
+
+#Function from tuneR package
+#Based on Timmer and Koening 1995: https://ui.adsabs.harvard.edu/abs/1995A%26A...300..707T/abstract
+#' @param alpha: the slope of the power distribution (called omega in whitehead)
+#' @param N: the length of the timeseri to 
+TK95 <- function(N, alpha = 1){ 
+    f <- seq(from=0, to=pi, length.out=(N/2+1))[-c(1,(N/2+1))] # Fourier frequencies
+    f_ <- 1 / f^alpha # Power law
+    RW <- sqrt(0.5*f_) * rnorm(N/2-1) # for the real part
+    IW <- sqrt(0.5*f_) * rnorm(N/2-1) # for the imaginary part
+    fR <- complex(real = c(rnorm(1), RW, rnorm(1), RW[(N/2-1):1]), 
+                  imaginary = c(0, IW, 0, -IW[(N/2-1):1]), length.out=N)
+     # Those complex numbers that are to be back transformed for Fourier Frequencies 0, 2pi/N, 2*2pi/N, ..., pi, ..., 2pi-1/N 
+     # Choose in a way that frequencies are:w
+    complex-conjugated and symmetric around pi 
+     # 0 and pi do not need an imaginary part
+    reihe <- fft(fR, inverse=TRUE) # go back into time domain
+    return(Re(reihe)) # imaginary part is 0
+}
+
+#return spectrum of a timeserie
+getSpectrum <- function(x){
+	N <- length(x)
+    pw=8
+	M <- 2^pw # zero-pad total length
+    while(M<N){
+        pw=pw+1
+        M <- 2^pw
+    }
+	freq <- seq(0, 0.5, by = 1/M)
+	x.zp <- c(x, rep(0, M-N))
+	S.pgram <- (1/N)*abs(fft(x.zp)[1:(M/2+1)])^2
+}
+
+getSpectrum <- function(x){
+	S.pgram <- (1/length(x))*abs(fft(x))^2
+}
+
+#return a 1/f environmen with curve = omega and sd = delta
+environment <- function(N,omega,delta){
+    ts=TK95(N,omega)
+    ts=delta*ts/sd(ts)
+    return(ts)
+}
+
+
+
+explore <- function(){
+    plot(freq, S.pgram, type='l', log='y', xlab = "Frequency", ylab = "Spectrum")
+    t=10000
+    ts=TK95(t,1)
+    y=getSpectrumol(ts)
+    x=1:length(y)
+    plot(log(x),log(y))
+    fit=lm(log(y)~log(x),cbind.data.frame(x=1:length(y),y=y))
+    abline(fit,col="red")
+    text(0,max(log(y)),paste("coef=",abs(round(fit$coefficients[2],2))),col="red")
+
+
+    plot(ts[1:10],type="l")
+
+    y=getSpectrum(ts)
+    plot(abs(fft(ts)),log="xy")
+
+    plot(table(abs(fft(tss))^2),log="xy")
+}
