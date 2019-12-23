@@ -61,7 +61,7 @@ To check the evolution of the mean of each genes
 genes=c("x","y","z")
 par(mfrow=c(3,1))
 par(mar=c(2,4,1,1))
-sapply(genes,function(g)plot(sapply(test$allpop,function(i)mean(i[[g]])),ylab=paste("gene",g),type="l",ylim=c(0,1)))
+sapply(genes,function(g)plot(sapply(test$allpop,function(i)mean(i[[g]])),ylab=paste("gene",g),type="l"))
 ```
 ![follow the link if image not shown](images/allgenes.png)
 
