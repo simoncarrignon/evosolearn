@@ -11,8 +11,7 @@ TK95 <- function(N, alpha = 1){
     fR <- complex(real = c(rnorm(1), RW, rnorm(1), RW[(N/2-1):1]), 
                   imaginary = c(0, IW, 0, -IW[(N/2-1):1]), length.out=N)
      # Those complex numbers that are to be back transformed for Fourier Frequencies 0, 2pi/N, 2*2pi/N, ..., pi, ..., 2pi-1/N 
-     # Choose in a way that frequencies are:w
-    complex-conjugated and symmetric around pi 
+     # Choose in a way that frequencies are complex-conjugated and symmetric around pi 
      # 0 and pi do not need an imaginary part
     reihe <- fft(fR, inverse=TRUE) # go back into time domain
     return(Re(reihe)) # imaginary part is 0
