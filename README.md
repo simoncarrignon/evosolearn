@@ -24,10 +24,10 @@ to load the model and the functions it uses and a simple test can be done:
 
 ```R
 #setup the parameters
-epsilon=c(x=10,y=1,z=1) #the standard deviation of the error associate with the expression of each phenotype (p' to p''')
-sigma=c(s=2,y=2,z=2) #Selection streng
+epsilon=c(x=1,y=1,z=1) #the standard deviation of the error associated with the expression of each phenotype (p' to p''')
+sigma=c(s=2,y=2,z=2) #Selection strength
 m=c(x=.3,y=.3,z=.3)
-type="best" #type of selection for social learning
+type="best" #type of copy for social learning
 n=100
 tstep=500
 
@@ -70,4 +70,23 @@ sapply(genes,function(g)plot(sapply(test$allpop,function(i)mean(i[[g]])),ylab=pa
 ```R
 library(rgl)
 plot3d(test$meanf,test$env,col=cols,pch=20)
+```
+
+In the next block we explore the impact of omega on the mean value of z at the end of the simulation. To do that we creat a list of omegas and for each of them we run 10 simulations: 
+```R
+omegas=seq(0,3,.5)
+allos_best=sapply(omegas,function(o)replicate(10,mean(simpleEvoModel(100,200,omega = o,delta = 2 ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=T)$pop$z)))
+boxplot(allos_best,ylab="mean value of z",xlab=expression(omega),axes=F) 
+axis(2)
+axis(1,1:length(omegas),label = omegas)
+box()
+```
+By default `simpleEvoModel` use the best mechanism to copy, we can compare this when using random by simply doing:
+
+```R
+allos_rand=sapply(omegas,function(o)replicate(10,mean(simpleEvoModel(100,200,omega = o,delta = 2 ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,type="random",log=T)$pop$z)))
+boxplot(allos_rand,ylab="mean value of z",xlab=expression(omega),axes=F) 
+axis(2)
+axis(1,1:length(omegas),label = omegas)
+box()
 ```
