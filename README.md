@@ -72,10 +72,10 @@ library(rgl)
 plot3d(test$meanf,test$env,col=cols,pch=20)
 ```
 
-In the next block we explore the impact of omega on the mean value of z at the end of the simulation. To do that we creat a list of omegas and for each of them we run 10 simulations: 
+In the next block we explore the impact of omega on the mean value of z at the end of the simulation. To do that we creat a list of omegas and for each of them we run 100 simulations: 
 ```R
 omegas=seq(0,3,.5)
-allos_best=sapply(omegas,function(o)replicate(10,mean(simpleEvoModel(100,200,omega = o,delta = 2 ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=T)$pop$z)))
+allos_best=sapply(omegas,function(o)replicate(100,mean(simpleEvoModel(100,300,omega = o,delta = 2 ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=T)$pop$z)))
 boxplot(allos_best,ylab="mean value of z",xlab=expression(omega),axes=F) 
 axis(2)
 axis(1,1:length(omegas),label = omegas)
@@ -86,7 +86,7 @@ box()
 By default `simpleEvoModel` use the best mechanism to copy, we can compare this when using random by simply doing:
 
 ```R
-allos_rand=sapply(omegas,function(o)replicate(10,mean(simpleEvoModel(100,200,omega = o,delta = 2 ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,type="random",log=T)$pop$z)))
+allos_rand=sapply(omegas,function(o)replicate(100,mean(simpleEvoModel(100,300,omega = o,delta = 2 ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,type="random",log=T)$pop$z)))
 boxplot(allos_rand,ylab="mean value of z",xlab=expression(omega),axes=F) 
 axis(2)
 axis(1,1:length(omegas),label = omegas)
