@@ -1,7 +1,10 @@
 #Evolution and social Learning
 
 To get this folder: 
+
+```bash
 git clone git@framagit.org:sc/pleistoclimate.git
+```
 
 then to test the model:
 
@@ -33,9 +36,9 @@ test=simpleEvoModel(n = 100,tstep = 500,omega = 2,delta = 4 ,b = 2,K = 200,mu=0.
 
 ```
 
-for know in the list I keep all the population for all time step to check if everything is good and how the different variable of interest (x,y,z,...) are distributed in order to be sure not to loose anything, but some summary are allready available in `test$meanf`, `test$popsize`,...
+For know in the resulting list (here test), I keep all the populations for all time steps, to check if everything is good and how the different variable of interest (x,y,z,...) are distributed. Some summaries statistics are also available in `test$meanf`, `test$popsize`,... 
 
-to plot the available summaries:
+To plot the available summaries:
 
 ```R
 par(mfrow=c(3,1))
@@ -44,7 +47,7 @@ plot(test$meanf,type="l",ylab="meanf")
 plot(test$env,type="l",col="red",ylab="environment")
 plot(test$popsize,type="l",col="blue",ylab="popsize")
 ```
-![alt text](images/env_fit_pop.pdf)
+![follow the link if not shown](images/env_fit_pop.pdf)
 
 
 To get the mean and standard deviation of z for each time step:
@@ -62,7 +65,7 @@ par(mar=c(2,4,1,1))
 sapply(genes,function(g)plot(sapply(test$allpop,function(i)mean(i[[g]])),ylab=paste("gene",g),type="l",ylim=c(0,1)))
 dev.off()
 ```
-![alt text](images/allgenes.pdf)
+![follow the link if image not shown](images/allgenes.pdf)
 
 3d plot of the mean fitness given time and environment
 
