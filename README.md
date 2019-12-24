@@ -62,7 +62,15 @@ par(mfrow=c(3,1))
 par(mar=c(2,4,1,1))
 sapply(genes,function(g)plot(sapply(test$allpop,function(i)mean(i[[g]])),ylab=paste("gene",g),type="l"))
 ```
-![follow the link if image not shown](images/allgenes.png)
+![value of allgenes](images/allgenes.png)
+
+Wrote a function to plot mean and sd for all variables + theta
+```R
+test=simpleEvoModel(n = 1000,tstep = 500,omega = 2,delta = 4 ,b = 2,K = 200,mu=0.001,epsilon = c(x=1,y=1,z=1),sigma = c(s=2,y=2,z=2),m=c(x=.3,y=.3,z=.3),type = "best")
+plotAllVariable(test)
+```
+![value of allgenes](images/all.png)
+
 
 ## Check environment 
 
