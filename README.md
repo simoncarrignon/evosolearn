@@ -1,6 +1,8 @@
 # Evolution, social Learning and climate fluctuation
 
-To get this folder: 
+## Clone and run the model:
+
+To clone this folder: 
 
 ```bash
 git clone git@framagit.org:sc/pleistoclimate.git
@@ -13,7 +15,6 @@ cd pleistoclimate/
 ```
 
 then run `R` within this folder
-
 and  from `R`
 
 ```R
@@ -32,8 +33,8 @@ tstep=500
 
 #run the simulation
 test=simpleEvoModel(n = 100,tstep = 500,omega = 2,delta = 4 ,b = 2,K = 200,mu=0.001,epsilon = epsilon,sigma = sigma)
-
 ```
+
 For know in the resulting list (here `test`), I return all the populations for all time steps. This is for now, to check if everything is good and how the different variables of interest (x,y,z,...) are distributed. Some summaries statistics are also available in `test$meanf`, `test$popsize`,... 
 
 To plot the available summaries:
@@ -62,6 +63,31 @@ par(mar=c(2,4,1,1))
 sapply(genes,function(g)plot(sapply(test$allpop,function(i)mean(i[[g]])),ylab=paste("gene",g),type="l"))
 ```
 ![follow the link if image not shown](images/allgenes.png)
+
+## Check environment 
+
+Some quick exploration of the environment generation function
+
+```R
+par(mfrow=c(3,2))
+t=10000 #number of timestep
+par(mfrow=c(3,2),mar=c(2,2,1,1))
+for(alpha in 0:2){ #alpha as used in YK95 is our $\omega$
+    ts=TK95(t,alpha) #generate random noise with alpha =1
+    plot(ts,type="l") #plot the environment
+    y=getSpectrum(ts) #get spectrum of the environment generated
+    x=1:length(y)
+    plot(log(x),log(y))
+    fit=lm(log(y)~log(x),cbind.data.frame(x=1:length(y),y=y)) #fit a linear model to check slope
+    abline(fit,col="red") #visualise the fit and coefficient computed
+    text(1,max(log(y)),paste("coef=",abs(round(fit$coefficients[2],2))),col="red")
+}
+```
+
+![environment check](images/exploreEnv.png)
+
+
+## Further exploration of the model
 
 3d plot of the mean fitness given time and environment
 
