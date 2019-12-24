@@ -19,8 +19,7 @@ and  from `R`
 ```R
 source("protomodels.R")
 ```
-
-to load the model and the functions it uses and a simple test can be done:
+to load the model and the functions it uses. To do a simple run of the model one can do:
 
 ```R
 #setup the parameters
@@ -35,8 +34,7 @@ tstep=500
 test=simpleEvoModel(n = 100,tstep = 500,omega = 2,delta = 4 ,b = 2,K = 200,mu=0.001,epsilon = epsilon,sigma = sigma)
 
 ```
-
-For know in the resulting list (here test), I keep all the populations for all time steps, to check if everything is good and how the different variable of interest (x,y,z,...) are distributed. Some summaries statistics are also available in `test$meanf`, `test$popsize`,... 
+For know in the resulting list (here `test`), I return all the populations for all time steps. This is for now, to check if everything is good and how the different variables of interest (x,y,z,...) are distributed. Some summaries statistics are also available in `test$meanf`, `test$popsize`,... 
 
 To plot the available summaries:
 
