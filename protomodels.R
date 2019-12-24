@@ -6,9 +6,9 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
     theta=environment(tstep,omega,delta)
     a=1:n
     #Generate initial population (here all gene are randomly selected
-    pop=cbind.data.frame(id=a,parent_id=a,x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1),fitness=rep(0,n))
+    pop=cbind.data.frame(id=a,parent_id=a,x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1),w=rep(0,n))
     parents=NULL
-    meanf=c()
+    meanw=c()
     popsize=c()
     allpop=list()
     for( t in 1:tstep){
@@ -33,10 +33,10 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
         #print(mean(pop$p - pop$slp))
 
         ##computation of the fitness
-        pop$fitness = exp(-((pop$slp-theta[t])^2)/(2*sigma['s']^2)-((pop$y)^2)/(2*sigma['y']^2)-((pop$z)^2)/(2*sigma['z']^2))
+        pop$w = exp(-((pop$slp-theta[t])^2)/(2*sigma['s']^2)-((pop$y)^2)/(2*sigma['y']^2)-((pop$z)^2)/(2*sigma['z']^2))
 
         #selection
-        selected=which(runif(n)<reproduction(pop$fitness,b,n,K))
+        selected=which(runif(n)<reproduction(pop$w,b,n,K))
 
         #reproduction
         nchilds=rpois(length(selected),b)
@@ -60,10 +60,10 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
         oldpop=pop
         pop=childs
         n=newn
-        meanf=c(meanf,mean(pop$fitness))
+        meanw=c(meanw,mean(pop$w))
         allpop[[t]]=pop
     }
-    return(list(meanf=meanf,env=theta,pop=pop,popsize=popsize,allpop=allpop))
+    return(list(meanw=meanw,env=theta,pop=pop,popsize=popsize,allpop=allpop))
 }
 
 

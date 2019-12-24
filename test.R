@@ -1,15 +1,15 @@
 source("protomodels.R")
 
-pop=cbind.data.frame(agent=1:100,parent=1:100,x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1),fitness=1:100)
+pop=cbind.data.frame(agent=1:100,parent=1:100,x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1),w=1:100)
 
 env=c()
 env$theta=environment(tstep,omega,delta)
 env$b=b
 env$K=K
 a=1:n
-pop=cbind.data.frame(agent=a,parent=a,x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1),fitness=rep(0,n))
+pop=cbind.data.frame(agent=a,parent=a,x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1),w=rep(0,n))
 parents=pop
-meanf=c()
+meanw=c()
 popsize=c()
 
 socialLearning(childs,parents,type="average") - mean(parents$slp)
@@ -31,7 +31,7 @@ genes=c("x","y","z")
 png("images/env_fit_pop.png",width=800,height=400)
 par(mfrow=c(3,1))
 par(mar=c(2,4,1,1))
-plot(test$meanf,type="l",ylab="meanf")
+plot(test$meanw,type="l",ylab="meanw")
 plot(test$env,type="l",col="red",ylab="environment")
 plot(test$popsize,type="l",col="blue",ylab="popsize")
 dev.off()
@@ -44,11 +44,11 @@ dev.off()
 
 dev.off()
 
-cols=colorRampPalette(c("blue","yellow","red"))(500)[as.numeric(cut(test$meanf,breaks=500))]
-plot3d(test$meanf,test$env,col=cols,pch=20)
-plot(test$meanf,test$env,col=colorRampPalette(c("blue","yellow","red"))(5000),pch=20)
+cols=colorRampPalette(c("blue","yellow","red"))(500)[as.numeric(cut(test$meanw,breaks=500))]
+plot3d(test$meanw,test$env,col=cols,pch=20)
+plot(test$meanw,test$env,col=colorRampPalette(c("blue","yellow","red"))(5000),pch=20)
 
-plot(test$meanf[1100:1300],type="l",ylab="meanf")
+plot(test$meanw[1100:1300],type="l",ylab="meanw")
 lapply(genes,function(g)sapply(test$allpop,function(i)c(sd=sd(i[[g]]),mean=mean(i[[g]]))))
 
 pdf("allgenes.pdf" ,width=10,height=6)
@@ -61,7 +61,7 @@ dev.off()
 pdf("env_fit_pop.pdf" ,width=10,height=6)
 par(mfrow=c(3,1))
 par(mar=c(2,4,1,1))
-plot(test$meanf,type="l",ylab="meanf")
+plot(test$meanw,type="l",ylab="meanw")
 plot(test$env,type="l",col="red",ylab="environment")
 plot(test$popsize,type="l",col="blue",ylab="popsize")
 dev.off()
@@ -85,7 +85,7 @@ box()
 dev.off()
 
 library(rgl)
-plot3d(test$meanf,test$env,col=cols,pch=20)
+plot3d(test$meanw,test$env,col=cols,pch=20)
 
 omegas=seq(-0.5,2.5,.5)
 deltas=.0625*2^seq(0:6)
@@ -93,9 +93,9 @@ deltas=.0625*2^seq(0:6)
 library(parallel)
 names(omegas)=omegas
 names(deltas)=deltas
-cl <- makeForkCluster(4,outfile="")
-osnds=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));mean(replicate(50,mean(simpleEvoModel(100,300,omega = o,delta = d ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=F)$pop$z,na.rm=T)))}))
-osnds_rand=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));mean(replicate(50,mean(simpleEvoModel(100,300,type="random",omega = o,delta = d ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=F)$pop$z,na.rm=T)))}))
+cl <- makeForkCluster(7,outfile="")
+osnds=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));mean(replicate(50,mean(simpleEvoModel(200,1000,omega = o,delta = d ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=F)$pop$z,na.rm=T)),na.rm=T)}))
+osnds_rand=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));mean(replicate(50,mean(simpleEvoModel(200,1000,type="random",omega = o,delta = d ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=F)$pop$z,na.rm=T)),na.rm=T)}))
 stopCluster(cl)
 
 png("nonrand.png")

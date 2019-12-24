@@ -35,14 +35,14 @@ tstep=500
 test=simpleEvoModel(n = 100,tstep = 500,omega = 2,delta = 4 ,b = 2,K = 200,mu=0.001,epsilon = epsilon,sigma = sigma)
 ```
 
-For know in the resulting list (here `test`), I return all the populations for all time steps. This is for now, to check if everything is good and how the different variables of interest (x,y,z,...) are distributed. Some summaries statistics are also available in `test$meanf`, `test$popsize`,... 
+For know in the resulting list (here `test`), I return all the populations for all time steps. This is for now, to check if everything is good and how the different variables of interest (x,y,z,...) are distributed. Some summaries statistics are also available in `test$meanw`, `test$popsize`,... 
 
 To plot the available summaries:
 
 ```R
 par(mfrow=c(3,1))
 par(mar=c(2,4,1,1))
-plot(test$meanf,type="l",ylab="meanf")
+plot(test$meanw,type="l",ylab="meanw")
 plot(test$env,type="l",col="red",ylab="environment")
 plot(test$popsize,type="l",col="blue",ylab="popsize")
 ```
@@ -93,7 +93,7 @@ for(alpha in 0:2){ #alpha as used in YK95 is our $\omega$
 
 ```R
 library(rgl)
-plot3d(test$meanf,test$env,col=cols,pch=20)
+plot3d(test$meanw,test$env,col=cols,pch=20)
 ```
 
 In the next block we explore the impact of omega on the mean value of z at the end of the simulation. To do that we creat a list of omegas and for each of them we run 100 simulations: 
