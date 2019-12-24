@@ -1,3 +1,4 @@
+source("protomodels.R")
 
 pop=cbind.data.frame(agent=1:100,parent=1:100,x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1),fitness=1:100)
 
@@ -21,20 +22,25 @@ length(socialLearning(childs,parents,type="random"))-nrow(childs) #should be equ
 
 
 ##Running test
-epsilon=c(x=10,y=1,z=1)
-sigma=c(s=2,y=2,z=2)
+epsilon=c(x=1,y=1,z=1)
+sigma=c(s=1,y=1,z=1)
 test=simpleEvoModel(100,500,omega = 2,delta = 4 ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma)
 
+genes=c("x","y","z")
 
+png("images/env_fit_pop.png",width=800,height=400)
 par(mfrow=c(3,1))
 par(mar=c(2,4,1,1))
 plot(test$meanf,type="l",ylab="meanf")
 plot(test$env,type="l",col="red",ylab="environment")
 plot(test$popsize,type="l",col="blue",ylab="popsize")
+dev.off()
 dev.new()
+png("images/allgenes.png",width=800,height=400)
 par(mfrow=c(3,1))
 par(mar=c(2,4,1,1))
-sapply(genes,function(g)plot(sapply(test$allpop,function(i)mean(i[[g]])),ylab=paste("gene",g),type="l",ylim=c(0,1)))
+sapply(genes,function(g)plot(sapply(test$allpop,function(i)mean(i[[g]])),ylab=paste("gene",g),type="l"))
+dev.off()
 
 dev.off()
 
@@ -49,7 +55,7 @@ pdf("allgenes.pdf" ,width=10,height=6)
 genes=c("x","y","z")
 par(mfrow=c(3,1))
 par(mar=c(2,4,1,1))
-sapply(genes,function(g)plot(sapply(test$allpop,function(i)mean(i[[g]])),ylab=paste("gene",g),type="l",ylim=c(0,1)))
+sapply(genes,function(g)plot(sapply(test$allpop,function(i)mean(i[[g]])),ylab=paste("gene",g),type="l"))
 dev.off()
 
 pdf("env_fit_pop.pdf" ,width=10,height=6)
@@ -59,3 +65,35 @@ plot(test$meanf,type="l",ylab="meanf")
 plot(test$env,type="l",col="red",ylab="environment")
 plot(test$popsize,type="l",col="blue",ylab="popsize")
 dev.off()
+
+
+omegas=seq(0,3,.5)
+allos_best=sapply(omegas,function(o)replicate(100,mean(simpleEvoModel(100,300,omega = o,delta = 2 ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=T)$pop$z)))
+png("omegas_vs_z.png")
+boxplot(allos_best,ylab="mean value of z",xlab=expression(omega),axes=F) 
+axis(2)
+axis(1,1:length(omegas),label = omegas)
+box()
+dev.off()
+
+allos_rand=sapply(omegas,function(o)replicate(100,mean(simpleEvoModel(100,300,omega = o,delta = 2 ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,type="random",log=T)$pop$z)))
+png("omegas_vs_z_random.png")
+boxplot(allos_rand,ylab="mean value of z",xlab=expression(omega),axes=F) 
+axis(2)
+axis(1,1:length(omegas),label = omegas)
+box()
+dev.off()
+
+library(rgl)
+plot3d(test$meanf,test$env,col=cols,pch=20)
+
+omegas=seq(-0.5,2.5,.5)
+deltas=.0625*2^seq(0:6)
+
+names(omegas)=omegas
+names(deltas)=deltas
+osnds=sapply(omegas,function(o)sapply(deltas,function(d){;print(paste(o,d));mean(replicate(25,mean(simpleEvoModel(100,50,omega = o,delta = d ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=F)$pop$z)))}))
+osnds_rand=sapply(omegas,function(o)sapply(deltas,function(d){;print(paste(o,d));mean(replicate(25,mean(simpleEvoModel(100,50,type="random",omega = o,delta = d ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=F,type="random")$pop$z)))}))
+
+image(osnds)
+image(osnds_rand)
