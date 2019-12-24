@@ -73,7 +73,7 @@ par(mfrow=c(3,2))
 t=10000 #number of timestep
 par(mfrow=c(3,2),mar=c(2,2,1,1))
 for(alpha in 0:2){ #alpha as used in YK95 is our $\omega$
-    ts=TK95(t,alpha) #generate random noise with alpha =1
+    ts=TK95(t,alpha) #generate random noise following Timmer & Koenig (1995) implemented in tuneR package(https://rdrr.io/cran/tuneR/src/R/Waveforms.R)
     plot(ts,type="l") #plot the environment
     y=getSpectrum(ts) #get spectrum of the environment generated
     x=1:length(y)
