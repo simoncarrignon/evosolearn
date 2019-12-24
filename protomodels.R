@@ -3,9 +3,7 @@ source("environment.R")
 #Return a list that stores different metrics of interest
 simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu,genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),type="best",log=T){
     env=c()
-    env$theta=environment(tstep,omega,delta)
-    env$b=b
-    env$K=K
+    theta=environment(tstep,omega,delta)
     a=1:n
     #Generate initial population (here all gene are randomly selected
     pop=cbind.data.frame(id=a,parent_id=a,x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1),fitness=rep(0,n))
@@ -23,19 +21,19 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
 
         ##learning phase
         e2=rnorm(n,0,epsilon['y'])
-        pop$ilp=pop$gp+pop$y*(env$theta[t]-pop$gp)+e2
+        pop$ilp=pop$gp+pop$y*(theta[t]-pop$gp)+e2
 
         ##social learning phase
-        P=socialLearning(pop,reference=parents,type=type,thetat=env$theta[t]) #get the list of which phenotype is socially copied by every agent
+        P=socialLearning(pop,reference=parents,type=type,thetat=theta[t]) #get the list of which phenotype is socially copied by every agent
         e3=rnorm(n,0,sigma['z'])
         pop$slp=pop$ilp+pop$z*(P-pop$ilp)+e3
 
         ##phenotype check
-        #pop$p=(1-pop$y)*(1-pop$z)*pop$x+(1-pop$z)*pop$y*env$theta[t]+pop$z*P+(e1*(1-pop$y)*(1-pop$z)+e2*(1-pop$z)+e3)
+        #pop$p=(1-pop$y)*(1-pop$z)*pop$x+(1-pop$z)*pop$y*theta[t]+pop$z*P+(e1*(1-pop$y)*(1-pop$z)+e2*(1-pop$z)+e3)
         #print(mean(pop$p - pop$slp))
 
         ##computation of the fitness
-        pop$fitness = exp(-((pop$slp-env$theta[t])^2)/(2*sigma['s']^2)-((pop$y)^2)/(2*sigma['y']^2)-((pop$z)^2)/(2*sigma['z']^2))
+        pop$fitness = exp(-((pop$slp-theta[t])^2)/(2*sigma['s']^2)-((pop$y)^2)/(2*sigma['y']^2)-((pop$z)^2)/(2*sigma['z']^2))
 
         #selection
         selected=which(runif(n)<reproduction(pop$fitness,b,n,K))
@@ -65,7 +63,7 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
         meanf=c(meanf,mean(pop$fitness))
         allpop[[t]]=pop
     }
-    return(list(meanf=meanf,env=env$theta,pop=pop,popsize=popsize,allpop=allpop))
+    return(list(meanf=meanf,env=theta,pop=pop,popsize=popsize,allpop=allpop))
 }
 
 
