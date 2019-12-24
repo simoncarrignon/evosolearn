@@ -93,3 +93,12 @@ axis(1,1:length(omegas),label = omegas)
 box()
 ```
 ![follow the link if image not shown](images/omegas_vs_z_random.png)
+
+Similarly we can explore the impact of omega and delta at the same time:
+```R
+osnds=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));mean(replicate(50,mean(simpleEvoModel(100,50,omega = o,delta = d ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=F)$pop$z)))}))
+osnds_rand=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));mean(replicate(50,mean(simpleEvoModel(100,50,type="random",omega = o,delta = d ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=F)$pop$z)))}))
+```
+
+![nonrand](images/nonrand.png)
+![rand](images/rand.png)
