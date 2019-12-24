@@ -1,4 +1,5 @@
 source("environment.R")
+source("tools.R")
 
 #Return a list that stores different metrics of interest
 simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu,genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),type="best",log=T){
