@@ -90,10 +90,17 @@ plot3d(test$meanf,test$env,col=cols,pch=20)
 omegas=seq(-0.5,2.5,.5)
 deltas=.0625*2^seq(0:6)
 
+library(parallel)
 names(omegas)=omegas
 names(deltas)=deltas
-osnds=sapply(omegas,function(o)sapply(deltas,function(d){;print(paste(o,d));mean(replicate(25,mean(simpleEvoModel(100,50,omega = o,delta = d ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=F)$pop$z)))}))
-osnds_rand=sapply(omegas,function(o)sapply(deltas,function(d){;print(paste(o,d));mean(replicate(25,mean(simpleEvoModel(100,50,type="random",omega = o,delta = d ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=F,type="random")$pop$z)))}))
+cl <- makeForkCluster(4,outfile="")
+osnds=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));mean(replicate(50,mean(simpleEvoModel(100,300,omega = o,delta = d ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=F)$pop$z,na.rm=T)))}))
+osnds_rand=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));mean(replicate(50,mean(simpleEvoModel(100,300,type="random",omega = o,delta = d ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=F)$pop$z,na.rm=T)))}))
+stopCluster(cl)
 
-image(osnds)
-image(osnds_rand)
+png("nonrand.png")
+image(log(deltas),omegas,osnds,zlim=c(0,1))
+dev.off()
+png("rand.png")
+image(log(deltas),omegas,osnds_rand,zlim=c(0,1))
+dev.off()
