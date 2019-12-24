@@ -55,20 +55,11 @@ To get the mean and standard deviation of z for each time step:
 meansdz=sapply(test$allpop,function(i)c(sd(i[["z"]]),mean(i[["z"]])))
 ```
 
-[test]:To check the evolution of the mean of each genes 
-[test]:```R
-[test]:genes=c("x","y","z")
-[test]:par(mfrow=c(3,1))
-[test]:par(mar=c(2,4,1,1))
-[test]:sapply(genes,function(g)plot(sapply(test$allpop,function(i)mean(i[[g]])),ylab=paste("gene",g),type="l"))
-[test]:```
-[test]:![value of allgenes](images/allgenes.png)
 
-Wrote a function to plot mean and sd for all variables + theta
+To plot mean and sd for all variables + theta from the output of `bsimpleEvoModel`
 ```R
 test=simpleEvoModel(n = 1000,tstep = 500,omega = 2,delta = 4 ,b = 2,K = 200,mu=0.001,epsilon = c(x=1,y=1,z=1),sigma = c(s=2,y=2,z=2),m=c(x=.3,y=.3,z=.3),type = "best")
 plotAllVariable(test)
-i
 ```
 ![value of allgenes](images/all.png)
 
