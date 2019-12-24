@@ -43,23 +43,3 @@ environment <- function(N,omega,delta){
 }
 
 
-
-explore <- function(){
-    plot(freq, S.pgram, type='l', log='y', xlab = "Frequency", ylab = "Spectrum")
-    t=10000
-    ts=TK95(t,1)
-    y=getSpectrumol(ts)
-    x=1:length(y)
-    plot(log(x),log(y))
-    fit=lm(log(y)~log(x),cbind.data.frame(x=1:length(y),y=y))
-    abline(fit,col="red")
-    text(0,max(log(y)),paste("coef=",abs(round(fit$coefficients[2],2))),col="red")
-
-
-    plot(ts[1:10],type="l")
-
-    y=getSpectrum(ts)
-    plot(abs(fft(ts)),log="xy")
-
-    plot(table(abs(fft(tss))^2),log="xy")
-}
