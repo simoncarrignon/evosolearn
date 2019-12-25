@@ -124,5 +124,8 @@ osnds=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d))
 osnds_rand=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));mean(replicate(50,mean(simpleEvoModel(100,50,type="random",omega = o,delta = d ,b=2,K=200,mu=0.001,epsilon=epsilon,sigma=sigma,log=F)$pop$z)))}))
 ```
 
+### Select best individual
 ![nonrand](images/nonrand.png)
+
+### Select random individual
 ![rand](images/rand.png)
