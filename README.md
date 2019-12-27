@@ -125,7 +125,7 @@ osnds_rand=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(
 ```
 
 ### Select best individual
-![nonrand](images/nonrand.png)
+![nonrand](images/bignonrand.png)
 
 ### Select random individual
-![rand](images/rand.png)
+![rand](images/bigrand.png)
