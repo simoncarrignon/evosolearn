@@ -61,7 +61,7 @@ To plot mean and sd for all variables + theta from the output of `simpleEvoModel
 test=simpleEvoModel(n = 1000,tstep = 500,omega = 2,delta = 4 ,b = 2,K = 200,mu=0.001,epsilon = c(x=1,y=1,z=1),sigma = c(s=2,y=2,z=2),m=c(x=.3,y=.3,z=.3),type = "best")
 plotAllVariable(test)
 ```
-![value of allgenes](images/all.png)
+<img src="images/all.png" width="200" >
 
 I also like to plot the full distribution using High Density region in order to see multi modal distributions:
 
@@ -69,7 +69,7 @@ I also like to plot the full distribution using High Density region in order to 
 plotAllVariable(test,hdr=T)
 ```
 
-![hdr of allgenes](images/all_hdr.png)
+<img src="images/all_hdr.png" width="200" >
 
 
 Now we compare theta (environment), p (mature phenotype) and w (fitness):
