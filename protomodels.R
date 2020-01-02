@@ -27,15 +27,15 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
 
         ##social learning phase
         P=socialLearning(pop,reference=parents,type=type,thetat=theta[t]) #get the list of which phenotype is socially copied by every agent
-        e3=rnorm(n,0,sigma['z'])
-        pop$slp=pop$ilp+pop$z*(P-pop$ilp)+e3
+        e3=rnorm(n,0,epsilon['z'])
+        pop$p=pop$ilp+pop$z*(P-pop$ilp)+e3
 
         ##phenotype check
         #pop$p=(1-pop$y)*(1-pop$z)*pop$x+(1-pop$z)*pop$y*theta[t]+pop$z*P+(e1*(1-pop$y)*(1-pop$z)+e2*(1-pop$z)+e3)
-        #print(mean(pop$p - pop$slp))
+        #print(mean(pop$p - pop$p))
 
         ##computation of the fitness
-        pop$w = exp(-((pop$slp-theta[t])^2)/(2*sigma['s']^2)-((pop$y)^2)/(2*sigma['y']^2)-((pop$z)^2)/(2*sigma['z']^2))
+        pop$w = exp(-((pop$p-theta[t])^2)/(2*sigma['s']^2)-((pop$y)^2)/(2*sigma['y']^2)-((pop$z)^2)/(2*sigma['z']^2))
 
         #selection
         selected=which(runif(n)<reproduction(pop$w,b,n,K))
@@ -86,22 +86,22 @@ socialLearning <- function(newpop,reference,thetat=NULL,type="random"){
 
     ##Checking for imature
     if(is.null(reference))reference=newpop #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
-    if(is.null(reference$slp))reference$slp=reference$ilp #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
-    if(anyNA(reference$slp))reference$slp[is.na(reference$slp)]=reference$ilp[is.na(reference$slp)] #if some of the reference group 
+    if(is.null(reference$p))reference$p=reference$ilp #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
+    if(anyNA(reference$p))reference$p[is.na(reference$p)]=reference$ilp[is.na(reference$p)] #if some of the reference group 
 
     if(type=="parents")
-        return(reference$slp[match(newnewpop$parent_id,reference$id)])
+        return(reference$p[match(newnewpop$parent_id,reference$id)])
 
     if(type=="best"){
         if(is.null(thetat))stop("when selecting best agents an environmental condition has to be given")
-        best=which.min(abs(reference$slp-thetat))
-        return(reference$slp[best]) #return the phenotype of the best individual in the reference group 
+        best=which.min(abs(reference$p-thetat))
+        return(reference$p[best]) #return the phenotype of the best individual in the reference group 
     }
     if(type=="average")
-        return(mean(reference$slp))
+        return(mean(reference$p))
     if(type=="random"){
         selected=sample(reference$id,nrow(newpop),replace=T) #we radomly assign a teacher for each individual of the new newpop
-        return(reference$slp[match(selected,reference$id)])
+        return(reference$p[match(selected,reference$id)])
     }
     stop("a type of copy should be chosen among parents,best,average,randon")
 }
