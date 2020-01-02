@@ -2,12 +2,13 @@ source("environment.R")
 source("tools.R")
 
 #Return a list that stores different metrics of interest
-simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu,genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),type="best",log=T){
+simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),type="best",log=T,pop=NULL){
+
+    if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
     env=c()
     theta=environment(tstep,omega,delta)
-    a=1:n
     #Generate initial population (here all gene are randomly selected
-    pop=cbind.data.frame(id=a,parent_id=a,x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1),w=rep(0,n))
+    if(is.null(pop))pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1)))
     parents=NULL
     meanw=c()
     popsize=c()
@@ -38,6 +39,7 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
 
         #selection
         selected=which(runif(n)<reproduction(pop$w,b,n,K))
+        if(length(selected)<1)break
 
         #reproduction
         nchilds=rpois(length(selected),b)
@@ -50,7 +52,7 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
 
         newn=nrow(childs)
         for(g in genes){
-            mutated=which(runif(newn)<mu)
+            mutated=which(runif(newn)<mu[g])
             childs[mutated,g]=childs[mutated,g]+rnorm(length(mutated),0,m[g])
             if(g %in% c("y","z")){
                 childs[mutated,g][childs[mutated,g]<0] = 0
@@ -105,4 +107,12 @@ socialLearning <- function(newpop,reference,thetat=NULL,type="random"){
 }
 
 
+#' @param distrib should be a list with 3 elements x yz)
+generatePop <- function(n,distrib){
+    if(length(distrib)!=3)stop("please give distribution for the 3 genes")
+    if(sum(sapply(distrib,length))!= n * 3)stop("please give the full distribution (for each n individuals) for the 3 genes")
+    a=1:n
+    pop=cbind.data.frame(id=a,parent_id=a,x=distrib$x,y=distrib$y,z=distrib$z,w=rep(0,n))
+    return(pop)
+}
 
