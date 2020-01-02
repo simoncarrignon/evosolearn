@@ -32,7 +32,7 @@ n=100
 tstep=500
 
 #run the simulation
-test=simpleEvoModel(n = 100,tstep = 500,omega = 2,delta = 4 ,b = 2,K = 200,mu=0.001,epsilon = epsilon,sigma = sigma)
+test=simpleEvoModel(n,tstep,omega = 1.5,delta = 1 ,b=2,K=500,mu=c(x=0.01,y=0.01,z=0.01),epsilon=c(x=1,y=1,z=1),sigma=c(s=2,y=2,z=2),log=T,type="best")
 ```
 
 For know in the resulting list (here `test`), I return all the populations for all time steps. This is for now, to check if everything is good and how the different variables of interest (x,y,z,...) are distributed. Some summaries statistics are also available in `test$meanw`, `test$popsize`,... 
@@ -56,12 +56,26 @@ meansdz=sapply(test$allpop,function(i)c(sd(i[["z"]]),mean(i[["z"]])))
 ```
 
 
-To plot mean and sd for all variables + theta from the output of `bsimpleEvoModel`
+To plot mean and sd for all variables + theta from the output of `simpleEvoModel`
 ```R
 test=simpleEvoModel(n = 1000,tstep = 500,omega = 2,delta = 4 ,b = 2,K = 200,mu=0.001,epsilon = c(x=1,y=1,z=1),sigma = c(s=2,y=2,z=2),m=c(x=.3,y=.3,z=.3),type = "best")
 plotAllVariable(test)
 ```
 ![value of allgenes](images/all.png)
+
+I also like to plot the full distribution using High Density region in order to see multi modal distributions:
+
+```R
+plotAllVariable(test,hdr=T)
+```
+
+![hdr of allgenes](images/all_hdr.png)
+
+
+Now we compare theta (environment), p (mature phenotype) and w (fitness):
+
+![comparing different variable](images/comparisons.png)
+
 
 
 ## Check environment 
@@ -129,3 +143,36 @@ osnds_rand=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(
 
 ### Select random individual
 ![rand](images/bigrand.png)
+
+####
+
+png("allvariables.png",pointsize = 14,width=800,height=1200)
+plotAllVariable(t)
+dev.off()
+
+png("allvariables_HDR.png",pointsize = 14,width=800,height=1200)
+par(cex=2)
+plotAllVariable(t,hdr=T)
+dev.off()
+
+png("comparisons.png",pointsize = 14,width=600,height=800)
+par(mfrow=c(2,1),cex=1.2)
+par(mar=c(2,4,2,4))
+plot(sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)),type="l",ylim=range(sapply(t$allpop,"[[","p")),ylab="p",main="Phenotype and theta",bty="n",)
+lines(sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)+sd(t$allpop[[it]]$p)),lty=3)
+lines(sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)-sd(t$allpop[[it]]$p)),lty=3)
+par(new=T)
+plot(t$env,type="l",col="blue",yaxt="n",xaxt="n",ylim=range(sapply(t$allpop,"[[","p")),ylab="",bty="n",)
+axis(4,col="blue",col.axis="blue")
+mtext(expression(theta),4,2,col="blue")
+
+plot( sapply(1:tstep,function(it)mean(abs(t$allpop[[it]]$p-t$env[it]))),ylim=range(sapply(1:tstep,function(it)range(abs(t$allpop[[it]]$p-t$env[it])))),ylab=expression(group("|",theta - p,"|")),bty="n",type="l",main="Distance to theta and fitness")
+lines(sapply(2:tstep,function(it)mean(abs(t$allpop[[it]]$p-t$env[it]))+sd(abs(t$allpop[[it]]$p-t$env[it]))),lty=3)
+lines(sapply(1:tstep,function(it)mean(abs(t$allpop[[it]]$p-t$env[it]))-sd(abs(t$allpop[[it]]$p-t$env[it]))),lty=3)
+par(new=T)
+plot( sapply(1:tstep,function(it)mean(t$allpop[[it]]$w)),ylim=range(sapply(t$allpop,"[[","w")),type="l",col="red",yaxt="n",xaxt="n",bty="n",ylab="")
+lines(sapply(1:tstep,function(it)mean(t$allpop[[it]]$w)+sd(t$allpop[[it]]$w)),col="red",lty=3)
+lines(sapply(1:tstep,function(it)mean(t$allpop[[it]]$w)-sd(t$allpop[[it]]$w)),col="red",lty=3)
+axis(4,col="red",col.axis="red")
+mtext("w",4,2,col="red")
+dev.off()
