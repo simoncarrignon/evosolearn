@@ -35,7 +35,10 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
         pop$ilp=pop$gp+pop$y*(theta[t]-pop$gp)+e2
 
         ##social learning phase
-        P=socialLearning(pop,reference=parents,type=type,thetat=theta[t]) #get the list of which phenotype is socially copied by every agent
+        if(z>0)
+            P=socialLearning(pop,reference=parents,type=type,thetat=theta[t]) #get the list of which phenotype is socially copied by every agent
+        else
+            P=0
         e3=rnorm(n,0,epsilon['z'])
         pop$p=pop$ilp+pop$z*(P-pop$ilp)+e3
 
