@@ -7,6 +7,7 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
 	
 	names(statfun)=statfun
 	names(statvar)=statvar
+    output=updateOutput(NULL,NULL,statfun,statvar)
 
     if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
     env=c()
@@ -72,11 +73,12 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
         pop=childs
         n=newn
 
-		output=updateOutput(pop,output,statvar,statfun)
+		output=updateOutput(output,pop,statfun,statvar)
         if(allpops)allpop[[t]]=pop
 
     }
 	if(allpops)output$allpop=allpop
+    output$theta=theta
     return(output)
 }
 
