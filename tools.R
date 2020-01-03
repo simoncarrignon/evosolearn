@@ -1,23 +1,37 @@
 
 
-plotAllVariable <- function(results,hdr=F,vars=3:9){
-    allsd=sapply(results$allpop,function(i)apply(i[,vars],2,sd))
-    allmean=sapply(results$allpop,function(i)apply(i[,vars],2,mean))
-    cols=c(rainbow(nrow(allsd)),"black")
-    names(cols)=c(rownames(allsd),"theta")
-    par(mfrow=c(8,1),mar=c(1,4,1,1))
-    lapply(rownames(allsd),function(varname)
+plotAllVariable <- function(results,hdr=F,vars=3:9,...){
+    if(!is.null(results$allpop)){
+        allsd=sapply(results$allpop,function(i)apply(i[,vars],2,sd))
+        allmean=sapply(results$allpop,function(i)apply(i[,vars],2,mean))
+        varnames=rownames(allsd)
+    }
+    else
+        varnames=names(results[[1]])
+    cols=c(rainbow(length(varnames)),"black")
+    names(cols)=c(varnames,"theta")
+    par(mfrow=c(8,1),mar=c(1,4,1,1),cex=1.5)
+    lapply(varnames,function(varname)
            {
-	
-			   if(hdr)hdr.boxplot(lapply(results$allpop,"[[",varname),border=NA,pch=".",outline=F,col=shades(cols[varname],3),prob=c(50,75,99),space=0,ylab=varname)
-			   else {
-				   lims=range(c(allmean[varname,]+allsd[varname,],allmean[varname,]-allsd[varname,]))
-				   plot(allmean[varname,],ylab=varname,type="l",col=cols[varname],ylim=lims,xaxt='n')
-				   lines(allmean[varname,]+allsd[varname,],ylab=varname,col=cols[varname],lty=3)
-				   lines(allmean[varname,]-allsd[varname,],ylab=varname,col=cols[varname],lty=3)
-			   }
-		   })
+
+               if(hdr)hdr.boxplot(lapply(results$allpop,"[[",varname),border=NA,pch=".",outline=F,col=shades(cols[varname],3),prob=c(50,75,99),space=0,ylab=varname,...)
+               else {
+                   if(!is.null(results$allpop)){
+                       meanvar=allmean[varname,]
+                       sdvar=allsd[varname,]
+                   }
+                   else{
+                       meanvar=results$mean[[varname]]
+                       sdvar=results$sd[[varname]]
+                   }
+                   lims=range(c(meanvar+sdvar,meanvar-sdvar))
+                   plot(meanvar,ylab=varname,type="l",col=cols[varname],ylim=lims,xaxt='n',lwd=2,...)
+                   lines(meanvar+sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
+                   lines(meanvar-sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
+               }
+           })
     par(mar=c(2,4,0,1))
-    plot(results$env,type="l",col=cols["theta"],ylab="theta")
+    plot(results$theta,type="l",col=cols["theta"],ylab="theta")
+}
 }
 
