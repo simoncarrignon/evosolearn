@@ -163,3 +163,33 @@ plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = 'mean of th
 text(x=1.5, y = seq(0,1,l=5), labels = seq(0,1000,l=5))
 rasterImage(legend_image, 0, 0, 1,1)
 dev.off()
+
+
+##TESTING generate output:
+
+n=100
+tstep=200
+pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)))
+t=simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=200,mu=c(x=0.01,y=0,z=0),epsilon=c(x=.01,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,type="best",pop=pop)
+
+statfun=c("mean","sd")
+statvar=c("x","y","z","gp","ilp","p","w")
+names(statvar)=statvar
+names(statfun)=statfun
+
+output=lapply(statfun,function(i)lapply(statvar,function(j)c()))
+for( tt in 1:length(t$allpop))for(sf in statfun)for(sv in statvar)output[[sf]][[sv]]=c(output[[sf]][[sv]],match.fun(sf)(t$allpop[[tt]][,sv]))
+
+output2=NULL
+output2=updateOutput(output2,t$allpop[[tt]],statfun ,statvar)
+for( tt in 1:length(t$allpop))output2=updateOutput(output2,t$allpop[[tt]],statfun ,statvar)
+
+i=sample.int(tstep,1)
+print(paste("testing if updateOutput work with timestep:",i))
+test= ( output2$mean$p[i] == output$mean$p[i] &  output$mean$p[i] == mean(t$allpop[[i]]$p))
+print(paste("test is:",test))
+test= ( output2$sd$p[i] == output$sd$p[i] &  output$sd$p[i] == sd(t$allpop[[i]]$p))
+print(paste("test is:",test))
+
+
+

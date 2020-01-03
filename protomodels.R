@@ -2,17 +2,25 @@ source("environment.R")
 source("tools.R")
 
 #Return a list that stores different metrics of interest
-simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),type="best",log=T,pop=NULL){
+simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),type="best",log=T,pop=NULL,allpops=F,statfun=c("mean","sd"),statvar=c("x","y","z","gp","ilp","p","w")){
+
+	
+	names(statfun)=statfun
+	names(statvar)=statvar
 
     if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
     env=c()
     theta=environment(tstep,omega,delta)
+
     #Generate initial population (here all gene are randomly selected
     if(is.null(pop))pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1)))
-    parents=NULL
+
+	#prepare outputs
     meanw=c()
     popsize=c()
-    allpop=list()
+
+    parents=NULL
+    if(allpops)allpop=list()
     for( t in 1:tstep){
         if(log)print(paste(" timestep:",t))
         popsize=c(popsize,n)
@@ -63,10 +71,13 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
         oldpop=pop
         pop=childs
         n=newn
-        meanw=c(meanw,mean(pop$w))
-        allpop[[t]]=pop
+
+		output=updateOutput(pop,output,statvar,statfun)
+        if(allpops)allpop[[t]]=pop
+
     }
-    return(list(meanw=meanw,env=theta,pop=pop,popsize=popsize,allpop=allpop))
+	if(allpops)output$allpop=allpop
+    return(output)
 }
 
 
@@ -116,3 +127,19 @@ generatePop <- function(n,distrib){
     return(pop)
 }
 
+
+
+#' @param ouptut a current output to be update or initialized if NULL
+#' @param pop the current population upon wihch statistics have to be calculated
+#' @param statfun a vector with the different function we apply on the population
+#' @param statvar a vector with the different varaible we measure in the population
+updateOutput <- function(output=NULL,pop,statfun,statvar){
+
+    if(is.null(output))
+        output=lapply(statfun,function(i)lapply(statvar,function(j)c()))
+    else
+        for(sf in statfun)
+            for(sv in statvar)
+                output[[sf]][[sv]]=c(output[[sf]][[sv]],match.fun(sf)(pop[,sv]))
+    return(output)
+}
