@@ -2,12 +2,9 @@ source("environment.R")
 source("tools.R")
 
 #Return a list that stores different metrics of interest
-simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),type="best",log=T,pop=NULL,allpops=F,statfun=c("mean","sd"),statvar=c("x","y","z","gp","ilp","p","w")){
+simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),type="best",log=F,pop=NULL,allpops=F,statfun=c("mean","sd"),statvar=c("x","y","z","gp","ilp","p","w")){
 
 	
-	names(statfun)=statfun
-	names(statvar)=statvar
-    output=updateOutput(NULL,NULL,statfun,statvar)
 
     if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
     env=c()
@@ -17,7 +14,9 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
     if(is.null(pop))pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1)))
 
 	#prepare outputs
-    meanw=c()
+	names(statfun)=statfun
+	names(statvar)=statvar
+    output=updateOutput(NULL,NULL,statfun,statvar)
     popsize=c()
 
     parents=NULL
@@ -27,11 +26,11 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
         popsize=c(popsize,n)
 
         ##genetic phase
-        e1=rnorm(n,0,epsilon['x'])
+        e1=rnorm(n,0,E['x'])
         pop$gp=pop$x+e1
 
         ##learning phase
-        e2=rnorm(n,0,epsilon['y'])
+        e2=rnorm(n,0,E['y'])
         pop$ilp=pop$gp+pop$y*(theta[t]-pop$gp)+e2
 
         ##social learning phase
@@ -39,7 +38,7 @@ simpleEvoModel <- function(n,tstep,epsilon=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,
             P=socialLearning(pop,reference=parents,type=type,thetat=theta[t]) #get the list of which phenotype is socially copied by every agent
         else
             P=0
-        e3=rnorm(n,0,epsilon['z'])
+        e3=rnorm(n,0,E['z'])
         pop$p=pop$ilp+pop$z*(P-pop$ilp)+e3
 
         ##phenotype check
@@ -140,7 +139,7 @@ generatePop <- function(n,distrib){
 #' @param statvar a vector with the different varaible we measure in the population
 updateOutput <- function(output=NULL,pop,statfun,statvar){
 
-    if(is.null(output))
+    if(is.null(output) || sum(statvar %in% colnames(pop))<length(statvar))
         output=lapply(statfun,function(i)lapply(statvar,function(j)c()))
     else
         for(sf in statfun)
