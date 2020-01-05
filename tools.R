@@ -35,22 +35,22 @@ plotAllVariable <- function(results,hdr=F,vars=3:9,...){
 }
 
 #wrappers for exploration
-replicateNTime <- function(repet,n,tstep,omega,delta,b,K,mu,E,sigma,pop,...){
+replicateNTime <- function(repet,n,tstep,omega,delta,b,K,mu,E,sigma,pop,m=m,...){
 
-    do.call("rbind",replicate(repet,getVarXMeanW(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop),simplify=F))
+    do.call("rbind",replicate(repet,getVarXMeanW(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m),simplify=F))
 }
 
 
-getVarXMeanW <- function(n,tstep,omega,delta,b,K,mu,E,sigma,pop,...){
-    t=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,...)
+getVarXMeanW <- function(n,tstep,omega,delta,b,K,mu,E,sigma,pop,m=m,...){
+    t=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,...)
     if(is.null(t$sd$x[tstep]))
         return(c("var(x)"=NA,"mean(w)"=NA))
     else
         return(c("var(x)"=t$sd$x[tstep],"mean(w)"=t$mean$w[tstep]))
 }
 
-writeResults <- function(final,var){
-    pdf(paste0("explore_",var,".pdf"),width=10)
+writeResults <- function(final,var,gene){
+    pdf(paste0("explore_",var,"_",gene,".pdf"),width=10)
     par(mfrow=c(1,2))
     plot(explore[[var]][,3],final[,1],log="x",xlab=colnames(final)[3],ylab=colnames(final)[1],pch=20,col=alpha(1,.2))
     plot(final[,3],final[,2],log="x",xlab=colnames(final)[3],ylab=colnames(final)[2],pch=20,col=alpha(1,.2))
