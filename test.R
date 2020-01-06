@@ -172,6 +172,7 @@ tstep=200
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)))
 t=simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=200,mu=c(x=0.01,y=0,z=0),E=c(x=.01,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,type="best",pop=pop)
 
+
 statfun=c("mean","sd")
 statvar=c("x","y","z","gp","ilp","p","w")
 names(statvar)=statvar
@@ -198,3 +199,18 @@ getVarXMeanW(n,tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=c(s=2^
 
 #n,tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=c(s=10^e,y=1,z=1),pop=pop
 replicateNTime(10,n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=c(s=2^4,y=1,z=1),pop=pop)
+
+
+#testing knockout genes:
+n=100
+tstep=200
+pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)))
+t=simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=200,mu=c(x=0.01,y=0,z=0),E=c(x=.01,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,type="best",pop=pop,allpops=T)
+
+#all following test should be true
+testknockout <- function(res){
+    tt=sample(tstep,1)
+    if(!any(res$allpop[[tt]]$y == 0) ||!any(res$allpop[[tt]]$z == 0) ){print("genes are not knockout");return(FALSE);}
+    any(( res$allpop[[tt]]$gp - res$allpop[[tt]]$ilp == res$allpop[[tt]]$gp - res$allpop[[tt]]$p) &&
+    (res$allpop[[tt]]$gp - res$allpop[[tt]]$ilp == 0))
+}
