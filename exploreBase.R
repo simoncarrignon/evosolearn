@@ -128,42 +128,140 @@ explore=list()
 
 omega=0
 delta=0
-n=10
+n=200
 b=2
+#pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)))
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)))
-tstep=10
-repet=10
+tstep=100
+repet=100
 
-var="mu"
-varlist=10^seq(-10,-1,length.out=50)
+K=500
+sigma=c(s=1,y=1,z=1)
+mu=c(x=0,y=0,z=0)
+E=c(x=0,y=0,z=0)
+m=c(x=0,y=0,z=0)
 
-cl <- makeForkCluster(4,outfile="")
-explore[[var]]=do.call("rbind",parLapply(cl,varlist,function(v)
+cl <- makeForkCluster(50,outfile="")
+g="x"
+    #pop[[g]]=runif(n)
+    gene=g
+    mu[gene]=1/(n)
+    m[gene]=0.3
+    E[gene]=0.01
+
+    var="sigma"
+    varlist=2^seq(-10,5,length.out=50)
+    explore[[var]]=do.call("rbind",
+                           parLapply(cl,varlist,function(v)
                                      {
-                                         K=10
-                                         sigma=c(s=1,y=1,z=1)
-                                         mu=c(x=v,y=0,z=0)
-                                         E=c(x=.01,y=0,z=0)
+                                         if(var=="K")K=v
+                                         if(var=="sigma")sigma["s"]=v
+                                         if(var=="mu")mu[gene]=v
+                                         if(var=="m")m[gene]=v
+                                         if(var=="E")E[gene]=v
                                          print(paste(repet,v))
-                                         replicateNTime(repet,n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop)
+                                         replicateNTime(repet,N=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
                                      }))
+    explore[[var]]=as.data.frame(cbind(explore[[var]],rep(varlist,each=repet)))
+    colnames(explore[[var]])[ncol(explore[[var]])]=var
+    writeResults(explore[[var]],var,gene)
 
-explore[[var]]=as.data.frame(cbind(explore[[var]],rep(varlist,each=repet)))
-colnames(explore[[var]])[ncol(explore[[var]])]=var
-writeResults(explore[[var]],var)
 
-var="sigma_s"
-varlist=2^seq(-10,5,length.out=50)
-testSelection=do.call("rbind",parLapply(cl,seqMus,function(e)
+
+for(g in c("y","z")){
+    pop[[g]]=runif(n)
+    gene=g
+    mu[gene]=1/(n)
+    m[gene]=0.3
+    E[gene]=0.1
+
+    var="mu"
+    varlist=10^seq(-10,-1,length.out=50)
+    explore[[var]]=do.call("rbind",
+                           parLapply(cl,varlist,function(v)
                                      {
-                                         K=100
-                                         sigma=c(s=e,y=1,z=1)
-                                         mu=c(x=e,y=0,z=0)
-                                         E=c(x=.01,y=0,z=0)
-                                         print(paste(repet,e))
-                                         replicateNTime(repet,n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop)
+                                         if(var=="K")K=v
+                                         if(var=="sigma")sigma["s"]=v
+                                         if(var=="mu")mu[gene]=v
+                                         if(var=="m")m[gene]=v
+                                         if(var=="E")E[gene]=v
+                                         print(paste(repet,v))
+                                         replicateNTime(repet,n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
                                      }))
+    explore[[var]]=as.data.frame(cbind(explore[[var]],rep(varlist,each=repet)))
+    colnames(explore[[var]])[ncol(explore[[var]])]=var
+    writeResults(explore[[var]],var,gene)
 
-stopCluster(cl)
+    var="m"
+    varlist=10^seq(-3,1,length.out=50)
+    explore[[var]]=do.call("rbind",
+                           parLapply(cl,varlist,function(v)
+                                     {
+                                         if(var=="K")K=v
+                                         if(var=="sigma")sigma["s"]=v
+                                         if(var=="mu")mu[gene]=v
+                                         if(var=="m")m[gene]=v
+                                         if(var=="E")E[gene]=v
+                                         print(paste(repet,v))
+                                         replicateNTime(repet,n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
+                                     }))
+    explore[[var]]=as.data.frame(cbind(explore[[var]],rep(varlist,each=repet)))
+    colnames(explore[[var]])[ncol(explore[[var]])]=var
+    writeResults(explore[[var]],var,gene)
+
+    var="sigma"
+    varlist=2^seq(-10,5,length.out=50)
+    explore[[var]]=do.call("rbind",
+                           parLapply(cl,varlist,function(v)
+                                     {
+                                         if(var=="K")K=v
+                                         if(var=="sigma")sigma["s"]=v
+                                         if(var=="mu")mu[gene]=v
+                                         if(var=="m")m[gene]=v
+                                         if(var=="E")E[gene]=v
+                                         print(paste(repet,v))
+                                         replicateNTime(repet,n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
+                                     }))
+    explore[[var]]=as.data.frame(cbind(explore[[var]],rep(varlist,each=repet)))
+    colnames(explore[[var]])[ncol(explore[[var]])]=var
+    writeResults(explore[[var]],var,gene)
+
+    var="E"
+    varlist=10^seq(-2,1.5,length.out=50)
+    explore[[var]]=do.call("rbind",
+                           parLapply(cl,varlist,function(v)
+                                     {
+                                         if(var=="K")K=v
+                                         if(var=="sigma")sigma["s"]=v
+                                         if(var=="mu")mu[gene]=v
+                                         if(var=="m")m[gene]=v
+                                         if(var=="E")E[gene]=v
+                                         print(paste(repet,v))
+                                         replicateNTime(repet,n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
+                                     }))
+    explore[[var]]=as.data.frame(cbind(explore[[var]],rep(varlist,each=repet)))
+    colnames(explore[[var]])[ncol(explore[[var]])]=var
+    writeResults(explore[[var]],var,gene)
+
+    var="K"
+    varlist=10^seq(1,10,length.out=50)
+    explore[[var]]=do.call("rbind",
+                           parLapply(cl,varlist,function(v)
+                                     {
+                                         if(var=="K")K=v
+                                         if(var=="sigma")sigma["s"]=v
+                                         if(var=="mu")mu[gene]=v
+                                         if(var=="m")m[gene]=v
+                                         if(var=="E")E[gene]=v
+                                         print(paste(repet,v))
+                                         replicateNTime(repet,n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
+                                     }))
+    explore[[var]]=as.data.frame(cbind(explore[[var]],rep(varlist,each=repet)))
+    colnames(explore[[var]])[ncol(explore[[var]])]=var
+    writeResults(explore[[var]],var,gene)
+
+
+}
+    stopCluster(cl)
 
 
