@@ -35,14 +35,14 @@ plotAllVariable <- function(results,hdr=F,vars=3:9,...){
 }
 
 #wrappers for exploration
-replicateNTime <- function(repet,n,tstep,omega,delta,b,K,mu,E,sigma,pop,m=m,...){
+replicateNTime <- function(repet,n,tstep,omega,delta,b,K,mu,E,sigma,pop,m){
 
     do.call("rbind",replicate(repet,getVarXMeanW(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m),simplify=F))
 }
 
 
-getVarXMeanW <- function(n,tstep,omega,delta,b,K,mu,E,sigma,pop,m=m,...){
-    t=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,...)
+getVarXMeanW <- function(n,tstep,omega,delta,b,K,mu,E,sigma,pop,m){
+    t=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
     if(is.null(t$sd$x[tstep]))
         return(c("var(x)"=NA,"mean(w)"=NA))
     else
