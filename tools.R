@@ -69,34 +69,39 @@ plotAlldimensions <- function(alldata,gene,y,dim1="K",dim2="E",dim3="sigma",dim4
     if(y=="w")
         yl="mean(w)"
     storename=list()
-
-    for(a in unique(data[[dim1]])){
+    eldim1=unique(data[[dim1]])
+    eldim2=unique(data[[dim2]])
+    eldim3=unique(data[[dim3]])
+    eldim4=unique(data[[dim4]])
+    eldim5=unique(data[[dim5]])
+    len1=length(eldim1)
+    len2=length(eldim2)
+    len3=length(eldim3)
+    len4=length(eldim4)
+    len5=length(eldim5)
+    for(a in 1:len1){
         #dev.new()
         par(mfrow=c(4,4))
         par(mar=c(4,2,2,1))
-        print(a)
-        storename[[a]]=matrix(nrow=length(unique(data[[dim2]])),ncol=length(unique(data[[dim3]])))
-        rownames(storename[[a]])=unique(data[[dim2]])
-        colnames(storename[[a]])=unique(data[[dim3]])
-        for(b in unique(data[[dim2]])){
-            for(c in unique(data[[dim3]])){
-                mt=parse(text=paste0("list(",dim1,"==2^",round(log2(a)),",",dim2,"==2^",round(log2(b)),",",dim3,"==2^",round(log2(c)),")"))
-                name=paste0(dim1,"=2exp",round(log2(a)),"_",dim2,"=2exp",round(log2(b)),"_",dim3,"=2exp",round(log2(c)))
+        storename[[a]]=matrix(nrow=len2,ncol=len3)
+        for(b in 1:len2){
+            for(c in 1:len3){
+                mt=parse(text=paste0("list(",dim1,"==2^",round(log2(eldim1[a])),",",dim2,"==2^",round(log2(eldim2[b])),",",dim3,"==2^",round(log2(eldim3[c])),")"))
+                name=paste0(dim1,a,dim2,b,dim3,c)
                 print(name)
                 filename=paste0(pref,gene,"_",y,"_param_",name,".png")
                 if(write)png(filename,pointsize=15)
                 plot(1,1,type="n",xlim=range(data[[dim5]]),ylim=range(data[[yl]],na.rm=T),log="x",xlab=expression(dim5),ylab=paste0(yl),main=mt)
-                cols=rev(heat.colors(length(unique(data[[dim4]]))))
-                names(cols)=as.character(unique(data[[dim4]]))
-                for(d in unique(data[[dim4]])){
-                    subbdata=data[data[[dim1]] == a & data[[dim2]] ==b & data[[dim3]] ==c & data[[dim4]] == d,]
+                cols=rev(heat.colors(len4))
+                for(d in 1:len4){
+                    subbdata=data[data[[dim1]] == eldim1[a] & data[[dim2]] ==eldim2[b] & data[[dim3]] ==eldim3[c] & data[[dim4]] == eldim4[d],]
                     means=tapply(subbdata[[yl]],subbdata[[dim5]],mean,na.rm=T)
-                    lines(unique(data[[dim5]]),means,col=cols[as.character(d)],lwd=2)
-                    points(subbdata[[dim5]],subbdata[[yl]],col=cols[as.character(d)],pch=20)
+                    lines(eldim5,means,col=cols[d],lwd=2)
+                    points(subbdata[[dim5]],subbdata[[yl]],col=cols[d],pch=20)
                 }
-                legend("topleft",legend=parse(text=paste("10^",round(log10(unique(data[[dim4]]))))),lwd=2,col=cols,title=expression(m[x]),bty="n")
+                legend("topleft",legend=parse(text=paste("10^",round(log10(eldim4)))),lwd=2,col=cols,title=parse(text=paste0("m[",gene,"]")),bty="n")
                 if(write)dev.off()
-                storename[[a]][as.character(b),as.character(c)]=filename
+                storename[[a]][b,c]=filename
             }
         }
     }
