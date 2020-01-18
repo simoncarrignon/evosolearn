@@ -2,13 +2,13 @@ source("protomodels.R")
 library(xtable)
 library(parallel)
 allparameters=list()
-lengthout=4 
-allparameters[["mu"]]=10^seq(-4,-.1,length.out=lengthout)
-allparameters[["K"]]=2^seq(8,15,length.out=lengthout)
-allparameters[["E"]]=2^seq(-10,2,length.out=lengthout)
-allparameters[["m"]]=10^seq(-3,1,length.out=lengthout)
-allparameters[["sigma"]]=2^seq(-10,5,length.out=lengthout)
-allparameters[["delta"]]=10^seq(-1,1,length.out=lengthout)
+lengthout=10
+allparameters[["mu"]]=c(0,0.001,0.01)
+allparameters[["K"]]=c(500,1000,2000)
+allparameters[["E"]]=c(0,.05,.1)
+allparameters[["m"]]=c(.05,.1,.2)
+allparameters[["sigma"]]=c(.1,.2,.4,10000)
+allparameters[["delta"]]=0
 parameters=as.data.frame(expand.grid(allparameters))
 
 tablep=list()
@@ -30,7 +30,7 @@ parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
 omega=0
 n=1000
 b=2
-tstep=60
+tstep=10000
 mu=c(x=0,y=0,z=0)
 E=c(x=0,y=0,z=0)
 m=c(x=0,y=0,z=0)
@@ -39,16 +39,16 @@ explore=list()
 
 library(parallel)
 genes=c("x","y","z")
-cl <- makeForkCluster(50,outfile="")
-for(gene in genes){
+cl <- makeForkCluster(5,outfile="")
+for(gene in genes[1]){
     ##Reset all variable and population
-    pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)))
+    pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)),df=F)
     mu=c(x=0,y=0,z=0)
     E=c(x=0,y=0,z=0)
     m=c(x=0,y=0,z=0)
     sigma=c(s=1,y=1,z=1)
-    if(gene == "x") pop[[gene]]=runif(n,-1,1)
-    else pop[[gene]]=runif(n)
+    if(gene == "x") pop[,gene]=runif(n,-1,1)
+    else pop[,gene]=runif(n)
     explore[[gene]]=list()
     explore[[gene]]=do.call("rbind",
                             parLapply(cl,1:nrow(parameters),function(v,parameters){
@@ -59,12 +59,12 @@ for(gene in genes){
                                       m[gene]=parameters[v,"m"]
                                       E[gene]=parameters[v,"E"]
                                       sigma["s"]=parameters[v,"sigma"]
-                                      getVarXMeanW(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,gene=gene)
+                                      getVarXMeanW(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,gene=gene,nstep=4000,sumstat=mean)
 },parameters=parameters))
 }
 stopCluster(cl)
 binded=lapply(explore,function(e)cbind.data.frame(e,parameters))
-save(file="crossExploreDeltas.bin",binded)
+#save(file="crossExploreDeltas.bin",binded)
 #load(file="crossExploreDeltas.bin")
 
 
