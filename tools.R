@@ -41,13 +41,17 @@ replicateNTime <- function(repet,n,tstep,omega,delta,b,K,mu,E,sigma,pop,m){
 }
 
 
-getVarXMeanW <- function(n,tstep,omega,delta,b,K,mu,E,sigma,pop,m,gene){
-    t=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
+#' get some useful summary stat from model run
+#' @param nstep how many timestep should we use to compute the summary statitistic 
+#' @param sumstat function used to compute the summary statistic
+getVarXMeanW <- function(n,tstep,omega,delta,b,K,mu,E,sigma,pop,m,gene,nstep,sumstat){
+    t=simpleEvoModelM(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
     res=c()
-    if(is.null(t$sd[[gene]][tstep]))
+    pre=tstep-nstep
+    if(is.null(t$var[[gene]][pre:tstep]))
         res=c(NA,NA)
     else
-        res=c(t$sd[[gene]][tstep],t$mean$w[tstep])
+        res=c(sumstat(t$var[[gene]][pre:tstep]),sumstat(t$mean$w[pre:tstep]))
 
     names(res)=c(paste0("var(",gene,")"),"mean(w)")
     return(res)
