@@ -66,7 +66,8 @@ writeResults <- function(final,var,gene){
 }
 
 
-plotAlldimensions <- function(alldata,gene,y,dim1="K",dim2="E",dim3="sigma",dim4="m",dim5="mu",pref="images/explore2",write=F){
+plotAlldimensions <- function(alldata,gene,y,dim1="K",dim2="E",dim3="sigma",dim4="m",dim5="mu",dir="images/",pref="explore",write=F,points=F){
+    if(write)dir.create(dir,recursive = T)
     data=alldata[[gene]]
     if(y=="var")
         yl=paste0("var(",gene,")")
@@ -93,17 +94,18 @@ plotAlldimensions <- function(alldata,gene,y,dim1="K",dim2="E",dim3="sigma",dim4
                 mt=parse(text=paste0("list(",dim1,"==2^",round(log2(eldim1[a])),",",dim2,"==2^",round(log2(eldim2[b])),",",dim3,"==2^",round(log2(eldim3[c])),")"))
                 name=paste0(dim1,a,dim2,b,dim3,c)
                 print(name)
-                filename=paste0(pref,gene,"_",y,"_param_",name,".png")
-                if(write)png(filename,pointsize=15)
-                plot(1,1,type="n",xlim=range(data[[dim5]]),ylim=range(data[[yl]],na.rm=T),log="x",xlab=expression(dim5),ylab=paste0(yl),main=mt)
+                filename=paste0(dir,pref,"-g",gene,"-",y,"-param-",name,".png")
+                print(filename)
+                if(write)png(filename,pointsize=18)
+                plot(1,1,type="n",xlim=range(data[[dim5]]),ylim=range(data[[yl]],na.rm=T),xlab=parse(text=dim5),ylab=paste0(yl),main=mt)
                 cols=rev(heat.colors(len4))
                 for(d in 1:len4){
                     subbdata=data[data[[dim1]] == eldim1[a] & data[[dim2]] ==eldim2[b] & data[[dim3]] ==eldim3[c] & data[[dim4]] == eldim4[d],]
                     means=tapply(subbdata[[yl]],subbdata[[dim5]],mean,na.rm=T)
-                    lines(eldim5,means,col=cols[d],lwd=2)
-                    points(subbdata[[dim5]],subbdata[[yl]],col=cols[d],pch=20)
+                    lines(eldim5,means,col=cols[d],lwd=3)
+                    if(points)points(subbdata[[dim5]],subbdata[[yl]],col=cols[d],pch=20)
                 }
-                legend("topleft",legend=parse(text=paste("10^",round(log10(eldim4)))),lwd=2,col=cols,title=parse(text=paste0("m[",gene,"]")),bty="n")
+                legend("topleft",legend=parse(text=paste("10^",round(log10(eldim4)))),lwd=3,col=cols,title=parse(text=paste0("m[",gene,"]")),bty="n")
                 if(write)dev.off()
                 storename[[a]][b,c]=filename
             }
@@ -112,7 +114,29 @@ plotAlldimensions <- function(alldata,gene,y,dim1="K",dim2="E",dim3="sigma",dim4
     return(storename)
 }
 
-
+printOne <- function(alldata,gene,y,K,E,sigma,m,mu,dir="images/",pref="one",write=F){
+    data=alldata[[gene]]
+    if(y=="var")
+        yl=paste0("var(",gene,")")
+    if(y=="w")
+        yl="mean(w)"
+    mt=parse(text=paste0("list(",dim1,"==2^",round(log2(eldim1[a])),",",dim2,"==2^",round(log2(eldim2[b])),",",dim3,"==2^",round(log2(eldim3[c])),")"))
+    name=paste0(dim1,a,dim2,b,dim3,c)
+    print(name)
+    filename=paste0(pref,"_g",gene,"_",y,"_param_",name,".png")
+    if(write)png(filename,pointsize=15)
+    plot(1,1,type="n",xlim=range(data[[dim5]]),ylim=range(data[[yl]],na.rm=T),log="x",xlab=expression(dim5),ylab=paste0(yl),main=mt)
+    cols=rev(heat.colors(len4))
+    for(d in 1:len4){
+        subbdata=data[data[["K"]] == K & data[["E"]] == E & data[["sigma"]] ==sigma & data[["m"]] == m,]
+        means=tapply(subbdata[[yl]],subbdata[["mu"]],mean,na.rm=T)
+        lines(unique(subbdata[["mu"]]),means,col=cols[d],lwd=2)
+        #points(subbdata[[dim5]],subbdata[[yl]],col=cols[d],pch=20)
+    }
+    #legend("topleft",legend=parse(text=paste("10^",round(log10(eldim4)))),lwd=2,col=cols,title=parse(text=paste0("m[",gene,"]")),bty="n")
+    if(write)dev.off()
+}
+ 
 
 #' Alpha
 #'
