@@ -175,12 +175,12 @@ simpleEvoModel2 <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),
         popsize=c(popsize,n)
 
         ##genetic phase
-        e1=ifelse(err1,rnorm(n,0,E['x']),0)
+        if(err1)e1=rnorm(n,0,E['x'])else e1=0
         #e1=rnorm(n,0,E['x'])
         pop$gp=pop$x+e1
 
         ##learning phase
-        e2=ifelse(err2,rnorm(n,0,E['y']),0)
+        if(err2)e2=rnorm(n,0,E['y'])else e2=0
         pop$ilp=pop$gp+pop$y*(theta[t]-pop$gp)+e2
 
         ##social learning phase
@@ -189,7 +189,7 @@ simpleEvoModel2 <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),
         else
             P=0
         #e3=rnorm(n,0,E['z'])
-        e3=ifelse(err3,rnorm(n,0,E['z']),0)
+        if(err3)e3=rnorm(n,0,E['z'])else e3=0
         pop$p=pop$ilp+pop$z*(P-pop$ilp)+e3
 
         ##phenotype check
@@ -235,6 +235,91 @@ simpleEvoModel2 <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),
     return(output)
 }
 
+simpleEvoModelM <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),type="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w")){
+
+	
+
+    if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
+    env=c()
+    theta=environment(tstep,omega,delta)
+
+    #Generate initial population (here all gene are randomly selected
+    if(is.null(pop))pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1)))
+
+	#prepare outputs
+	names(statfun)=statfun
+	names(statvar)=statvar
+    output=updateOutput(NULL,NULL,statfun,statvar)
+    popsize=c()
+    err1=E['x']>0
+    err2=E['y']>0
+    err3=E['z']>0
+    parents=NULL
+    if(allpops)allpop=list()
+    for( t in 1:tstep){
+        if(log)print(paste(" timestep:",t))
+        popsize=c(popsize,n)
+
+        ##genetic phase
+        if(err1)e1=rnorm(n,0,E['x'])else e1=0
+        #e1=rnorm(n,0,E['x'])
+        pop[,"gp"]=pop[,"x"]+e1
+
+        ##learning phase
+        if(err2)e2=rnorm(n,0,E['y'])else e2=0
+        pop[,"ilp"]=pop[,"gp"]+pop[,"y"]*(theta[t]-pop[,"gp"])+e2
+
+        ##social learning phase
+        if(sum(pop[,"z"])>0)
+            P=socialLearning(pop,reference=parents,type=type,thetat=theta[t]) #get the list of which phenotype is socially copied by every agent
+        else
+            P=0
+        #e3=rnorm(n,0,E['z'])
+        if(err3)e3=rnorm(n,0,E['z'])else e3=0
+        pop[,"p"]=pop[,"ilp"]+pop[,"z"]*(P-pop[,"ilp"])+e3
+
+        ##phenotype check
+        #pop[,"p"]=(1-pop[,"y"])*(1-pop[,"z"])*pop[,"x"]+(1-pop[,"z"])*pop[,"y"]*theta[t]+pop[,"z"]*P+(e1*(1-pop[,"y"])*(1-pop[,"z"])+e2*(1-pop[,"z"])+e3)
+        #print(mean(pop[,"p"] - pop[,"p"]))
+
+        ##computation of the fitness
+        pop[,"w"] = exp(-((pop[,"p"]-theta[t])^2)/(2*sigma['s']^2)-((pop[,"y"])^2)/(2*sigma['y']^2)-((pop[,"z"])^2)/(2*sigma['z']^2))
+
+        #selection
+        selected=which(runif(n)<reproduction(pop[,"w"],b,n,K))
+        if(length(selected)<1)break
+
+        #reproduction
+        nchilds=rpois(length(selected),b)
+        childs=do.call("rbind",apply(cbind(selected,nchilds),1,function(s)do.call("rbind",replicate(s[2],pop[s[1],],simplify=F))))
+        if(is.null(childs))break
+        childs[,"parent_id"]=childs[,"id"]
+        childs[,"id"]=(max(pop[,"id"])+1):(max(pop[,"id"])+sum(nchilds))
+
+        #mutation
+
+        newn=nrow(childs)
+        for(g in genes){
+            mutated=which(runif(newn)<mu[g])
+            childs[mutated,g]=childs[mutated,g]+rnorm(length(mutated),0,m[g])
+            if(g %in% c("y","z")){
+                childs[mutated,g][childs[mutated,g]<0] = 0
+                childs[mutated,g][childs[mutated,g]>1] = 1
+            }
+        }
+        parents=pop[selected,] #we keep parents info (fitness,behavior, etc...) for next social learning
+        oldpop=pop
+        pop=childs
+        n=newn
+
+		output=updateOutput(output,pop,statfun,statvar)
+        if(allpops)allpop[[t]]=pop
+
+    }
+	if(allpops)output$allpop=allpop
+    output$theta=theta
+    return(output)
+}
 
 
 #' @param w:vector with fitness
@@ -252,22 +337,22 @@ socialLearning <- function(newpop,reference,thetat=NULL,type="random"){
 
     ##Checking for imature
     if(is.null(reference))reference=newpop #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
-    if(is.null(reference$p))reference$p=reference$ilp #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
-    if(anyNA(reference$p))reference$p[is.na(reference$p)]=reference$ilp[is.na(reference$p)] #if some of the reference group 
+    if(is.null(reference[,"p"]))reference[,"p"]=reference[,"ilp"] #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
+    if(anyNA(reference[,"p"]))reference[,"p"][is.na(reference[,"p"])]=reference[,"ilp"][is.na(reference[,"p"])] #if some of the reference group 
 
     if(type=="parents")
-        return(reference$p[match(newnewpop$parent_id,reference$id)])
+        return(reference[,"p"][match(newnewpop[,"parent_id"],reference[,"id"])])
 
     if(type=="best"){
         if(is.null(thetat))stop("when selecting best agents an environmental condition has to be given")
-        best=which.min(abs(reference$p-thetat))
-        return(reference$p[best]) #return the phenotype of the best individual in the reference group 
+        best=which.min(abs(reference[,"p"]-thetat))
+        return(reference[,"p"][best]) #return the phenotype of the best individual in the reference group 
     }
     if(type=="average")
-        return(mean(reference$p))
+        return(mean(reference[,"p"]))
     if(type=="random"){
-        selected=sample(reference$id,nrow(newpop),replace=T) #we radomly assign a teacher for each individual of the new newpop
-        return(reference$p[match(selected,reference$id)])
+        selected=sample(reference[,"id"],nrow(newpop),replace=T) #we radomly assign a teacher for each individual of the new newpop
+        return(reference[,"p"][match(selected,reference[,"id"])])
     }
     stop("a type of copy should be chosen among parents,best,average,randon")
 }
@@ -280,7 +365,9 @@ generatePop <- function(n,distrib,df=F){
     a=1:n
     pop=c()
     if(df)pop=cbind.data.frame(id=a,parent_id=a,x=distrib$x,y=distrib$y,z=distrib$z,w=rep(0,n))
-    else pop=cbind(id=a,parent_id=a,x=distrib$x,y=distrib$y,z=distrib$z,w=rep(0,n))
+    else {
+        pop=cbind(id=a,gp=rep(0,n),ilp=rep(0,n),p=rep(0,n),parent_id=a,x=distrib$x,y=distrib$y,z=distrib$z,w=rep(0,n))
+    }
     return(pop)
 }
 
