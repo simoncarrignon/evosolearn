@@ -1,7 +1,7 @@
 source("protomodels.R")
 
 
-n=500
+n=1000
 omegas=seq(-0.5,2.5,.5)
 deltas=.0625*2^seq(0:6)
 names(omegas)=omegas
@@ -10,6 +10,7 @@ names(deltas)=deltas
 
 ##X and Z knockout
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)))
+pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
 t=simpleEvoModel(n,200,omega = 0,delta = 2 ,b=2,K=1000,mu=c(x=0.01,y=0,z=0),E=c(x=1,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,type="random",pop=pop)
 plotAllVariable(t)
 
@@ -128,12 +129,12 @@ explore=list()
 
 omega=0
 delta=0
-n=200
+n=1000
 b=2
 #pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)))
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)))
-tstep=100
-repet=100
+tstep=1000
+repet=10
 
 K=500
 sigma=c(s=1,y=1,z=1)
@@ -160,7 +161,7 @@ g="x"
                                          if(var=="m")m[gene]=v
                                          if(var=="E")E[gene]=v
                                          print(paste(repet,v))
-                                         replicateNTime(repet,N=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
+                                         replicateNTime(repet,n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
                                      }))
     explore[[var]]=as.data.frame(cbind(explore[[var]],rep(varlist,each=repet)))
     colnames(explore[[var]])[ncol(explore[[var]])]=var
@@ -265,3 +266,75 @@ for(g in c("y","z")){
     stopCluster(cl)
 
 
+     system.time({bigtest21=simpleEvoModelM(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
+     system.time({bigtest22=simpleEvoModelM(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
+     system.time({bigtest23=simpleEvoModelM(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
+     system.time({bigtest24=simpleEvoModelM(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
+     system.time({bigtest11=simpleEvoModel(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
+     system.time({bigtest12=simpleEvoModel(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
+     system.time({bigtest13=simpleEvoModel(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
+     system.time({bigtest14=simpleEvoModel(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
+
+     allvar=list(
+                 bigtest11$sd$x^2,
+                 bigtest12$sd$x^2,
+                 bigtest13$sd$x^2,
+                 bigtest14$sd$x^2,
+                 bigtest21$var$x,
+                 bigtest22$var$x,
+                 bigtest23$var$x,
+                 bigtest24$var$x
+                 )
+
+     par(mfrow=c(1,2))
+     cols=rainbow(8)
+     pdf("individualsrun.pdf")
+     plot(1,1,type="n",xlim=c(1,10000),ylim=range(allvar),xlab="timestep",ylab="var(x)")
+     lapply(1:8,function(i)lines(allvar[[i]],col=cols[i]))
+     dev.off()
+
+     pdf("distributionvar.pdf")
+     plot(1,1,type="n",ylim=c(0,500),xlim=c(0,.05),xlab="var(x)",ylab="density",main="distribution of variance for the 8000 last time step")
+     lapply(1:8,function(i)lines(density(allvar[[i]][2000:10000],from=0),col=cols[i],lwd=2))
+     dev.off()
+
+     #check different stats
+     boxplot(sapply(c(mean=mean,median=median,Mode=Mode,mode=hdrmode),function(f)sapply(allvar,function(i,b,e)f(i[b:e]),b=2000,e=10000)))
+
+     #check different windows
+     boxplot(sapply(seq(10,9000,100),function(b)sapply(allvar,function(i,b,e)Mode(i[b:e]),b=b,e=10000)))
+
+     mean(bigtest22$var$x[2000:10000])
+     mean(bigtest23$var$x[2000:10000])
+     mean(bigtest24$var$x[2000:10000])
+
+     hdr((bigtest11$sd$x[2000:10000])^2)$mode
+     hdr((bigtest12$sd$x[2000:10000])^2)$mode
+     hdr((bigtest13$sd$x[2000:10000])^2)$mode
+     hdr((bigtest14$sd$x[2000:10000])^2)$mode
+
+     dev.off()
+     pdf("distributionoflastvar.pdf")
+     plot(density((bigtest14$sd$x[2000:10000])^2))
+     lines(density(bigtest21$var$x[2000:10000]),ylim=c(0,400))
+     lines(density(bigtest22$var$x[2000:10000]),col="green")
+     lines(density(bigtest23$var$x[2000:10000]))
+     lines(density(bigtest24$var$x[2000:10000],from=0))
+
+     lines(density((bigtest11$sd$x[2000:10000])^2,from=0))
+     lines(density((bigtest12$sd$x[2000:10000])^2,from=0))
+     lines(density((bigtest13$sd$x[2000:10000])^2,from=0))
+     lines(density((bigtest14$sd$x[2000:10000])^2,from=0))
+
+     abline(v=Mode(bigtest21$var$x[2000:10000]))
+     abline(v=hdr(bigtest22$var$x[2000:10000])$mode,col="green")
+     abline(v=Mode(bigtest23$var$x[2000:10000]))
+     abline(v=Mode(bigtest24$var$x[2000:10000]))
+
+     abline(v=Mode((bigtest11$sd$x[2000:10000])^2))
+     abline(v=Mode((bigtest12$sd$x[2000:10000])^2))
+     abline(v=Mode((bigtest13$sd$x[2000:10000])^2))
+     abline(v=Mode((bigtest14$sd$x[2000:10000])^2))
+
+     
+     hdrmode <- function(d)hdr(d)$mode
