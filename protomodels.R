@@ -123,17 +123,6 @@ socialLearning <- function(newpop,reference,thetat=NULL,type="random"){
 }
 
 
-#' @param distrib should be a list with 3 elements x yz)
-generatePop <- function(n,distrib){
-    if(length(distrib)!=3)stop("please give distribution for the 3 genes")
-    if(sum(sapply(distrib,length))!= n * 3)stop("please give the full distribution (for each n individuals) for the 3 genes")
-    a=1:n
-    pop=cbind.data.frame(id=a,parent_id=a,x=distrib$x,y=distrib$y,z=distrib$z,w=rep(0,n))
-    return(pop)
-}
-
-
-
 #' @param ouptut a current output to be update or initialized if NULL
 #' @param pop the current population upon wihch statistics have to be calculated
 #' @param statfun a vector with the different function we apply on the population
