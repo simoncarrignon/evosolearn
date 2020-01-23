@@ -45,7 +45,7 @@ replicateNTime <- function(repet,n,tstep,omega,delta,b,K,mu,E,sigma,pop,m){
 #' @param nstep how many timestep should we use to compute the summary statitistic 
 #' @param sumstat function used to compute the summary statistic
 getVarXMeanW <- function(n,tstep,omega,delta,b,K,mu,E,sigma,pop,m,gene,nstep,sumstat){
-    t=simpleEvoModelM(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
+    t=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
     res=c()
     pre=tstep-nstep
     if(is.null(t$var[[gene]][pre:tstep]))
