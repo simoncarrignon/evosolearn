@@ -1,7 +1,27 @@
+old <- Sys.time() 
+
+args=commandArgs(trailingOnly = TRUE) #pass number of slave by comand line, should be #node - 1 as one node is used by the master 
+
+ns=args[1]#first argument is the number of slave
+nsm=args[2]#second argument the number of simulation 
+mainfold=args[3] #third argument = name of the folder wher to store the results
+
+if(is.na(mainfold) | mainfold=="") mainfold=Sys.info()['nodename']
+
+fi=0
+fold=paste0(mainfold,fi)
+while(file.exists(fold)){
+    fi=fi+1
+    fold=file.path(mainfold,paste0(mainfold,fi))
+}
+
+print(paste0("Abc will be stored in folder: ",fold))
+dir.create(fold)
+
+
 source("protomodels.R")
 library(parallel)
 allparameters=list()
-lengthout=10
 allparameters[["mu"]]=c(0,0.001,0.01)
 allparameters[["K"]]=c(500,1000,2000)
 allparameters[["E"]]=c(0,.05,.1)
@@ -9,7 +29,7 @@ allparameters[["m"]]=c(.05,.1,.2)
 allparameters[["sigma"]]=c(.1,.2,.4,10000)
 allparameters[["delta"]]=0
 parameters=as.data.frame(expand.grid(allparameters))
-repet=10
+repet=nsm
 parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
 
 
@@ -23,9 +43,8 @@ m=c(x=0,y=0,z=0)
 sigma=c(s=1,y=1,z=1)
 explore=list()
 
-library(parallel)
-genes=c("x","y","z")
-cl <- makeForkCluster(50,outfile="")
+genes=c("x")
+cl <- makeForkCluster(ns,outfile="")
 for(gene in genes){
     ##Reset all variable and population
     pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)),df=F)
@@ -50,8 +69,9 @@ for(gene in genes){
 }
 stopCluster(cl)
 binded=lapply(explore,function(e)cbind.data.frame(e,parameters))
-save(file="crossExploreDeltas10.bin",binded)
-#load(file="crossExploreDeltas.bin")
+save(file=file.path(fold,"crossExploreDeltas10.bin"),binded)
+new <- Sys.time() - old # calculate difference
+print(new) # print in nice format
 
 output=F
 if(output){
