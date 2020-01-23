@@ -53,6 +53,10 @@ updateOutput <- function(output=NULL,pop,statfun,statvar){
     return(output)
 }
 
+updateOutputLine <- function(pop,statfun,statvar){
+    unlist(lapply(statfun,function(sf)lapply(statvar,function(sv)match.fun(sf)(pop[,sv]))))
+}
+
 simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),type="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1){
 
 	
@@ -62,7 +66,7 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
     theta=environment(tstep,omega,delta)
 
     #Generate initial population (here all gene are randomly selected
-    if(is.null(pop))pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1)))
+    if(is.null(pop))pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1)),df=F)
 
 	#prepare outputs
 	names(statfun)=statfun
@@ -75,7 +79,7 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
     parents=NULL
     if(allpops)allpop=list()
     for( t in 1:tstep){
-        if(log)print(paste(" timestep:",t))
+        if(log &&  ((t %% outputrate) == 0))print(paste(" timestep:",t))
         popsize=c(popsize,n)
 
         ##genetic phase
@@ -130,7 +134,7 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
         pop=childs
         n=newn
 
-		output=updateOutput(output,pop,statfun,statvar)
+        if((t %% outputrate) == 0)output=updateOutput(output,pop,statfun,statvar)
         if(allpops)allpop[[t]]=pop
 
     }
@@ -177,7 +181,7 @@ socialLearning <- function(newpop,reference,thetat=NULL,type="random"){
 
 
 #' @param distrib should be a list with 3 elements x yz)
-generatePop <- function(n,distrib,df=T){
+generatePop <- function(n,distrib,df=F){
     if(length(distrib)!=3)stop("please give distribution for the 3 genes")
     if(sum(sapply(distrib,length))!= n * 3)stop("please give the full distribution (for each n individuals) for the 3 genes")
     a=1:n
