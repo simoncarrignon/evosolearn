@@ -8,11 +8,13 @@ mainfold=args[3] #third argument = name of the folder wher to store the results
 
 if(is.na(mainfold) | mainfold=="") mainfold=Sys.info()['nodename']
 
+print(paste("where are on",Sys.info()['nodename']))
+
 fi=0
 fold=paste0(mainfold,fi)
 while(file.exists(fold)){
     fi=fi+1
-    fold=file.path(mainfold,paste0(mainfold,fi))
+    fold=paste0(mainfold,fi)
 }
 
 print(paste0("Abc will be stored in folder: ",fold))
@@ -44,10 +46,10 @@ sigma=c(s=1,y=1,z=1)
 explore=list()
 
 genes=c("x")
+pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)),df=F)
 cl <- makeForkCluster(ns,outfile="")
 for(gene in genes){
     ##Reset all variable and population
-    pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)),df=F)
     mu=c(x=0,y=0,z=0)
     E=c(x=0,y=0,z=0)
     m=c(x=0,y=0,z=0)
@@ -56,7 +58,7 @@ for(gene in genes){
     else pop[,gene]=runif(n)
     explore[[gene]]=list()
     explore[[gene]]=do.call("rbind",
-                            parLapply(cl,1:nrow(parameters),function(v,parameters,gene){
+                            parLapply(cl,1:nrow(parameters),function(v,parameters,gene,pop){
                                       print(paste0("g",gene,", sim #",v,"/",nrow(parameters)))
                                       delta=parameters[v,"delta"]
                                       K=parameters[v,"K"]
@@ -65,7 +67,7 @@ for(gene in genes){
                                       E[gene]=parameters[v,"E"]
                                       sigma["s"]=parameters[v,"sigma"]
                                       getVarXMeanW(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,gene=gene,nstep=4000,sumstat=mean)
-},parameters=parameters,gene=gene))
+},parameters=parameters,gene=gene,pop=pop))
 }
 stopCluster(cl)
 binded=lapply(explore,function(e)cbind.data.frame(e,parameters))
