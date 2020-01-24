@@ -10,31 +10,31 @@ source("tools.R")
 reproduction <- function(w,b,n,K) 1/(1+(b-1)*(n/(K*w)))
 
 #' @param newpop: a dataframe with fitness and agents ID
-#' @param reference: a dataframe with phenotype and agents ID
-#' @param type: a string define the type of copy to be done: \in {"parents","best","average","randon"}
-#' @return: a unique numeric value or a vector of size nrow(newpop) with phenotypes to be copied 
-socialLearning <- function(newpop,reference,thetat=NULL,type="random"){
+#' @param reference: a dataframe with phenosls and agents ID
+#' @param sls: a string define the sls of copy to be done: \in {"parents","best","average","randon"}
+#' @return: a unique numeric value or a vector of size nrow(newpop) with phenoslss to be copied 
+socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
 
     ##Checking for imature
-    if(is.null(reference))reference=newpop #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
-    if(is.null(reference$p))reference$p=reference$ilp #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
+    if(is.null(reference))reference=newpop #What happen for the first time step when the reference group doesn't have any final phenosls? should we choose phenosls before social learning? random social learning effect? 
+    if(is.null(reference$p))reference$p=reference$ilp #What happen for the first time step when the reference group doesn't have any final phenosls? should we choose phenosls before social learning? random social learning effect? 
     if(anyNA(reference$p))reference$p[is.na(reference$p)]=reference$ilp[is.na(reference$p)] #if some of the reference group 
 
-    if(type=="parents")
+    if(sls=="parents")
         return(reference$p[match(newnewpop$parent_id,reference$id)])
 
-    if(type=="best"){
+    if(sls=="best"){
         if(is.null(thetat))stop("when selecting best agents an environmental condition has to be given")
         best=which.min(abs(reference$p-thetat))
-        return(reference$p[best]) #return the phenotype of the best individual in the reference group 
+        return(reference$p[best]) #return the phenosls of the best individual in the reference group 
     }
-    if(type=="average")
+    if(sls=="average")
         return(mean(reference$p))
-    if(type=="random"){
+    if(sls=="random"){
         selected=sample(reference$id,nrow(newpop),replace=T) #we radomly assign a teacher for each individual of the new newpop
         return(reference$p[match(selected,reference$id)])
     }
-    stop("a type of copy should be chosen among parents,best,average,randon")
+    stop("a sls of copy should be chosen among parents,best,average,randon")
 }
 
 
@@ -53,13 +53,12 @@ updateOutput <- function(output=NULL,pop,statfun,statvar){
     return(output)
 }
 
-updateOutputLine <- function(pop,statfun,statvar){
-    unlist(lapply(statfun,function(sf)lapply(statvar,function(sv)match.fun(sf)(pop[,sv]))))
+updateOutputLine <- function(pop,statfun,statvar,getname=F){
+    if(getname)unlist(lapply(statfun,function(sf)lapply(statvar,function(sv)paste(sf,sv,sep="_"))))
+    else unlist(lapply(statfun,function(sf)lapply(statvar,function(sv)match.fun(sf)(pop[,sv]))))
 }
 
-simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),type="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1){
-
-	
+simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1){
 
     if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
     env=c()
@@ -93,7 +92,7 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
 
         ##social learning phase
         if(sum(pop[,"z"])>0)
-            P=socialLearning(pop,reference=parents,type=type,thetat=theta[t]) #get the list of which phenotype is socially copied by every agent
+            P=socialLearning(pop,reference=parents,sls=sls,thetat=theta[t]) #get the list of which phenosls is socially copied by every agent
         else
             P=0
         #e3=rnorm(n,0,E['z'])
@@ -152,31 +151,31 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
 reproduction <- function(w,b,n,K) 1/(1+(b-1)*(n/(K*w)))
 
 #' @param newpop: a dataframe with fitness and agents ID
-#' @param reference: a dataframe with phenotype and agents ID
-#' @param type: a string define the type of copy to be done: \in {"parents","best","average","randon"}
-#' @return: a unique numeric value or a vector of size nrow(newpop) with phenotypes to be copied 
-socialLearning <- function(newpop,reference,thetat=NULL,type="random"){
+#' @param reference: a dataframe with phenosls and agents ID
+#' @param sls: a string define the sls of copy to be done: \in {"parents","best","average","randon"}
+#' @return: a unique numeric value or a vector of size nrow(newpop) with phenoslss to be copied 
+socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
 
     ##Checking for imature
-    if(is.null(reference))reference=newpop #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
-    if(is.null(reference[,"p"]))reference[,"p"]=reference[,"ilp"] #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
+    if(is.null(reference))reference=newpop #What happen for the first time step when the reference group doesn't have any final phenosls? should we choose phenosls before social learning? random social learning effect? 
+    if(is.null(reference[,"p"]))reference[,"p"]=reference[,"ilp"] #What happen for the first time step when the reference group doesn't have any final phenosls? should we choose phenosls before social learning? random social learning effect? 
     if(anyNA(reference[,"p"]))reference[,"p"][is.na(reference[,"p"])]=reference[,"ilp"][is.na(reference[,"p"])] #if some of the reference group 
 
-    if(type=="parents")
+    if(sls=="parents")
         return(reference[,"p"][match(newnewpop[,"parent_id"],reference[,"id"])])
 
-    if(type=="best"){
+    if(sls=="best"){
         if(is.null(thetat))stop("when selecting best agents an environmental condition has to be given")
         best=which.min(abs(reference[,"p"]-thetat))
         return(reference[,"p"][best]) #return the phenotype of the best individual in the reference group 
     }
-    if(type=="average")
+    if(sls=="average")
         return(mean(reference[,"p"]))
-    if(type=="random"){
+    if(sls=="random"){
         selected=sample(reference[,"id"],nrow(newpop),replace=T) #we radomly assign a teacher for each individual of the new newpop
         return(reference[,"p"][match(selected,reference[,"id"])])
     }
-    stop("a type of copy should be chosen among parents,best,average,randon")
+    stop("a sls should be chosen among parents,best,average,randon")
 }
 
 
