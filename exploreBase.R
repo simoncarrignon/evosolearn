@@ -11,7 +11,7 @@ names(deltas)=deltas
 ##X and Z knockout
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)))
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
-t=simpleEvoModel(n,200,omega = 0,delta = 2 ,b=2,K=1000,mu=c(x=0.01,y=0,z=0),E=c(x=1,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,type="random",pop=pop)
+t=simpleEvoModel(n,200,omega = 0,delta = 2 ,b=2,K=1000,mu=c(x=0.01,y=0,z=0),E=c(x=1,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,sls="random",pop=pop)
 plotAllVariable(t)
 
 
@@ -20,34 +20,34 @@ library(parallel)
 
 tstep=100
 cl <- makeForkCluster(4,outfile="")
-extinctions_yzko=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));sum(replicate(10,length(simpleEvoModel(n,tstep,omega = o,delta = d ,b=2,K=1000,mu=c(x=0.01,y=0,z=0),E=c(x=1,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,type="random",pop=pop)$allpop)<tstep))}))
+extinctions_yzko=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));sum(replicate(10,length(simpleEvoModel(n,tstep,omega = o,delta = d ,b=2,K=1000,mu=c(x=0.01,y=0,z=0),E=c(x=1,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,sls="random",pop=pop)$allpop)<tstep))}))
 
 ##Z knockout
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n,0,1),z=rep(0,n)))
-extinctions_zko=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));sum(replicate(10,length(simpleEvoModel(n,tstep,omega = o,delta = d ,b=2,K=1000,mu=c(x=0.01,y=0.01,z=0),E=c(x=1,y=1,z=0),sigma=c(s=1,y=1,z=1),log=T,type="random",pop=pop)$allpop)<tstep))}))
+extinctions_zko=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));sum(replicate(10,length(simpleEvoModel(n,tstep,omega = o,delta = d ,b=2,K=1000,mu=c(x=0.01,y=0.01,z=0),E=c(x=1,y=1,z=0),sigma=c(s=1,y=1,z=1),log=T,sls="random",pop=pop)$allpop)<tstep))}))
 
 
 ##no knockout
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1)))
-extinctions_nko=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));sum(replicate(10,length(simpleEvoModel(n,tstep,omega = o,delta = d ,b=2,K=1000,mu=c(x=0.01,y=0.01,z=0.01),E=c(x=1,y=1,z=1),sigma=c(s=1,y=1,z=1),log=T,type="random",pop=pop)$allpop)<tstep))}))
+extinctions_nko=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));sum(replicate(10,length(simpleEvoModel(n,tstep,omega = o,delta = d ,b=2,K=1000,mu=c(x=0.01,y=0.01,z=0.01),E=c(x=1,y=1,z=1),sigma=c(s=1,y=1,z=1),log=T,sls="random",pop=pop)$allpop)<tstep))}))
 
 
 ##y knockout
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=runif(n,0,1)))
-extinctions_yko=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));sum(replicate(10,length(simpleEvoModel(n,tstep,omega = o,delta = d ,b=2,K=1000,mu=c(x=0.01,y=0,z=0.01),E=c(x=1,y=0,z=1),sigma=c(s=1,y=1,z=1),log=T,type="random",pop=pop)$allpop)<tstep))}))
+extinctions_yko=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));sum(replicate(10,length(simpleEvoModel(n,tstep,omega = o,delta = d ,b=2,K=1000,mu=c(x=0.01,y=0,z=0.01),E=c(x=1,y=0,z=1),sigma=c(s=1,y=1,z=1),log=T,sls="random",pop=pop)$allpop)<tstep))}))
 
 stopCluster(cl)
 
-t=simpleEvoModel(n,tstep,omega = 1,delta = 1 ,b=2,K=1000,mu=c(x=0.01,y=0,z=0.01),E=c(x=1,y=0,z=1),sigma=c(s=1,y=1,z=1),log=T,type="random",pop=pop)
+t=simpleEvoModel(n,1000,omega = 1,delta = 1 ,b=2,K=1000,mu=c(x=0.01,y=0,z=0.01),E=c(x=1,y=0,z=1),sigma=c(s=1,y=1,z=1),log=F,sls="random",pop=pop)
 
 
-omegas=seq(-0.5,2.5,.5)
+omegas=seq(1.5,2.5,.5)
 deltas=.0625*2^seq(0:6)
 
 names(omegas)=omegas
 names(deltas)=deltas
 
-extinctions=sapply(omegas,function(o)sapply(deltas,function(d){print(paste(o,d));sum(replicate(50,length(simpleEvoModel(n,200,omega = o,delta = d ,b=2,K=1000,mu=c(x=0.01,y=0,z=0),E=c(x=1,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,type="random",pop=pop)$allpop)<500))}))
+extinctions=sapply(omegas,function(o)sapply(deltas,function(d){print(paste(o,d));sum(replicate(50,length(simpleEvoModel(n,200,omega = o,delta = d ,b=2,K=1000,mu=c(x=0.01,y=0,z=0),E=c(x=1,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,sls="random",pop=pop)$allpop)<500))}))
 
 
 #GRAPH SERGEY
@@ -55,7 +55,7 @@ extinctions=sapply(omegas,function(o)sapply(deltas,function(d){print(paste(o,d))
 n=500
 tstep=100
 
-t=simpleEvoModel(n,tstep,omega = 1.5,delta = 1 ,b=2,K=500,mu=c(x=0.01,y=0.01,z=0.01),E=c(x=1,y=1,z=1),sigma=c(s=2,y=2,z=2),log=T,type="best")
+t=simpleEvoModel(n,tstep,omega = 1.5,delta = 1 ,b=2,K=500,mu=c(x=0.01,y=0.01,z=0.01),E=c(x=1,y=1,z=1),sigma=c(s=2,y=2,z=2),log=T,sls="best")
 
 png("allvariables.png",pointsize = 14,width=800,height=1200)
 plotAllVariable(t)
@@ -69,19 +69,19 @@ dev.off()
 png("comparisons.png",pointsize = 14,width=600,height=800)
 par(mfrow=c(2,1),cex=1.2)
 par(mar=c(2,4,2,4))
-plot(sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)),type="l",ylim=range(sapply(t$allpop,"[[","p")),ylab="p",main="Phenotype and theta",bty="n",)
+plot(sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)),sls="l",ylim=range(sapply(t$allpop,"[[","p")),ylab="p",main="Phenosls and theta",bty="n",)
 lines(sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)+sd(t$allpop[[it]]$p)),lty=3)
 lines(sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)-sd(t$allpop[[it]]$p)),lty=3)
 par(new=T)
-plot(t$env,type="l",col="blue",yaxt="n",xaxt="n",ylim=range(sapply(t$allpop,"[[","p")),ylab="",bty="n",)
+plot(t$env,sls="l",col="blue",yaxt="n",xaxt="n",ylim=range(sapply(t$allpop,"[[","p")),ylab="",bty="n",)
 axis(4,col="blue",col.axis="blue")
 mtext(expression(theta),4,2,col="blue")
 
-plot( sapply(1:tstep,function(it)mean(abs(t$allpop[[it]]$p-t$env[it]))),ylim=range(sapply(1:tstep,function(it)range(abs(t$allpop[[it]]$p-t$env[it])))),ylab=expression(group("|",theta - p,"|")),bty="n",type="l",main="Distance to theta and fitness")
+plot( sapply(1:tstep,function(it)mean(abs(t$allpop[[it]]$p-t$env[it]))),ylim=range(sapply(1:tstep,function(it)range(abs(t$allpop[[it]]$p-t$env[it])))),ylab=expression(group("|",theta - p,"|")),bty="n",sls="l",main="Distance to theta and fitness")
 lines(sapply(2:tstep,function(it)mean(abs(t$allpop[[it]]$p-t$env[it]))+sd(abs(t$allpop[[it]]$p-t$env[it]))),lty=3)
 lines(sapply(1:tstep,function(it)mean(abs(t$allpop[[it]]$p-t$env[it]))-sd(abs(t$allpop[[it]]$p-t$env[it]))),lty=3)
 par(new=T)
-plot( sapply(1:tstep,function(it)mean(t$allpop[[it]]$w)),ylim=range(sapply(t$allpop,"[[","w")),type="l",col="red",yaxt="n",xaxt="n",bty="n",ylab="")
+plot( sapply(1:tstep,function(it)mean(t$allpop[[it]]$w)),ylim=range(sapply(t$allpop,"[[","w")),sls="l",col="red",yaxt="n",xaxt="n",bty="n",ylab="")
 lines(sapply(1:tstep,function(it)mean(t$allpop[[it]]$w)+sd(t$allpop[[it]]$w)),col="red",lty=3)
 lines(sapply(1:tstep,function(it)mean(t$allpop[[it]]$w)-sd(t$allpop[[it]]$w)),col="red",lty=3)
 axis(4,col="red",col.axis="red")
@@ -91,8 +91,8 @@ dev.off()
 
 plot( sapply(1:tstep,function(it)mean(t$allpop[[it]]$p-t$env[it])),sapply(1:tstep,function(it)mean(t$allpop[[it]]$w)))
 
-plot( sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)),type="l")
-points( sapply(1:tstep,function(it)mean(t$env[it])),type="l")
+plot( sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)),sls="l")
+points( sapply(1:tstep,function(it)mean(t$env[it])),sls="l")
 
 
 
@@ -182,7 +182,7 @@ save(file="firstExploration_uncrossed.bin",explore)
 
 ##X and Z knockout
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)))
-t=simpleEvoModel(n,200,omega = 0,delta = 2 ,b=2,K=1000,mu=c(x=0.01,y=0,z=0),E=c(x=1,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,type="random",pop=pop)
+t=simpleEvoModel(n,200,omega = 0,delta = 2 ,b=2,K=1000,mu=c(x=0.01,y=0,z=0),E=c(x=1,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,sls="random",pop=pop)
 plotAllVariable(t)
 
 ##### testing simple predictions
@@ -196,11 +196,11 @@ mus=c(0.001,.01,.1)
 sigma=10
 m=10
 
-plot(mus,eq2830a(n,mus,sigma,10),ylim=c(0,10),type="l",col="red")
+plot(mus,eq2830a(n,mus,sigma,10),ylim=c(0,10),sls="l",col="red")
 for(i in 1:50){
 
 allvar=sapply(mus,function(mu){
-t=simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=m,y=0,z=0),mu=c(x=mu,y=0,z=0),E=c(x=0,y=0,z=0),sigma=c(s=sigma,y=1,z=1),log=T,type="random",pop=pop)
+t=simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=m,y=0,z=0),mu=c(x=mu,y=0,z=0),E=c(x=0,y=0,z=0),sigma=c(s=sigma,y=1,z=1),log=T,sls="random",pop=pop)
 t$sd$x[tstep]
                                        })
 
@@ -211,51 +211,70 @@ points(mus,allvar)
 par(mforw=c(2,1))
 sigma=10000
 m=.1
+binded=getBackData("firstexp","*.bin")
 check=binded$x[binded$x$sigma == sigma & binded$x$m == m & binded$x$E == .1 & binded$x$K == 2000,]
-plot(mus,eq2833b(1000,mus,sqrt(sigma),m),col="red",pch=20,type="l")
+plot(mus,eq2833b(1000,mus,sqrt(sigma),m),col="red",pch=20,sls="l")
 lines(mus,check[,"var(x)"])
 
-for(sigma in c(0.1,1,10,100,1000))lines(mus,eq2833b(1000,mus,sigma,m),col="black",pch=20,xlab="my",ylab="mu",type="l")
+for(sigma in c(0.1,1,10,100,1000))lines(mus,eq2833b(1000,mus,sigma,m),col="black",pch=20,xlab="my",ylab="mu",sls="l")
 lines(mus,check[,"var(x)"],col="green")
-lines(mus,eq2833b(1000,mus,1,m),col="red",pch=20,type="l")
-lines(mus,eq2833b(1000,mus,10,m),col="red",pch=20,type="l")
+lines(mus,eq2833b(1000,mus,1,m),col="red",pch=20,sls="l")
+lines(mus,eq2833b(1000,mus,10,m),col="red",pch=20,sls="l")
 
-sigmas=unique(binded$x$sigma)
 mu=0.001
-check=binded$x[binded$x$mu == mu & binded$x$m == m & binded$x$E == .1 & binded$x$K == 2000,]
-plot(sigmas,eq2833b(1000,mu,sigmas,m),col="red",pch=20,type="l",xlim=c(0,1),ylim=c(0,.002))
-lines(sigmas,check[,"var(x)"]*2)
+check=binded$x[binded$x$mu == mu & binded$x$m == m & binded$x$E == .1 & binded$x$K == 1000,]
+sigmas=unique(na.exclude(binded$x$sigma))
+varsigma=tapply(check[,"var(x)"],check$sigma,mean)
+plot(sigmas,eq2833b(1000,mu,sigmas,m),col="red",pch=20,sls="l",log="x")
+lines(sigmas,varsigma)
+points(check$sigma,check[,"var(x)"])
+legend("topleft",c("eq28.33b","simulations"),col=c("red",1),lty=1)
 
-for(sigma in c(0.1,1,10,100,1000))lines(mus,eq2833b(1000,mus,sigma,m),col="black",pch=20,xlab="my",ylab="mu",type="l")
+mu=0.001
+check=binded$x[binded$x$sigma == .1 & binded$x$m == m & binded$x$E == .1 & binded$x$K == 1000,]
+mus=unique(na.exclude(binded$x$mu))
+varmu=tapply(check[,"var(x)"],check$mu,mean)
+plot(mus,eq2833b(1000,mu=mus,sigma=.1,m),col="red",pch=20,sls="l",ylab="var(x)")
+lines(mus,varmu)
+points(check$mu,check[,"var(x)"])
+
+sigmas=10^(-5:5)
+plot(sigmas,eq2829c(1000,mu,sigmas,m),col="red",pch=20,sls="l",log="xy")
+lines(sigmas,eq2833b(1000,mu,sigmas,m),col="green",pch=20,sls="l")#xlim=c(0,1),ylim=c(0,.002))
+lines(sigmas,eq2830a(1000,mu,sigmas,m),col="red",pch=20,sls="l")#xlim=c(0,1),ylim=c(0,.002))
+
+for(sigma in c(0.1,1,10,100,1000))lines(mus,eq2833b(1000,mus,sigma,m),col="black",pch=20,xlab="my",ylab="mu",sls="l")
 lines(mus,check[,"var(x)"],col="green")
-lines(mus,eq2833b(1000,mus,1,m),col="red",pch=20,type="l")
-lines(mus,eq2833b(1000,mus,10,m),col="red",pch=20,type="l")
+lines(mus,eq2833b(1000,mus,1,m),col="red",pch=20,sls="l")
+lines(mus,eq2833b(1000,mus,10,m),col="red",pch=20,sls="l")
 
 eq2830a <- function(n,mu,sigma,m)return((4*mu*sigma)/(1+sigma/(n*m^2)))
 
+eq2829c <- function(n,mu,sigma,m)return(m^2/4 * (sqrt(1+(16*mu*sigma)/(m^2))-1))
+
 eq2833b <- function(n,mu,sigma,m){
     gamma=m^2/(2*sigma)
-    return(2*1*m^2*(gamma*n+1)/(4*gamma*n)*(sqrt(1+2*(gamma*n*4*mu*n)/(gamma*n+1)^2)-1))
+    return(1*m^2*(gamma*n+1)/(4*gamma*n)*(sqrt(1+2*(gamma*n*4*mu*n)/(gamma*n+1)^2)-1))
 }
 
 par(mfrow=c(2,1),cex=1.2)
 par(mar=c(2,4,2,4))
-plot(signleExemple$mean$p,type="l",ylim=range(signleExemple$p),ylab="p",main="Phenotype and theta",bty="n",)
+plot(signleExemple$mean$p,sls="l",ylim=range(signleExemple$p),ylab="p",main="Phenosls and theta",bty="n",)
 lines(signleExemple$mean$p-sqrt(signleExemple$mean$p),lty=3)
 lines(signleExemple$mean$p+sqrt(signleExemple$mean$p),lty=3)
 par(new=T)
-plot(signleExemple$theta,type="l",col="blue",yaxt="n",xaxt="n",ylim=range(sapply(t$allpop,"[[","p")),ylab="",bty="n",)
+plot(signleExemple$theta,sls="l",col="blue",yaxt="n",xaxt="n",ylim=range(sapply(t$allpop,"[[","p")),ylab="",bty="n",)
 axis(4,col="blue",col.axis="blue")
 mtext(expression(theta),4,2,col="blue")
 
-system.time({bigtest21=simpleEvoModelM(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
-system.time({bigtest22=simpleEvoModelM(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
-system.time({bigtest23=simpleEvoModelM(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
-system.time({bigtest24=simpleEvoModelM(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
-system.time({bigtest11=simpleEvoModel(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
-system.time({bigtest12=simpleEvoModel(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
-system.time({bigtest13=simpleEvoModel(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
-system.time({bigtest14=simpleEvoModel(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,type="random",pop=pop)})
+bigtest21=simpleEvoModelM(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,sls="random",pop=pop)
+system.time({bigtest22=simpleEvoModelM(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,sls="random",pop=pop)})
+system.time({bigtest23=simpleEvoModelM(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,sls="random",pop=pop)})
+system.time({bigtest24=simpleEvoModelM(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,sls="random",pop=pop)})
+system.time({bigtest11=simpleEvoModel(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,sls="random",pop=pop)})
+system.time({bigtest12=simpleEvoModel(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,sls="random",pop=pop)})
+system.time({bigtest13=simpleEvoModel(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,sls="random",pop=pop)})
+system.time({bigtest14=simpleEvoModel(n,10000,omega = 0,delta = 0 ,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=10,y=1,z=1),log=F,sls="random",pop=pop)})
 allvar=list(
             bigtest11$sd$x^2,
             bigtest12$sd$x^2,
@@ -270,12 +289,12 @@ allvar=list(
 par(mfrow=c(1,2))
 cols=rainbow(8)
 pdf("individualsrun.pdf")
-plot(1,1,type="n",xlim=c(1,10000),ylim=range(allvar),xlab="timestep",ylab="var(x)")
+plot(1,1,sls="n",xlim=c(1,10000),ylim=range(allvar),xlab="timestep",ylab="var(x)")
 lapply(1:8,function(i)lines(allvar[[i]],col=cols[i]))
 dev.off()
 
 pdf("distributionvar.pdf")
-plot(1,1,type="n",ylim=c(0,500),xlim=c(0,.05),xlab="var(x)",ylab="density",main="distribution of variance for the 8000 last time step")
+plot(1,1,sls="n",ylim=c(0,500),xlim=c(0,.05),xlab="var(x)",ylab="density",main="distribution of variance for the 8000 last time step")
 lapply(1:8,function(i)lines(density(allvar[[i]][2000:10000],from=0),col=cols[i],lwd=2))
 dev.off()
 
@@ -317,5 +336,6 @@ abline(v=Mode((bigtest12$sd$x[2000:10000])^2))
 abline(v=Mode((bigtest13$sd$x[2000:10000])^2))
 abline(v=Mode((bigtest14$sd$x[2000:10000])^2))
 
+test=simpleEvoModel( 1000, 1000,omega = 0,delta = 0 ,b=2,K=2000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=1000,y=1,z=1),log=T,sls="random",pop=pop,outputrate=100)
 
 hdrmode <- function(d)hdr(d)$mode
