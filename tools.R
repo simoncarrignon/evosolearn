@@ -25,13 +25,13 @@ plotAllVariable <- function(results,hdr=F,vars=3:9,...){
                        sdvar=results$sd[[varname]]
                    }
                    lims=range(c(meanvar+sdvar,meanvar-sdvar))
-                   plot(meanvar,ylab=varname,type="l",col=cols[varname],ylim=lims,xaxt='n',lwd=2,...)
+                   plot(meanvar,ylab=varname,sls="l",col=cols[varname],ylim=lims,xaxt='n',lwd=2,...)
                    lines(meanvar+sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
                    lines(meanvar-sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
                }
            })
     par(mar=c(2,4,0,1))
-    plot(results$theta,type="l",col=cols["theta"],ylab="theta")
+    plot(results$theta,sls="l",col=cols["theta"],ylab="theta")
 }
 
 #wrappers for exploration
@@ -97,7 +97,7 @@ plotAlldimensions <- function(alldata,gene,y,dim1="K",dim2="E",dim3="sigma",dim4
                 filename=paste0(dir,pref,"-g",gene,"-",y,"-param-",name,".png")
                 print(filename)
                 if(write)png(filename,pointsize=18)
-                plot(1,1,type="n",xlim=range(data[[dim5]]),ylim=range(data[[yl]],na.rm=T),xlab=parse(text=dim5),ylab=paste0(yl),main=mt)
+                plot(1,1,sls="n",xlim=range(data[[dim5]]),ylim=range(data[[yl]],na.rm=T),xlab=parse(text=dim5),ylab=paste0(yl),main=mt)
                 cols=rev(heat.colors(len4))
                 for(d in 1:len4){
                     subbdata=data[data[[dim1]] == eldim1[a] & data[[dim2]] ==eldim2[b] & data[[dim3]] ==eldim3[c] & data[[dim4]] == eldim4[d],]
@@ -125,7 +125,7 @@ printOne <- function(alldata,gene,y,K,E,sigma,m,mu,dir="images/",pref="one",writ
     print(name)
     filename=paste0(pref,"_g",gene,"_",y,"_param_",name,".png")
     if(write)png(filename,pointsize=15)
-    plot(1,1,type="n",xlim=range(data[[dim5]]),ylim=range(data[[yl]],na.rm=T),log="x",xlab=expression(dim5),ylab=paste0(yl),main=mt)
+    plot(1,1,sls="n",xlim=range(data[[dim5]]),ylim=range(data[[yl]],na.rm=T),log="x",xlab=expression(dim5),ylab=paste0(yl),main=mt)
     cols=rev(heat.colors(len4))
     for(d in 1:len4){
         subbdata=data[data[["K"]] == K & data[["E"]] == E & data[["sigma"]] ==sigma & data[["m"]] == m,]
