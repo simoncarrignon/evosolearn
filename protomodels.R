@@ -73,7 +73,6 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
     outputparam=c(E,sigma,omega,delta,b,K,mu,m)
     names(outputparam)=c(paste("E",names(E),sep="_"),paste("sigma",names(sigma),sep="_"),"omega","delta","b","K",paste("mu",names(mu),sep="_"),paste("m",names(m),sep="_"))
     outputparam=outputparam[c(1,4,8,9,10,11,14)]
-    print(outputparam)
     outputsnames=c("t",updateOutputLine(NULL,statfun,statvar,getname=T),"N","theta",names(outputparam))
     output=matrix(nrow=(tstep/outputrate)+1,ncol=length(outputsnames))
     colnames(output)=outputsnames
