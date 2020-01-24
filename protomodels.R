@@ -70,16 +70,24 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
 	#prepare outputs
 	names(statfun)=statfun
 	names(statvar)=statvar
-    output=updateOutput(NULL,NULL,statfun,statvar)
+    outputparam=c(E,sigma,omega,delta,b,K,mu,m)
+    names(outputparam)=c(paste("E",names(E),sep="_"),paste("sigma",names(sigma),sep="_"),"omega","delta","b","K",paste("mu",names(mu),sep="_"),paste("m",names(m),sep="_"))
+    outputparam=outputparam[c(1,4,8,9,10,11,14)]
+    print(outputparam)
+    outputsnames=c("t",updateOutputLine(NULL,statfun,statvar,getname=T),"N","theta",names(outputparam))
+    output=matrix(nrow=(tstep/outputrate)+1,ncol=length(outputsnames))
+    colnames(output)=outputsnames
+    output[1,]=c(1,updateOutputLine(pop,statfun,statvar),n,theta[1],outputparam)
+
     popsize=c()
     err1=E['x']>0
     err2=E['y']>0
     err3=E['z']>0
     parents=NULL
     if(allpops)allpop=list()
+    modt=1
     for( t in 1:tstep){
         if(log &&  ((t %% outputrate) == 0))print(paste(" timestep:",t))
-        popsize=c(popsize,n)
 
         ##genetic phase
         if(err1)e1=rnorm(n,0,E['x'])else e1=0
@@ -133,12 +141,14 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
         pop=childs
         n=newn
 
-        if((t %% outputrate) == 0)output=updateOutput(output,pop,statfun,statvar)
+        if((t %% outputrate) == 0){
+            output[modt+1,]=c(t,updateOutputLine(pop,statfun,statvar),n,theta[t],outputparam)
+            modt=modt+1 #maybe a way to calculate the indice of the outptu matrix witouth keeping this indice
+        }
         if(allpops)allpop[[t]]=pop
 
     }
 	if(allpops)output$allpop=allpop
-    output$theta=theta
     return(output)
 }
 
