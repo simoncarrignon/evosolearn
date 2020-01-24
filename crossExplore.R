@@ -8,8 +8,6 @@ mainfold=args[3] #third argument = name of the folder wher to store the results
 
 if(is.na(mainfold) | mainfold=="") mainfold=Sys.info()['nodename']
 
-print(paste("where are on",Sys.info()['nodename']))
-
 fi=0
 fold=paste0(mainfold,fi)
 while(file.exists(fold)){
@@ -43,7 +41,6 @@ mu=c(x=0,y=0,z=0)
 E=c(x=0,y=0,z=0)
 m=c(x=0,y=0,z=0)
 sigma=c(s=1,y=1,z=1)
-explore=list()
 
 genes=c("x")
 pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)),df=F)
@@ -55,23 +52,22 @@ for(gene in genes){
     m=c(x=0,y=0,z=0)
     sigma=c(s=1,y=1,z=1)
     if(gene == "x") pop[,gene]=runif(n,-1,1)
-    else pop[,gene]=runif(n)
-    explore[[gene]]=list()
-    explore[[gene]]=do.call("rbind",
-                            parLapply(cl,1:nrow(parameters),function(v,parameters,gene,pop){
-                                      print(paste0("g",gene,", sim #",v,"/",nrow(parameters)))
-                                      delta=parameters[v,"delta"]
-                                      K=parameters[v,"K"]
-                                      mu[gene]=parameters[v,"mu"]
-                                      m[gene]=parameters[v,"m"]
-                                      E[gene]=parameters[v,"E"]
-                                      sigma["s"]=parameters[v,"sigma"]
-                                      getVarXMeanW(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,gene=gene,nstep=4000,sumstat=mean)
-},parameters=parameters,gene=gene,pop=pop))
+    explore=do.call("rbind",
+                    parLapply(cl,1:nrow(parameters),function(v,parameters,gene,pop)
+                              {
+                                  print(paste0("g",gene,", sim #",v,"/",nrow(parameters)))
+                                  delta=parameters[v,"delta"]
+                                  K=parameters[v,"K"]
+                                  mu[gene]=parameters[v,"mu"]
+                                  m[gene]=parameters[v,"m"]
+                                  E[gene]=parameters[v,"E"]
+                                  sigma["s"]=parameters[v,"sigma"]
+                                  simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=10)
+                              },parameters=parameters,gene=gene,pop=pop)
+                    )
 }
 stopCluster(cl)
-binded=lapply(explore,function(e)cbind.data.frame(e,parameters))
-save(file=file.path(fold,"crossExploreDeltas10.bin"),binded)
+save(file=file.path(fold,"crossExplore.bin"),explore)
 new <- Sys.time() - old # calculate difference
 print(new) # print in nice format
 
@@ -90,7 +86,7 @@ if(output){
     x=xtable(tp)
 
 
-    print(file="tables/parameters_values.tex",x,type="latex",sanitize.text.function=identity,include.rownames = FALSE,auto=T)
+    print(file="tables/parameters_values.tex",x,sls="latex",sanitize.text.function=identity,include.rownames = FALSE,auto=T)
 
     for(gene in c("x","y","z")){
         for(var in c("w","var")){
