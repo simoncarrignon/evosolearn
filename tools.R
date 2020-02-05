@@ -57,6 +57,17 @@ getVarXMeanW <- function(n,tstep,omega,delta,b,K,mu,E,sigma,pop,m,gene,nstep,sum
     return(res)
 }
 
+#' get some useful summary stat from a model run
+#' @param nstep how many timestep should we use to compute the summary statitistic 
+#' @param sumstat function used to compute the summary statistic
+#' @param fullmat a matrice with the result of a simulation
+#' @param vars a vector with the variable we want to summarize using sumstat
+getSummary <- function(fullmat,gene,nstep,sumstat=mean,vars){
+    res=c()
+    tstep=nrow(fullmat)
+    pre=max(tstep-nstep,1)
+    sapply(vars,function(v)sumstat(fullmat[pre:tstep,v]))
+}
 writeResults <- function(final,var,gene){
     pdf(paste0("explore_",var,"_",gene,".pdf"),width=10)
     par(mfrow=c(1,2))
