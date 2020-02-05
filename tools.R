@@ -163,3 +163,12 @@ alpha <- function(color,alpha) rgb(t(col2rgb(color)/255),alpha=alpha)
 #' @param  n number or shades wanted
 shades<-function(color,n) sapply(seq(0,1,length.out=n+1),alpha,color=color)[2:(n+1)]
 
+
+eq2830a <- function(n,mu,sigma,m)return((4*mu*sigma)/(1+sigma/(n*m^2)))
+
+eq2829c <- function(n,mu,sigma,m)return(m^2/4 * (sqrt(1+(16*mu*sigma)/(m^2))-1))
+
+eq2833b <- function(n,mu,sigma,m){
+    gamma=m^2/(2*sigma^2)
+    return(1*m^2*(gamma*n+1)/(4*gamma*n)*(sqrt(1+2*(gamma*n*4*mu*n)/(gamma*n+1)^2)-1))
+}
