@@ -62,12 +62,16 @@ for(gene in genes){
                                   m[gene]=parameters[v,"m"]
                                   E[gene]=parameters[v,"E"]
                                   sigma["s"]=parameters[v,"sigma"]
-                                  simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=10)
+                                  fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=1)
+                                  filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
+                                  save(file=filename_mat,fullmat)
+                                  c(getSummary(fullmat,nstep=3000,vars=c("var_x","N","mean_w")),filename=filename_mat)
                               },parameters=parameters,gene=gene,pop=pop)
                     )
 }
 stopCluster(cl)
-save(file=file.path(fold,"crossExplore.bin"),explore)
+binded=cbind(explore,parameters)
+save(file=file.path(fold,"crossExplore.bin"),binded)
 new <- Sys.time() - old # calculate difference
 print(new) # print in nice format
 
