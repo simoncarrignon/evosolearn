@@ -68,6 +68,12 @@ getSummary <- function(fullmat,gene,nstep,sumstat=mean,vars){
     pre=max(tstep-nstep,1)
     sapply(vars,function(v)sumstat(fullmat[pre:tstep,v]))
 }
+
+getTraj  <-  function(filename,var){
+    load(file=as.character(filename))
+    fullmat[,var]
+}
+
 writeResults <- function(final,var,gene){
     pdf(paste0("explore_",var,"_",gene,".pdf"),width=10)
     par(mfrow=c(1,2))
@@ -147,7 +153,46 @@ printOne <- function(alldata,gene,y,K,E,sigma,m,mu,dir="images/",pref="one",writ
     #legend("topleft",legend=parse(text=paste("10^",round(log10(eldim4)))),lwd=2,col=cols,title=parse(text=paste0("m[",gene,"]")),bty="n")
     if(write)dev.off()
 }
- 
+
+plotTraj <- function(x,alltraj,col=1,ylim=NULL,xlim=NULL,add=F,...){
+    #mn=apply(alltraj,1,mean)
+    #sd=apply(alltraj,1,sd)
+    qts=apply(alltraj,1,function(i)quantile(i))
+    if(is.null(xlim))xlim=c(0,nrow(alltraj))
+    if(is.null(ylim))ylim=range(qts[c(2,4),])
+    if(!add)plot(1,1,type="n",xlim=xlim,ylim=ylim,...)
+    lines(x,qts[3,],col=col,lwd=1.4)
+    lines(x,qts[4,],lty=1,col=col,lwd=.1)
+    lines(x,qts[2,],lty=1,col=col,lwd=.1)
+}
+
+addMeanSD <- function(x,y,col=1,plot=T){
+    meany=tapply(y,x,mean)
+    sdy=tapply(y,x,sd)
+    if(plot)points(unique(x),meany,pch=20,col=col)
+    if(plot)arrows(unique(x), meany+sdy, unique(x), meany-sdy,angle=90,code=3,length=.05,lwd=2,col=col)
+    return(rbind(meany+sdy,meany,meany-sdy))
+}
+
+getFullExperimentSummary <- function(fold){
+    allfolds=list.dirs(folder,recursive=F)
+    allsummary=c()
+    for(f in allfolds){
+        try({
+        load(file.path(f,"crossExplore.bin"))
+        binded[,c("N","var_x","mean_w")]=apply(binded[,c("N","var_x","mean_w")],2,function(i)as.numeric(as.character(i)))
+        allsummary=rbind(allsummary,binded)
+        })
+    }
+    return(allsummary)
+}
+
+getSubsetWithTraj <- function(summarydataset,m,sigma,E,K,mu,var="var_x"){
+    res=list()
+    res$summary=summarydataset[summarydataset$mu %in% mu & summarydataset$sigma %in% sigma & summarydataset$m %in% m & summarydataset$E %in% E & summarydataset$K %in% K,]
+    res$traj=sapply(res$summary$filename,getTraj,var=var)
+    return(res)
+}
 
 #' Alpha
 #'
