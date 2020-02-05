@@ -214,3 +214,22 @@ testknockout <- function(res){
     any(( res$allpop[[tt]]$gp - res$allpop[[tt]]$ilp == res$allpop[[tt]]$gp - res$allpop[[tt]]$p) &&
     (res$allpop[[tt]]$gp - res$allpop[[tt]]$ilp == 0))
 }
+
+
+
+
+#testing getSummary and getTraj
+testSummaries <- function(folder){
+    onesubfolder= sample(list.dirs(folder),1)
+    onesimu= sample(list.files(onesubfolder),1)
+    tocheck=file.path(onesubfolder,onesimu)
+    tocheck=gsub("/+","/",tocheck)
+    print(paste("checking: ", tocheck))
+    onetraj=getTraj(tocheck)
+    laststep=sample.int(nrow(onetraj),1)
+    summarytraj=getSummary(onetraj,nstep=laststep,vars=c("var_x","N","mean_w"))
+    load(file.path(onesubfolder,"crossExplore.bin"))
+    as.numeric(as.character(binded[binded[,"filename"] == tocheck,"mean_w"])) - summarytraj["mean_w"]
+    as.numeric(as.character(binded[binded[,"filename"] == tocheck,"mean_w"])) - mean(onetraj[(nrow(onetraj)-laststep):(nrow(onetraj)),"mean_w"])
+    summarytraj["var_x"] == mean(onetraj[(nrow(onetraj)-laststep):(nrow(onetraj)),"var_x"])
+}
