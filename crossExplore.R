@@ -24,7 +24,8 @@ library(parallel)
 allparameters=list()
 allparameters[["mu"]]=c(0,0.001,0.01)
 allparameters[["K"]]=c(500,1000,2000)
-allparameters[["E"]]=c(0,.05,.1)
+#allparameters[["E"]]=c(0,.05,.1)
+allparameters[["E"]]=0
 allparameters[["m"]]=c(.05,.1,.2)
 allparameters[["sigma"]]=c(.1,.2,.4,10000)
 allparameters[["delta"]]=0
@@ -51,8 +52,7 @@ for(gene in genes){
     E=c(x=0,y=0,z=0)
     m=c(x=0,y=0,z=0)
     sigma=c(s=1,y=1,z=1)
-    if(gene == "x") pop[,gene]=runif(n,-1,1)
-    explore=do.call("rbind",
+    explore=do.call("rbind.data.frame",
                     parLapply(cl,1:nrow(parameters),function(v,parameters,gene,pop)
                               {
                                   print(paste0("g",gene,", sim #",v,"/",nrow(parameters)))
@@ -62,14 +62,20 @@ for(gene in genes){
                                   m[gene]=parameters[v,"m"]
                                   E[gene]=parameters[v,"E"]
                                   sigma["s"]=parameters[v,"sigma"]
-                                  fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=1)
+                                  if(gene == "x") pop[,gene]=runif(n,-1,1)
+                                  print("popdone")
+                                  fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=10)
+                                  print("simudone")
                                   filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
                                   save(file=filename_mat,fullmat)
-                                  c(getSummary(fullmat,nstep=3000,vars=c("var_x","N","mean_w")),filename=filename_mat)
+                                  a=c(getSummary(fullmat,nstep=3000,vars=c("var_x","N","mean_w")),filename=filename_mat)
+                                  print("done")
+                                  return(a)
                               },parameters=parameters,gene=gene,pop=pop)
                     )
 }
 stopCluster(cl)
+
 binded=cbind(explore,parameters)
 save(file=file.path(fold,"crossExplore.bin"),binded)
 new <- Sys.time() - old # calculate difference
