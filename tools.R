@@ -57,6 +57,23 @@ getVarXMeanW <- function(n,tstep,omega,delta,b,K,mu,E,sigma,pop,m,gene,nstep,sum
     return(res)
 }
 
+#' get some useful summary stat from a model run
+#' @param nstep how many timestep should we use to compute the summary statitistic 
+#' @param sumstat function used to compute the summary statistic
+#' @param fullmat a matrice with the result of a simulation
+#' @param vars a vector with the variable we want to summarize using sumstat
+getSummary <- function(fullmat,gene,nstep,sumstat=mean,vars){
+    res=c()
+    tstep=nrow(fullmat)
+    pre=max(tstep-nstep,1)
+    sapply(vars,function(v)sumstat(fullmat[pre:tstep,v]))
+}
+
+getTraj  <-  function(filename,var){
+    load(file=as.character(filename))
+    fullmat[,var]
+}
+
 writeResults <- function(final,var,gene){
     pdf(paste0("explore_",var,"_",gene,".pdf"),width=10)
     par(mfrow=c(1,2))
@@ -136,7 +153,46 @@ printOne <- function(alldata,gene,y,K,E,sigma,m,mu,dir="images/",pref="one",writ
     #legend("topleft",legend=parse(text=paste("10^",round(log10(eldim4)))),lwd=2,col=cols,title=parse(text=paste0("m[",gene,"]")),bty="n")
     if(write)dev.off()
 }
- 
+
+plotTraj <- function(x,alltraj,col=1,ylim=NULL,xlim=NULL,add=F,...){
+    #mn=apply(alltraj,1,mean)
+    #sd=apply(alltraj,1,sd)
+    qts=apply(alltraj,1,function(i)quantile(i))
+    if(is.null(xlim))xlim=c(0,nrow(alltraj))
+    if(is.null(ylim))ylim=range(qts[c(2,4),])
+    if(!add)plot(1,1,type="n",xlim=xlim,ylim=ylim,...)
+    lines(x,qts[3,],col=col,lwd=1.4)
+    lines(x,qts[4,],lty=1,col=col,lwd=.1)
+    lines(x,qts[2,],lty=1,col=col,lwd=.1)
+}
+
+addMeanSD <- function(x,y,col=1,plot=T){
+    meany=tapply(y,x,mean)
+    sdy=tapply(y,x,sd)
+    if(plot)points(unique(x),meany,pch=20,col=col)
+    if(plot)arrows(unique(x), meany+sdy, unique(x), meany-sdy,angle=90,code=3,length=.05,lwd=2,col=col)
+    return(rbind(meany+sdy,meany,meany-sdy))
+}
+
+getFullExperimentSummary <- function(fold){
+    allfolds=list.dirs(folder,recursive=F)
+    allsummary=c()
+    for(f in allfolds){
+        try({
+        load(file.path(f,"crossExplore.bin"))
+        binded[,c("N","var_x","mean_w")]=apply(binded[,c("N","var_x","mean_w")],2,function(i)as.numeric(as.character(i)))
+        allsummary=rbind(allsummary,binded)
+        })
+    }
+    return(allsummary)
+}
+
+getSubsetWithTraj <- function(summarydataset,m,sigma,E,K,mu,var="var_x"){
+    res=list()
+    res$summary=summarydataset[summarydataset$mu %in% mu & summarydataset$sigma %in% sigma & summarydataset$m %in% m & summarydataset$E %in% E & summarydataset$K %in% K,]
+    res$traj=sapply(res$summary$filename,getTraj,var=var)
+    return(res)
+}
 
 #' Alpha
 #'
@@ -152,3 +208,12 @@ alpha <- function(color,alpha) rgb(t(col2rgb(color)/255),alpha=alpha)
 #' @param  n number or shades wanted
 shades<-function(color,n) sapply(seq(0,1,length.out=n+1),alpha,color=color)[2:(n+1)]
 
+
+eq2830a <- function(n,mu,sigma,m)return((4*mu*sigma)/(1+sigma/(n*m^2)))
+
+eq2829c <- function(n,mu,sigma,m)return(m^2/4 * (sqrt(1+(16*mu*sigma)/(m^2))-1))
+
+eq2833b <- function(n,mu,sigma,m){
+    gamma=m^2/(2*sigma^2)
+    return(1*m^2*(gamma*n+1)/(4*gamma*n)*(sqrt(1+2*(gamma*n*4*mu*n)/(gamma*n+1)^2)-1))
+}
