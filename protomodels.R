@@ -126,7 +126,7 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
         if(sum(nchilds)==0)return(NULL)
         for( p in seq_along(selected)){
             if(nchilds[p]>0){
-                childs[c:(c+nchilds[p]-1),]=t(replicate(nchilds[p],pop[selected[p],]))
+                childs[c:(c+nchilds[p]-1),]=do.call("rbind",replicate(nchilds[p],pop[selected[p],],simplify=F))
                 c=c+nchilds[p]
             }
         }
