@@ -233,3 +233,25 @@ testSummaries <- function(folder){
     as.numeric(as.character(binded[binded[,"filename"] == tocheck,"mean_w"])) - mean(onetraj[(nrow(onetraj)-laststep):(nrow(onetraj)),"mean_w"])
     summarytraj["var_x"] == mean(onetraj[(nrow(onetraj)-laststep):(nrow(onetraj)),"var_x"])
 }
+
+
+
+#testing reproduction
+testreproduction  <-  function(){
+    for(n in c(rep(0,100),rep(1,100),rep(2,100),sample(1000,500))){
+        print(paste("test with pop",n))
+        pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)),df=F)
+        selected=sample(n,n/2)
+        nchilds=rpois(length(selected),2)
+        childs=reproduction(pop,selected,nchilds)
+        if(is.null(childs))
+        {print(sum(nchilds))}
+        else{
+            if(sum(table(factor(childs[,"parent_id"],levels=selected))-nchilds) != 0){print("problem"); break}
+            if(!childs[1,"id"]==max(pop[,"id"])+1){print("problem with child ids");break}:w
+            if(!max(childs[,"id"])==max(pop[,"id"])+sum(nchilds)){print("problem with child ids");break}
+        }
+
+    }
+    TRUE
+}
