@@ -7,7 +7,7 @@ source("tools.R")
 #' @param n:numeric value for the size of the pop (redundant/should be equal to length(w))
 #' @param K:environment carrying capacity
 #' @return: numeric vector of probabilities
-reproduction <- function(w,b,n,K) 1/(1+(b-1)*(n/(K*w)))
+selection <- function(w,b,n,K) 1/(1+(b-1)*(n/(K*w)))
 
 #' @param newpop: a dataframe with fitness and agents ID
 #' @param reference: a dataframe with phenotype and agents ID
@@ -114,15 +114,27 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
         pop[,"w"] = exp(-((pop[,"p"]-theta[t])^2)/(2*sigma['s']^2)-((pop[,"y"])^2)/(2*sigma['y']^2)-((pop[,"z"])^2)/(2*sigma['z']^2))
 
         #selection
-        selected=which(runif(n)<reproduction(pop[,"w"],b,n,K))
+        selected=which(runif(n)<selection(pop[,"w"],b,n,K))
         if(length(selected)<1)break
 
         #reproduction
         nchilds=rpois(length(selected),b)
-        childs=do.call("rbind",apply(cbind(selected,nchilds),1,function(s)do.call("rbind",replicate(s[2],pop[s[1],],simplify=F))))
-        if(is.null(childs))break
+        if(sum(nchilds)<1)break
+        childs=matrix(nrow=sum(nchilds),ncol=ncol(pop))
+        colnames(childs)=colnames(pop)
+        c=1
+        if(sum(nchilds)==0)return(NULL)
+        for( p in seq_along(selected)){
+            if(nchilds[p]>0){
+                childs[c:(c+nchilds[p]-1),]=t(replicate(nchilds[p],pop[selected[p],]))
+                c=c+nchilds[p]
+            }
+        }
         childs[,"parent_id"]=childs[,"id"]
-        childs[,"id"]=(max(pop[,"id"])+1):(max(pop[,"id"])+sum(nchilds))
+        #if(sum(nchilds)<3)print((max(pop[,"id"])+1):(max(pop[,"id"])+1+sum(nchilds)))
+        if(sum(nchilds)==1) childs[,"id"]=(max(pop[,"id"])+1)
+        else childs[,"id"]=(max(pop[,"id"])+1):(max(pop[,"id"])+nrow(childs))
+
 
         #mutation
 
@@ -152,12 +164,6 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
 }
 
 
-#' @param w:vector with fitness
-#' @param b:numeric value for the rate of birth
-#' @param n:numeric value for the size of the pop (redundant/should be equal to length(w))
-#' @param K:environment carrying capacity
-#' @return: numeric vector of probabilities
-reproduction <- function(w,b,n,K) 1/(1+(b-1)*(n/(K*w)))
 
 #' @param newpop: a dataframe with fitness and agents ID
 #' @param reference: a dataframe with phenotype and agents ID
@@ -216,4 +222,27 @@ updateOutput <- function(output=NULL,pop,statfun,statvar){
             for(sv in statvar)
                 output[[sf]][[sv]]=c(output[[sf]][[sv]],match.fun(sf)(pop[,sv]))
     return(output)
+}
+
+
+#' @param pop the current population with characteristics of all individual
+#' @param selected a vector with the id of the selected individuals
+#' @param nchilds a vector with the number of children for each individual 
+#' @return a matrix qiht the list of children
+reproduction <- function(pop,selected,nchilds){
+        childs=matrix(nrow=sum(nchilds),ncol=ncol(pop))
+        colnames(childs)=colnames(pop)
+        c=1
+        if(sum(nchilds)==0)return(NULL)
+        for( p in seq_along(selected)){
+            if(nchilds[p]>0){
+                childs[c:(c+nchilds[p]-1),]=t(replicate(nchilds[p],pop[selected[p],]))
+                c=c+nchilds[p]
+            }
+        }
+        childs[,"parent_id"]=childs[,"id"]
+        #if(sum(nchilds)<3)print((max(pop[,"id"])+1):(max(pop[,"id"])+1+sum(nchilds)))
+        if(sum(nchilds)==1) childs[,"id"]=(max(pop[,"id"])+1)
+        else childs[,"id"]=(max(pop[,"id"])+1):(max(pop[,"id"])+nrow(childs))
+        return(childs)
 }
