@@ -54,7 +54,7 @@ for(gene in genes){
     sigma=c(s=1,y=1,z=1)
 
     explore=do.call("rbind.data.frame",
-                    lapply(1:nrow(parameters),function(v,parameters,gene,pop)
+                    parLapply(cl,1:nrow(parameters),function(v,parameters,gene,pop)
                               {
                                   print(paste0("g",gene,", sim #",v,"/",nrow(parameters)))
                                   delta=parameters[v,"delta"]
