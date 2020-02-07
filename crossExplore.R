@@ -52,8 +52,9 @@ for(gene in genes){
     E=c(x=0,y=0,z=0)
     m=c(x=0,y=0,z=0)
     sigma=c(s=1,y=1,z=1)
+
     explore=do.call("rbind.data.frame",
-                    parLapply(cl,1:nrow(parameters),function(v,parameters,gene,pop)
+                    lapply(1:nrow(parameters),function(v,parameters,gene,pop)
                               {
                                   print(paste0("g",gene,", sim #",v,"/",nrow(parameters)))
                                   delta=parameters[v,"delta"]
@@ -63,16 +64,18 @@ for(gene in genes){
                                   E[gene]=parameters[v,"E"]
                                   sigma["s"]=parameters[v,"sigma"]
                                   if(gene == "x") pop[,gene]=runif(n,-1,1)
+                                  else pop[,gene]=runif(n,0,1)
                                   print("popdone")
                                   fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=10)
                                   print("simudone")
                                   filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
                                   save(file=filename_mat,fullmat)
-                                  a=c(getSummary(fullmat,nstep=3000,vars=c("var_x","N","mean_w")),filename=filename_mat)
-                                  print("done")
-                                  return(a)
+                                  print("simudone")
+                                  aa=c(as.list(getSummary(fullmat,nstep=3000,vars=c("var_x","N","mean_w"))),filename=factor(filename_mat))
+                                  return(aa)
                               },parameters=parameters,gene=gene,pop=pop)
                     )
+
 }
 stopCluster(cl)
 
