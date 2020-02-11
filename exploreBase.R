@@ -1,7 +1,7 @@
 source("protomodels.R")
 
 
-n=00
+n=200
 omegas=seq(-0.5,2.5,.5)
 deltas=.0625*2^seq(0:6)
 names(omegas)=omegas
@@ -11,7 +11,7 @@ names(deltas)=deltas
 ##X and Z knockout
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)))
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
-t=simpleEvoModel(n,200,omega = 0,delta = 2 ,b=2,K=1000,mu=c(x=0.01,y=0,z=0),E=c(x=1,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,sls="random",pop=pop)
+t=simpleEvoModel(n,200,omega = 0,delta = 0 ,b=2,K=1000,mu=c(x=0.01,y=0,z=0),E=c(x=1,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,sls="random",pop=pop)
 plotAllVariable(t)
 
 
@@ -38,6 +38,8 @@ extinctions_yko=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(p
 
 stopCluster(cl)
 
+n=200
+pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=runif(n,0,1)))
 t=simpleEvoModel(n,1000,omega = 1,delta = 1 ,b=2,K=1000,mu=c(x=0.01,y=0,z=0.01),E=c(x=1,y=0,z=1),sigma=c(s=1,y=1,z=1),log=F,sls="random",pop=pop)
 
 
@@ -69,19 +71,19 @@ dev.off()
 png("comparisons.png",pointsize = 14,width=600,height=800)
 par(mfrow=c(2,1),cex=1.2)
 par(mar=c(2,4,2,4))
-plot(sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)),sls="l",ylim=range(sapply(t$allpop,"[[","p")),ylab="p",main="Phenosls and theta",bty="n",)
+plot(sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)),type="l",ylim=range(sapply(t$allpop,"[[","p")),ylab="p",main="Phenosls and theta",bty="n",)
 lines(sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)+sd(t$allpop[[it]]$p)),lty=3)
 lines(sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)-sd(t$allpop[[it]]$p)),lty=3)
 par(new=T)
-plot(t$env,sls="l",col="blue",yaxt="n",xaxt="n",ylim=range(sapply(t$allpop,"[[","p")),ylab="",bty="n",)
+plot(t$env,type="l",col="blue",yaxt="n",xaxt="n",ylim=range(sapply(t$allpop,"[[","p")),ylab="",bty="n",)
 axis(4,col="blue",col.axis="blue")
 mtext(expression(theta),4,2,col="blue")
 
-plot( sapply(1:tstep,function(it)mean(abs(t$allpop[[it]]$p-t$env[it]))),ylim=range(sapply(1:tstep,function(it)range(abs(t$allpop[[it]]$p-t$env[it])))),ylab=expression(group("|",theta - p,"|")),bty="n",sls="l",main="Distance to theta and fitness")
+plot( sapply(1:tstep,function(it)mean(abs(t$allpop[[it]]$p-t$env[it]))),ylim=range(sapply(1:tstep,function(it)range(abs(t$allpop[[it]]$p-t$env[it])))),ylab=expression(group("|",theta - p,"|")),bty="n",type="l",main="Distance to theta and fitness")
 lines(sapply(2:tstep,function(it)mean(abs(t$allpop[[it]]$p-t$env[it]))+sd(abs(t$allpop[[it]]$p-t$env[it]))),lty=3)
 lines(sapply(1:tstep,function(it)mean(abs(t$allpop[[it]]$p-t$env[it]))-sd(abs(t$allpop[[it]]$p-t$env[it]))),lty=3)
 par(new=T)
-plot( sapply(1:tstep,function(it)mean(t$allpop[[it]]$w)),ylim=range(sapply(t$allpop,"[[","w")),sls="l",col="red",yaxt="n",xaxt="n",bty="n",ylab="")
+plot( sapply(1:tstep,function(it)mean(t$allpop[[it]]$w)),ylim=range(sapply(t$allpop,"[[","w")),type="l",col="red",yaxt="n",xaxt="n",bty="n",ylab="")
 lines(sapply(1:tstep,function(it)mean(t$allpop[[it]]$w)+sd(t$allpop[[it]]$w)),col="red",lty=3)
 lines(sapply(1:tstep,function(it)mean(t$allpop[[it]]$w)-sd(t$allpop[[it]]$w)),col="red",lty=3)
 axis(4,col="red",col.axis="red")
@@ -91,8 +93,8 @@ dev.off()
 
 plot( sapply(1:tstep,function(it)mean(t$allpop[[it]]$p-t$env[it])),sapply(1:tstep,function(it)mean(t$allpop[[it]]$w)))
 
-plot( sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)),sls="l")
-points( sapply(1:tstep,function(it)mean(t$env[it])),sls="l")
+plot( sapply(1:tstep,function(it)mean(t$allpop[[it]]$p)),type="l")
+points( sapply(1:tstep,function(it)mean(t$env[it])),type="l")
 
 
 
@@ -196,7 +198,7 @@ mus=c(0.001,.01,.1)
 sigma=10
 m=10
 
-plot(mus,eq2830a(n,mus,sigma,10),ylim=c(0,10),sls="l",col="red")
+plot(mus,eq2830a(n,mus,sigma,10),ylim=c(0,10),type="l",col="red")
 for(i in 1:50){
 
 allvar=sapply(mus,function(mu){
@@ -211,59 +213,211 @@ points(mus,allvar)
 par(mforw=c(2,1))
 sigma=10000
 m=.1
-binded=getBackData("firstexp","*.bin")
-check=binded$x[binded$x$sigma == sigma & binded$x$m == m & binded$x$E == .1 & binded$x$K == 2000,]
-plot(mus,eq2833b(1000,mus,sqrt(sigma),m),col="red",pch=20,sls="l")
-lines(mus,check[,"var(x)"])
+check=binded[binded$sigma == sigma & binded$m == m & binded$E == .1 & binded$K == 2000,]
+plot(mus,eq2833b(mean(check$N),mus,sqrt(sigma),m),col="red",pch=20,type="l")
+lines(mus,check[,"var_x"])
 
-for(sigma in c(0.1,1,10,100,1000))lines(mus,eq2833b(1000,mus,sigma,m),col="black",pch=20,xlab="my",ylab="mu",sls="l")
+for(sigma in c(0.1,1,10,100,1000))lines(mus,eq2833b(1000,mus,sigma,m),col="black",pch=20,xlab="my",ylab="mu",type="l")
 lines(mus,check[,"var(x)"],col="green")
-lines(mus,eq2833b(1000,mus,1,m),col="red",pch=20,sls="l")
-lines(mus,eq2833b(1000,mus,10,m),col="red",pch=20,sls="l")
+lines(mus,eq2833b(2000,mus,.6,m),col="red",pch=20)
+lines(mus,eq2833b(2000,mus,sigma,m),col="red",pch=20)
 
 mu=0.001
 check=binded$x[binded$x$mu == mu & binded$x$m == m & binded$x$E == .1 & binded$x$K == 1000,]
 sigmas=unique(na.exclude(binded$x$sigma))
 varsigma=tapply(check[,"var(x)"],check$sigma,mean)
-plot(sigmas,eq2833b(1000,mu,sigmas,m),col="red",pch=20,sls="l",log="x")
+plot(sigmas,eq2833b(1000,mu,sigmas,m),col="red",pch=20,type="l",log="x")
 lines(sigmas,varsigma)
 points(check$sigma,check[,"var(x)"])
 legend("topleft",c("eq28.33b","simulations"),col=c("red",1),lty=1)
 
 mu=0.001
-check=binded$x[binded$x$sigma == .1 & binded$x$m == m & binded$x$E == .1 & binded$x$K == 1000,]
-mus=unique(na.exclude(binded$x$mu))
-varmu=tapply(check[,"var(x)"],check$mu,mean)
-plot(mus,eq2833b(1000,mu=mus,sigma=.1,m),col="red",pch=20,sls="l",ylab="var(x)")
+E=.1
+K=1000
+sigma=.1
+
+check=binded[binded$mu == mu & binded$sigma == sigma & binded$m == m & binded$E == E & binded$K == K,]
+plot(getTraj(check$filename,"N"))
+mus=unique(na.exclude(binded$mu))
+varmu=tapply(check[,"var_x"],check$mu,mean)
+plot(mus,eq2833b(1000,mu=mus,sigma=500,m),col="red",pch=20,type="l",ylab="var(x)")
 lines(mus,varmu)
-points(check$mu,check[,"var(x)"])
+points(check$mu,check[,"var_x"])
 
 sigmas=10^(-5:5)
-plot(sigmas,eq2829c(1000,mu,sigmas,m),col="red",pch=20,sls="l",log="xy")
-lines(sigmas,eq2833b(1000,mu,sigmas,m),col="green",pch=20,sls="l")#xlim=c(0,1),ylim=c(0,.002))
-lines(sigmas,eq2830a(1000,mu,sigmas,m),col="red",pch=20,sls="l")#xlim=c(0,1),ylim=c(0,.002))
+plot(sigmas,eq2829c(1000,mu,sigmas,m),col="red",pch=20,type="l",log="xy")
+lines(sigmas,eq2833b(1000,mu,sigmas,m),col="green",pch=20,type="l")#xlim=c(0,1),ylim=c(0,.002))
+lines(sigmas,eq2830a(1000,mu,sigmas,m),col="blue",pch=20,type="l")#xlim=c(0,1),ylim=c(0,.002))
 
-for(sigma in c(0.1,1,10,100,1000))lines(mus,eq2833b(1000,mus,sigma,m),col="black",pch=20,xlab="my",ylab="mu",sls="l")
+##testing getTraj and stuff
+folder="sixsixequalone/"
+folder="unifPop50k/"
+sumaries=getFullExperimentSummary(folder)
+sumariesUnif=getFullExperimentSummary(folderUnif)
+mus=unique(sumaries$mu)
+ms=unique(sumaries$m)
+m=0.1
+E=0
+K=1000
+sigma=.1
+nstep=3000
+
+cols=colorRampPalette(c("red","blue"))(length(mus))
+names(cols)=mus
+
+rangesummaries=(maxts-nstep/10):maxts
+rangesummaries=1:maxts
+
+    png(paste0("comparisonMUandtraj_allsigmas.png"),width=1100,height=1300)
+
+sumaries=allsummaries$unifPop50k
+    par(mfrow=c(4,3))
+    ratio=c()
+    for(sigma in unique(sumaries$sigma)){
+        allsubset=getSubsetWithTraj(sumaries,sigma=sigma,mu=mus,m=m,E=E,K=K)
+        #allsubset=list(summary=sumaries)
+        #    maxts=nrow(allsubset$traj)
+        options(scipen=999)
+        allsubmu=lapply(mus,function(mu)getSubsetWithTraj(sumaries,sigma=sigma,mu=mu,m=m,E=E,K=K)$traj[rangesummaries,])
+        a=sapply(allsubmu,quantile)[c(2,4),]
+        plot(1,1,type="n",xlab="time step",ylab="var_x",ylim=range(a[1,],a[2,]*2),xlim=range(rangesummaries),main="summary of full trajectories (variance)")
+        lapply(1:length(allsubmu),function(sub)
+               {
+                   plotTraj(rangesummaries,allsubmu[[sub]],col=cols[sub],xlim=range(rangesummaries),add=T)
+               })
+        allsubmu=lapply(mus,function(mu)getSubsetWithTraj(sumaries,sigma=sigma,mu=mu,m=m,E=E,K=K,var="N")$traj[rangesummaries,])
+        a=sapply(allsubmu,quantile)[c(2,4),]
+        plot(1,1,type="n",xlab="time step",ylab=expression(N[e]),ylim=c(500,1100),xlim=range(rangesummaries),main="summary of full trajectories (effective pop)")
+        lapply(1:length(allsubmu),function(sub)
+               {
+                   plotTraj(rangesummaries,allsubmu[[sub]],col=cols[sub],xlim=range(rangesummaries),add=T)
+               })
+        allsubmu=lapply(mus,function(mu)getSubsetWithTraj(sumaries,sigma=sigma,mu=mu,m=m,E=E,K=K,var="mean_w")$traj[rangesummaries,])
+        a=sapply(allsubmu,quantile)[c(2,4),]
+        plot(1,1,type="n",xlab="time step",ylab=expression(mean[w]),ylim=c(.5,1),xlim=range(rangesummaries),main="summary of full trajectories (mean fitness)")
+        lapply(1:length(allsubmu),function(sub)
+               {
+                   plotTraj(rangesummaries,allsubmu[[sub]],col=cols[sub],xlim=range(rangesummaries),add=T)
+               })
+    }
+
+    dev.off()
+
+
+
+
+
+    mu=0.001
+    for(mu in mus){
+        sigmas=unique(sumaries$sigma)
+        cols=rev(heat.colors(length(sigmas)))
+        names(cols)=sigmas
+
+        allsubset=getSubsetWithTraj(sumaries,sigma=sigmas,mu=mu,m=m,E=E,K=K)
+        maxts=nrow(allsubset$traj)
+        png(paste0("comparisonSIGMAandtraj_mu=",mu,".png"),width=900)
+        options(scipen=999)
+        par(mfrow=c(1,2))
+        mtitle=list("Compare W&L with simulations",bquote("param:(" *mu[x]  == .(mu) ~ "," * K == .(K) ~ "," * m[x] ==.(m) ~ "," * E == .(E)* ")"))
+        plot(sigmas,eq2833b(mean(allsubset$summary$N),mu,sigmas,m),pch=20,type="l",ylab="var_x",xlab=expression(sigma[s]),main=,log="x")
+        mtext(do.call(expression,rev(mtitle)),side=3,line=0:1)
+        addMeanSD(allsubset$summary$sigma,allsubset$summary$var_x,col=cols)
+        legend("topleft",legend=c(sigmas,"W&L 2833"),col=c(cols,1),title=expression(sigma),lwd=2)
+        allsubmu=lapply(sigmas,function(sigma)getSubsetWithTraj(sumaries,sigma=sigma,mu=mu,m=m,E=E,K=K)$traj[rangesummaries,])
+        plot(1,1,type="n",xlab="time step",ylab="var_x",ylim=range(sapply(allsubmu,quantile)[c(2,4),]),xlim=range(rangesummaries),main="summary of the end of the trajectories")
+        lapply(1:length(allsubmu),function(sub)
+               {
+                   plotTraj(rangesummaries,allsubmu[[sub]],col=cols[sub],xlim=range(rangesummaries),add=T)
+               })
+        dev.off()
+    }
+
+
+    mu=0.001
+    sigma=.4
+    for(mu in mus){
+        ms=unique(sumaries$m)
+        cols=rev(heat.colors(length(ms)))
+        names(cols)=ms
+        allsubset=getSubsetWithTraj(sumaries,sigma=sigma,mu=mu,m=ms,E=E,K=K)
+        maxts=nrow(allsubset$traj)
+        png(paste0("comparisonMandtraj_mu=",mu,".png"),width=900)
+        options(scipen=999)
+        par(mfrow=c(1,2))
+        mtitle=list("Compare W&L with simulations",bquote("param:(" *mu[x]  == .(mu) ~ "," * K == .(K) ~ "," * sigma[s] ==.(sigma) ~ "," * E == .(E)* ")"))
+        plot(ms,eq2833b(mean(allsubset$summary$N),mu,sigma,ms),pch=20,type="l",ylab="var_x",xlab=expression(m[x]),main=,log="x")
+        mtext(do.call(expression,rev(mtitle)),side=3,line=0:1)
+        addMeanSD(allsubset$summary$sigma,allsubset$summary$var_x,col=cols)
+        legend("topleft",legend=c(ms,"W&L 2833"),col=c(cols,1),title=expression(sigma),lwd=2)
+        allsubmu=lapply(ms,function(sigma)getSubsetWithTraj(sumaries,sigma=sigma,mu=mu,m=m,E=E,K=K)$traj[rangesummaries,])
+        plot(1,1,type="n",xlab="time step",ylab="var_x",ylim=range(sapply(allsubmu,quantile)[c(2,4),]),xlim=range(rangesummaries),main="summary of the end of the trajectories")
+        lapply(1:length(allsubmu),function(sub)
+               {
+                   plotTraj(rangesummaries,allsubmu[[sub]],col=cols[sub],xlim=range(rangesummaries),add=T)
+               })
+        dev.off()
+    }
+
+    ### barplot version:
+    
+    folder=c("sixsixequalone","unifPop50k")
+    allsummaries=lapply(folder,getFullExperimentSummary)
+    names(allsummaries)=folder
+
+    Ks=unique(sumaries$K)
+    cols=rev(colorRampPalette(c("red","blue"))(length(Ks)))
+
+    for(i in folder){
+    pdf(paste0(i,"aalvariance.pdf"),width=10,heigh=9)
+    par(mfrow=c(4,3),mar=c(4,4,1,1))
+    #sigmascale=c(0.01,0.01,0.01,1.7)
+    sumaries=allsummaries[[i]]
+    names(sigmascale)=sigmas
+    for(sigma in unique(sumaries$sigma)){
+        for(mu in mus){
+            allsubset=getSubsetWithTraj(sumaries,sigma=sigma,mu=mu,m=ms,E=E,K=Ks,traj=F)
+            allmeans=tapply(allsubset$summary$var_x,allsubset$summary[,c("K","m")],mean)
+            allpopMean=tapply(allsubset$summary$N,allsubset$summary[,c("K","m")],mean)
+            allEstimates=allpopMean
+            for(k in as.character(Ks))
+                for(im in as.character(ms))
+                    allEstimates[k,im]=eq2833b(allpopMean[k,im],mu,sigma,as.numeric(im))
+            allsds=tapply(allsubset$summary$var_x,allsubset$summary[,c("K","m")],sd)
+            res=barplot(allmeans,beside=T,legend=F,col="white",plot=F)
+            #ulul=plot(0:max(res),ylim=c(0,sigmascale[as.character(sigma)]),type="n",axes=F,xlab="",ylab="")
+            ulul=plot(0:max(res),ylim=c(0,max(allmeans+allsds,allEstimates)),type="n",axes=F,xlab="",ylab="")
+            arrows(as.vector(res), allmeans+allsds, as.vector(res), allmeans-allsds,angle=90,code=3,length=.05,lwd=2,col=cols)
+            points(as.vector(res),as.vector(allEstimates),pch=21,bg="white",cex=1)
+            axis(1,at=res[2,],labels=sapply(ms,function(i)as.expression(bquote(m[x] == .(i)))),lwd=0)
+
+            axis(2)
+            mtext(bquote(var[x]),2,2,cex=1)
+            mtext(bquote(mu == .(mu) ~ sigma[s] == .(sigma) ),1,3)
+            box()
+        }
+        legend("topleft",legend=c(paste0("K=",Ks),"Hermisson"),fill=c(cols,NA),pch=c(NA,NA,NA,21),border=c(1,1,1,NA))
+    }
+    dev.off()
+    }
+
+    dev.off()
+
+
+
+for(sigma in c(0.1,1,10,100,1000))lines(mus,eq2833b(1000,mus,sigma,m),col="black",pch=20,xlab="my",ylab="mu",type="l")
 lines(mus,check[,"var(x)"],col="green")
-lines(mus,eq2833b(1000,mus,1,m),col="red",pch=20,sls="l")
-lines(mus,eq2833b(1000,mus,10,m),col="red",pch=20,sls="l")
+plot(mus,eq2833b(.1,mus,K,m),col="red",pch=20,type="l")
+lines(mus,eq2833b(1000,mus,1,m),col="red",pch=20,type="l")
+lines(mus,eq2833b(1000,mus,10,m),col="red",pch=20,type="l")
 
-eq2830a <- function(n,mu,sigma,m)return((4*mu*sigma)/(1+sigma/(n*m^2)))
-
-eq2829c <- function(n,mu,sigma,m)return(m^2/4 * (sqrt(1+(16*mu*sigma)/(m^2))-1))
-
-eq2833b <- function(n,mu,sigma,m){
-    gamma=m^2/(2*sigma)
-    return(1*m^2*(gamma*n+1)/(4*gamma*n)*(sqrt(1+2*(gamma*n*4*mu*n)/(gamma*n+1)^2)-1))
-}
 
 par(mfrow=c(2,1),cex=1.2)
 par(mar=c(2,4,2,4))
-plot(signleExemple$mean$p,sls="l",ylim=range(signleExemple$p),ylab="p",main="Phenosls and theta",bty="n",)
+plot(signleExemple$mean$p,type="l",ylim=range(signleExemple$p),ylab="p",main="Phenosls and theta",bty="n",)
 lines(signleExemple$mean$p-sqrt(signleExemple$mean$p),lty=3)
 lines(signleExemple$mean$p+sqrt(signleExemple$mean$p),lty=3)
 par(new=T)
-plot(signleExemple$theta,sls="l",col="blue",yaxt="n",xaxt="n",ylim=range(sapply(t$allpop,"[[","p")),ylab="",bty="n",)
+plot(signleExemple$theta,type="l",col="blue",yaxt="n",xaxt="n",ylim=range(sapply(t$allpop,"[[","p")),ylab="",bty="n",)
 axis(4,col="blue",col.axis="blue")
 mtext(expression(theta),4,2,col="blue")
 
@@ -337,5 +491,6 @@ abline(v=Mode((bigtest13$sd$x[2000:10000])^2))
 abline(v=Mode((bigtest14$sd$x[2000:10000])^2))
 
 test=simpleEvoModel( 1000, 1000,omega = 0,delta = 0 ,b=2,K=2000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=1000,y=1,z=1),log=T,sls="random",pop=pop,outputrate=100)
+
 
 hdrmode <- function(d)hdr(d)$mode
