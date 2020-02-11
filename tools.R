@@ -175,7 +175,7 @@ addMeanSD <- function(x,y,col=1,plot=T){
 }
 
 getFullExperimentSummary <- function(fold){
-    allfolds=list.dirs(folder,recursive=F)
+    allfolds=list.dirs(fold,recursive=F)
     allsummary=c()
     for(f in allfolds){
         try({
@@ -187,10 +187,10 @@ getFullExperimentSummary <- function(fold){
     return(allsummary)
 }
 
-getSubsetWithTraj <- function(summarydataset,m,sigma,E,K,mu,var="var_x"){
+getSubsetWithTraj <- function(summarydataset,m,sigma,E,K,mu,var="var_x",traj=T){
     res=list()
     res$summary=summarydataset[summarydataset$mu %in% mu & summarydataset$sigma %in% sigma & summarydataset$m %in% m & summarydataset$E %in% E & summarydataset$K %in% K,]
-    res$traj=sapply(res$summary$filename,getTraj,var=var)
+    if(traj)res$traj=sapply(res$summary$filename,getTraj,var=var)
     return(res)
 }
 
