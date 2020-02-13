@@ -113,6 +113,15 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
         ##computation of the fitness
         pop[,"w"] = exp(-((pop[,"p"]-theta[t])^2)/(2*sigma['s']^2)-((pop[,"y"])^2)/(2*sigma['y']^2)-((pop[,"z"])^2)/(2*sigma['z']^2))
 
+
+        ##save the population state
+        if((t %% outputrate) == 0){
+            output[modt+1,]=c(t,updateOutputLine(pop,statfun,statvar),n,theta[t],outputparam)
+            modt=modt+1 #maybe a way to calculate the indice of the outptu matrix witouth keeping this indice
+        }
+        if(allpops)allpop[[t]]=pop
+
+
         #selection
         selected=which(runif(n)<selection(pop[,"w"],b,n,K))
         if(length(selected)<1)break
@@ -152,11 +161,6 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
         pop=childs
         n=newn
 
-        if((t %% outputrate) == 0){
-            output[modt+1,]=c(t,updateOutputLine(pop,statfun,statvar),n,theta[t],outputparam)
-            modt=modt+1 #maybe a way to calculate the indice of the outptu matrix witouth keeping this indice
-        }
-        if(allpops)allpop[[t]]=pop
 
     }
 	if(allpops)output$allpop=allpop
