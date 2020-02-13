@@ -22,13 +22,14 @@ dir.create(fold)
 source("protomodels.R")
 library(parallel)
 allparameters=list()
-allparameters[["mu"]]=c(0,0.001,0.01)
+allparameters[["mu"]]=c(0.001,0.01)
 allparameters[["K"]]=c(500,1000,2000)
 #allparameters[["E"]]=c(0,.05,.1)
 allparameters[["E"]]=0
+allparameters[["v"]]=c(0.1,.5,2,10)
 allparameters[["m"]]=c(.05,.1,.2)
 allparameters[["sigma"]]=c(.1,.2,.4,10000)
-allparameters[["delta"]]=0
+allparameters[["delta"]]=c(0.01,0.1,10)
 parameters=as.data.frame(expand.grid(allparameters))
 repet=nsm
 parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
@@ -65,10 +66,10 @@ for(gene in genes){
                                   sigma["s"]=parameters[v,"sigma"]
                                   if(gene == "x") pop[,gene]=runif(n,-1,1)
                                   else pop[,gene]=runif(n,0,1)
-                                  fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=10)
+                                  fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=100)
                                   filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
                                   save(file=filename_mat,fullmat)
-                                  c(as.list(getSummary(fullmat,nstep=3000,vars=c("var_x","N","mean_w"))),filename=filename_mat)
+                                  c(as.list(getSummary(fullmat,nstep=100,vars=c("var_x","N","mean_w"))),filename=filename_mat)
                               },parameters=parameters,gene=gene,pop=pop)
                     )
 
