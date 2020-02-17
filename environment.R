@@ -36,9 +36,10 @@ getSpectrum <- function(x){
 }
 
 #return a 1/f environmen with curve = omega and sd = delta
-environment <- function(N,omega,delta){
+environment <- function(N,omega,delta,vt=NULL){
     ts=TK95(N,omega)
     ts=delta*ts/sd(ts)
+    if(!is.null(vt))ts = ts + vt*1:N
     return(ts)
 }
 
