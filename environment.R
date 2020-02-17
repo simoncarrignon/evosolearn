@@ -47,3 +47,20 @@ environment <- function(N,omega,delta,vt=NULL){
 gauss <- function(N,mean,delta,v){
     sapply(1:N,function(t)rnorm(1,mean*v,delta))
 }
+
+
+exploreEnvironmentsProperties <- function(){
+
+    pdf("env_corel.pdf",width=8,height=4.5)
+    par(mfrow=c(1,3))
+
+    for(omega in 0:2){
+        t=environment(50000,omega,.1)
+        vtm=t[1:(length(t)-1)]
+        vt=t[2:length(t)]
+        print(cov(vt,vtm))
+        cv=round(cov(vt,vtm),digit=3)
+        plot((1:50000)[seq(1,50000,100)],t[seq(1,50000,100)],main=bquote(omega == .(omega)~","~delta==.1~", cov("*theta[t]*","*theta[t-1]*")" == .(cv)),ylab=bquote(theta[t]),,xlab="t",type="l",lwd=1)
+    }
+    dev.off()
+}
