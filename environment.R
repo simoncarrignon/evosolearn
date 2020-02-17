@@ -35,7 +35,7 @@ getSpectrum <- function(x){
 	S.pgram <- (1/length(x))*abs(fft(x))^2
 }
 
-#return a 1/f environmen with curve = omega and sd = delta
+#return a 1/f environmen with curve = omega and sd = delta and increase rate vt
 environment <- function(N,omega,delta,vt=NULL){
     ts=TK95(N,omega)
     ts=delta*ts/sd(ts)
