@@ -43,3 +43,6 @@ environment <- function(N,omega,delta){
 }
 
 
+gauss <- function(N,mean,delta,v){
+    sapply(1:N,function(t)rnorm(1,mean*v,delta))
+}
