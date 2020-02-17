@@ -263,189 +263,29 @@ sigma=.1
 nstep=3000
 
 
-    folder=c("sixsixequalone","unifPop50k","forpercpu")
-    allsummaries=lapply(folder,getFullExperimentSummary)
-    names(allsummaries)=folder
+folder=c("sixsixequalone","unifPop50k","forpercpu")
+allsummaries=lapply(folder,getFullExperimentSummary)
+names(allsummaries)=folder
 
-    Ks=unique(allsummaries[[1]]$K)
-    mus=unique(allsummaries[[1]]$mu)
-    ms=unique(allsummaries[[1]]$m)
-    sigmas=unique(allsummaries[[1]]$sigma)
-    E=0
+###======== environment changes:
+
+folder=c("growingDelta","unifPop50k")
+allsummaries=lapply(folder,getFullExperimentSummary)
+names(allsummaries)=folder
+
+Ks=unique(allsummaries[[1]]$K)
+mus=unique(allsummaries[[1]]$mu)
+ms=unique(allsummaries[[1]]$m)
+sigmas=unique(allsummaries[[1]]$sigma)
+deltas=unique(allsummaries[[1]]$delta)
+E=0
 
 
-    scale=list(var_x=c(0,0.005),N=c(400,2100),mean_w=c(.5,1))
+    scale=list(var_x=list("0.1"=c(0,0.004),"0.2"=c(0,0.002),"0.4"=c(0,0.005),"10000"=c(0,0.15)),
+               N=c(0,2100),
+               mean_w=c(.2,1)
+               )
     side=list(var_x="topleft",N="bottomright",mean_w="bottomright")
-for(exp in folder[1:2]){
-    sumaries=allsummaries[[exp]]
-    ratio=c()
-    for(obs in c("var_x","mean_w","N")){
-        tmp=exp
-        if(exp=="sixsixequalone")tmp="startzero"
-        pdf(paste0(tmp,"_obs=",obs,".pdf"),width=10,height=12)
-        par(mfrow=c(4,3))
-        for(sigma in unique(sumaries$sigma)){
-            for(mu in unique(sumaries$mu)){
-                allsubset=getSubsetWithTraj(sumaries,sigma=sigma,mu=mu,m=m,E=E,K=K)
-                maxts=nrow(allsubset$traj)
-                rangesummaries=1:maxts
-                options(scipen=999)
-                allsubmu=lapply(Ks,function(k)getSubsetWithTraj(sumaries,sigma=sigma,mu=mu,m=m,E=E,K=k,var=obs)$traj[rangesummaries,])
-                a=sapply(allsubmu,quantile)[c(2,4),]
-                param=bquote("full traj" ~ .(obs) ~ "with" ~ sigma[s] == .(sigma) ~ E == .(E) ~ m == .(m) ~ mu == .(mu) )
-                if(is.null(scale[obs]))
-                    ylim=range(a[1,],a[2,])
-                else 
-                    ylim=scale[[obs]]
-                plot(1,1,type="n",xlab="time step",ylab=obs,ylim=ylim,xlim=range(rangesummaries),main=param)
-                cols=colorRampPalette(c("red","blue"))(length(allsubmu))
-                names(cols)=allsubmu
-                lapply(1:length(allsubmu),function(sub)
-                       {
-                           plotTraj(rangesummaries,allsubmu[[sub]],col=cols[sub],xlim=range(rangesummaries),add=T,mean=T)
-                       })
-                legend(side[[obs]],legend=paste0("K=",Ks),col=cols,lty=1)
-            }
-        }
-        dev.off()
-    }
-}
-
-
-    ### barplot version:
-    
-
-    cols=rev(colorRampPalette(c("red","blue"))(length(Ks)))
-
-    for(i in folder){
-        pdf(paste0(i,"_allvariance.pdf"),title=i,width=10,heigh=9)
-        par(mfrow=c(4,3),mar=c(4,4,1,1))
-        #sigmascale=c(0.01,0.01,0.01,1.7)
-        sumaries=allsummaries[[i]]
-        #names(sigmascale)=sigmas
-        #allscale=list()
-        for(sigma in unique(sumaries$sigma)){
-        #allscale[[as.character(sigma)]]=list()
-            for(mu in mus){
-                allsubset=getSubsetWithTraj(sumaries,sigma=sigma,mu=mu,m=ms,E=E,K=Ks,traj=F)
-                allmeans=tapply(allsubset$summary$var_x,allsubset$summary[,c("K","m")],mean)
-                allpopMean=tapply(allsubset$summary$N,allsubset$summary[,c("K","m")],mean)
-                allEstimates=allpopMean
-                for(k in as.character(Ks))
-                    for(im in as.character(ms))
-                        allEstimates[k,im]=eq2833b(allpopMean[k,im],mu,sigma,as.numeric(im))
-                allsds=tapply(allsubset$summary$var_x,allsubset$summary[,c("K","m")],sd)
-                res=barplot(allmeans,beside=T,legend=F,col="white",plot=F)
-                #ulul=plot(0:max(res),ylim=c(0,sigmascale[as.character(sigma)]),type="n",axes=F,xlab="",ylab="")
-                #allscale[[as.character(sigma)]][[as.character(mu)]]=c(0,max(allmeans+allsds,allEstimates))
-                ulul=plot(0:max(res),ylim=allscale[[as.character(sigma)]][[as.character(mu)]],type="n",axes=F,xlab="",ylab="")
-                arrows(as.vector(res), allmeans+allsds, as.vector(res), allmeans-allsds,angle=90,code=3,length=.05,lwd=2,col=cols)
-                points(as.vector(res),as.vector(allEstimates),pch=21,bg="white",cex=1)
-                axis(1,at=res[2,],labels=sapply(ms,function(i)as.expression(bquote(m[x] == .(i)))),lwd=0)
-
-                axis(2)
-                mtext(bquote(var[x]),2,2,cex=1)
-                mtext(bquote(mu == .(mu) ~ sigma[s] == .(sigma) ),1,3)
-                box()
-            }
-            legend("topleft",legend=c(paste0("K=",Ks),"Hermisson"),fill=c(cols,NA),pch=c(NA,NA,NA,21),border=c(1,1,1,NA))
-        }
-        dev.off()
-    }
-
-
-    ###======== environment changes:
-
-
-    folder=c("sixsixequalone","unifPop50k","forpercpu")
-    allsummaries=lapply(folder,getFullExperimentSummary)
-    names(allsummaries)=folder
-
-    Ks=unique(allsummaries[[1]]$K)
-    mus=unique(allsummaries[[1]]$mu)
-    ms=unique(allsummaries[[1]]$m)
-    sigmas=unique(allsummaries[[1]]$sigma)
-    E=0
-
-
-    scale=list(var_x=c(0,0.005),N=c(400,2100),mean_w=c(.5,1))
-    side=list(var_x="topleft",N="bottomright",mean_w="bottomright")
-for(exp in folder[1:2]){
-    sumaries=allsummaries[[exp]]
-    ratio=c()
-    for(obs in c("var_x","mean_w","N")){
-        tmp=exp
-        if(exp=="sixsixequalone")tmp="startzero"
-        pdf(paste0(tmp,"_obs=",obs,".pdf"),width=10,height=12)
-        par(mfrow=c(4,3))
-        for(sigma in unique(sumaries$sigma)){
-            for(mu in unique(sumaries$mu)){
-                allsubset=getSubsetWithTraj(sumaries,sigma=sigma,mu=mu,m=m,E=E,K=K)
-                maxts=nrow(allsubset$traj)
-                rangesummaries=1:maxts
-                options(scipen=999)
-                allsubmu=lapply(Ks,function(k)getSubsetWithTraj(sumaries,sigma=sigma,mu=mu,m=m,E=E,K=k,var=obs)$traj[rangesummaries,])
-                a=sapply(allsubmu,quantile)[c(2,4),]
-                param=bquote("full traj" ~ .(obs) ~ "with" ~ sigma[s] == .(sigma) ~ E == .(E) ~ m == .(m) ~ mu == .(mu) )
-                if(is.null(scale[obs]))
-                    ylim=range(a[1,],a[2,])
-                else 
-                    ylim=scale[[obs]]
-                plot(1,1,type="n",xlab="time step",ylab=obs,ylim=ylim,xlim=range(rangesummaries),main=param)
-                cols=colorRampPalette(c("red","blue"))(length(allsubmu))
-                names(cols)=allsubmu
-                lapply(1:length(allsubmu),function(sub)
-                       {
-                           plotTraj(rangesummaries,allsubmu[[sub]],col=cols[sub],xlim=range(rangesummaries),add=T,mean=T)
-                       })
-                legend(side[[obs]],legend=paste0("K=",Ks),col=cols,lty=1)
-            }
-        }
-        dev.off()
-    }
-}
-
-
-    ### barplot version:
-    
-
-    cols=rev(colorRampPalette(c("red","blue"))(length(Ks)))
-
-    for(i in folder){
-        pdf(paste0(i,"_allvariance.pdf"),title=i,width=10,heigh=9)
-        par(mfrow=c(4,3),mar=c(4,4,1,1))
-        #sigmascale=c(0.01,0.01,0.01,1.7)
-        sumaries=allsummaries[[i]]
-        #names(sigmascale)=sigmas
-        #allscale=list()
-        for(sigma in unique(sumaries$sigma)){
-        #allscale[[as.character(sigma)]]=list()
-            for(mu in mus){
-                allsubset=getSubsetWithTraj(sumaries,sigma=sigma,mu=mu,m=ms,E=E,K=Ks,traj=F)
-                allmeans=tapply(allsubset$summary$var_x,allsubset$summary[,c("K","m")],mean)
-                allpopMean=tapply(allsubset$summary$N,allsubset$summary[,c("K","m")],mean)
-                allEstimates=allpopMean
-                for(k in as.character(Ks))
-                    for(im in as.character(ms))
-                        allEstimates[k,im]=eq2833b(allpopMean[k,im],mu,sigma,as.numeric(im))
-                allsds=tapply(allsubset$summary$var_x,allsubset$summary[,c("K","m")],sd)
-                res=barplot(allmeans,beside=T,legend=F,col="white",plot=F)
-                #ulul=plot(0:max(res),ylim=c(0,sigmascale[as.character(sigma)]),type="n",axes=F,xlab="",ylab="")
-                #allscale[[as.character(sigma)]][[as.character(mu)]]=c(0,max(allmeans+allsds,allEstimates))
-                ulul=plot(0:max(res),ylim=allscale[[as.character(sigma)]][[as.character(mu)]],type="n",axes=F,xlab="",ylab="")
-                arrows(as.vector(res), allmeans+allsds, as.vector(res), allmeans-allsds,angle=90,code=3,length=.05,lwd=2,col=cols)
-                points(as.vector(res),as.vector(allEstimates),pch=21,bg="white",cex=1)
-                axis(1,at=res[2,],labels=sapply(ms,function(i)as.expression(bquote(m[x] == .(i)))),lwd=0)
-
-                axis(2)
-                mtext(bquote(var[x]),2,2,cex=1)
-                mtext(bquote(mu == .(mu) ~ sigma[s] == .(sigma) ),1,3)
-                box()
-            }
-            legend("topleft",legend=c(paste0("K=",Ks),"Hermisson"),fill=c(cols,NA),pch=c(NA,NA,NA,21),border=c(1,1,1,NA))
-        }
-        dev.off()
-    }
 
 
 for(sigma in c(0.1,1,10,100,1000))lines(mus,eq2833b(1000,mus,sigma,m),col="black",pch=20,xlab="my",ylab="mu",type="l")
