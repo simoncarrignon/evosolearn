@@ -154,16 +154,16 @@ printOne <- function(alldata,gene,y,K,E,sigma,m,mu,dir="images/",pref="one",writ
     if(write)dev.off()
 }
 
-plotTraj <- function(x,alltraj,col=1,ylim=NULL,xlim=NULL,add=F,...){
+plotTraj <- function(x,alltraj,col=1,ylim=NULL,xlim=NULL,add=F,lty=1,lwd=1.4,mean=F,...){
     #mn=apply(alltraj,1,mean)
     #sd=apply(alltraj,1,sd)
-    qts=apply(alltraj,1,function(i)quantile(i))
+    qts=apply(alltraj,1,function(i)quantile(i,na.rm=T))
     if(is.null(xlim))xlim=c(0,nrow(alltraj))
     if(is.null(ylim))ylim=range(qts[c(2,4),])
     if(!add)plot(1,1,type="n",xlim=xlim,ylim=ylim,...)
-    lines(x,qts[3,],col=col,lwd=1.4)
-    lines(x,qts[4,],lty=1,col=col,lwd=.1)
-    lines(x,qts[2,],lty=1,col=col,lwd=.1)
+    lines(x,qts[3,],col=col,lwd=lwd,lty=lty)
+    if(!mean)lines(x,qts[4,],lty=1,col=col,lwd=lwd/14,lty=lty)
+    if(!mean)lines(x,qts[2,],lty=1,col=col,lwd=lwd/14,lty=lty)
 }
 
 addMeanSD <- function(x,y,col=1,plot=T){
@@ -180,17 +180,22 @@ getFullExperimentSummary <- function(fold){
     for(f in allfolds){
         try({
         load(file.path(f,"crossExplore.bin"))
-        binded[,c("N","var_x","mean_w")]=apply(binded[,c("N","var_x","mean_w")],2,function(i)as.numeric(as.character(i)))
+        #binded[,c("N","var_x","mean_w")]=apply(binded[,c("N","var_x","mean_w")],2,function(i)as.numeric(as.character(i)))
         allsummary=rbind(allsummary,binded)
         })
     }
     return(allsummary)
 }
 
-getSubsetWithTraj <- function(summarydataset,m,sigma,E,K,mu,var="var_x",traj=T){
+getSubsetWithTraj <- function(summarydataset,m,sigma,E,K,mu,delta=0,var="var_x",traj=T){
     res=list()
-    res$summary=summarydataset[summarydataset$mu %in% mu & summarydataset$sigma %in% sigma & summarydataset$m %in% m & summarydataset$E %in% E & summarydataset$K %in% K,]
-    if(traj)res$traj=sapply(res$summary$filename,getTraj,var=var)
+    res$summary=summarydataset[summarydataset$mu %in% mu & summarydataset$sigma %in% sigma & summarydataset$m %in% m & summarydataset$E %in% E & summarydataset$delta %in% delta & summarydataset$K %in% K,]
+    if(traj){
+        if(var=="dist"){
+            res$traj=sapply(res$summary$filename,getTraj,var="theta")-sapply(res$summary$filename,getTraj,var="mean_x")
+        }
+        else res$traj=sapply(res$summary$filename,getTraj,var=var)
+    }
     return(res)
 }
 
@@ -215,5 +220,5 @@ eq2829c <- function(n,mu,sigma,m)return(m^2/4 * (sqrt(1+(16*mu*sigma)/(m^2))-1))
 
 eq2833b <- function(n,mu,sigma,m){
     gamma=m^2/(2*sigma^2)
-    return(1*m^2*(gamma*n+1)/(4*gamma*n)*(sqrt(1+2*(gamma*n*4*mu*n)/(gamma*n+1)^2)-1))
+    return(2*m^2*(gamma*n+1)/(4*gamma*n)*(sqrt(1+2*(gamma*n*4*mu*n)/(gamma*n+1)^2)-1))
 }
