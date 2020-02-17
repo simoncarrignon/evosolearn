@@ -26,16 +26,16 @@ allparameters[["mu"]]=c(0.001,0.01)
 allparameters[["K"]]=c(500,1000,2000)
 #allparameters[["E"]]=c(0,.05,.1)
 allparameters[["E"]]=0
-allparameters[["v"]]=c(0.1,.5,2,10)
 allparameters[["m"]]=c(.05,.1,.2)
-allparameters[["sigma"]]=c(.1,.2,.4,10000)
-allparameters[["delta"]]=c(0.01,0.1,10)
+allparameters[["sigma"]]=c(.1,.2,.4,1000)
+allparameters[["delta"]]=c(.1,.2,.4,1)
+allparameters[["outputrate"]]=100
 parameters=as.data.frame(expand.grid(allparameters))
 repet=nsm
 parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
 
 
-omega=0
+omega=2
 n=1000
 b=2
 tstep=50000
@@ -60,13 +60,14 @@ for(gene in genes){
                                   print(paste0("g",gene,", sim #",v,"/",nrow(parameters)))
                                   delta=parameters[v,"delta"]
                                   K=parameters[v,"K"]
+                                  outputrate=parameters[v,"outputrate"]
                                   mu[gene]=parameters[v,"mu"]
                                   m[gene]=parameters[v,"m"]
                                   E[gene]=parameters[v,"E"]
                                   sigma["s"]=parameters[v,"sigma"]
                                   if(gene == "x") pop[,gene]=runif(n,-1,1)
                                   else pop[,gene]=runif(n,0,1)
-                                  fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=100)
+                                  fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate)
                                   filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
                                   save(file=filename_mat,fullmat)
                                   c(as.list(getSummary(fullmat,nstep=100,vars=c("var_x","N","mean_w"))),filename=filename_mat)
