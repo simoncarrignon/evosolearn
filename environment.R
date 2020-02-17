@@ -51,6 +51,14 @@ gauss <- function(N,mean,delta,v){
 
 exploreEnvironmentsProperties <- function(){
 
+    #get mean correlation
+    mean(replicate(10,{
+                   t=environment(10000,2,1)
+                   vtm=t[1:(length(t)-1)]
+                   vt=t[2:length(t)]
+                   cov(vt,vtm)}))
+
+
     pdf("env_corel.pdf",width=8,height=4.5)
     par(mfrow=c(1,3))
 
