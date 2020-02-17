@@ -273,12 +273,6 @@ folder=c("growingDelta","unifPop50k")
 allsummaries=lapply(folder,getFullExperimentSummary)
 names(allsummaries)=folder
 
-Ks=unique(allsummaries[[1]]$K)
-mus=unique(allsummaries[[1]]$mu)
-ms=unique(allsummaries[[1]]$m)
-sigmas=unique(allsummaries[[1]]$sigma)
-deltas=unique(allsummaries[[1]]$delta)
-E=0
 
 
     scale=list(var_x=list("0.1"=c(0,0.004),"0.2"=c(0,0.002),"0.4"=c(0,0.005),"10000"=c(0,0.15)),
