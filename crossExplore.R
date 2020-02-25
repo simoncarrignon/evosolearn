@@ -27,15 +27,20 @@ allparameters[["K"]]=c(500,1000,2000)
 #allparameters[["E"]]=c(0,.05,.1)
 allparameters[["E"]]=0
 allparameters[["m"]]=c(.05,.1,.2)
-allparameters[["sigma"]]=c(.1,.2,.4,1000)
-allparameters[["delta"]]=c(.1,.2,.4,1)
+#allparameters[["m"]]=.1
+allparameters[["sigma"]]=c(1,2,4,10000)
+allparameters[["delta"]]=c(0,.1,.2,.4,1)
+#allparameters[["delta"]]=c(0,1,4)
+#allparameters[["vt"]]=c(0.001,0.02,.04,.08,.2)
+allparameters[["vt"]]=0
+allparameters[["omega"]]=c(0,2)
 allparameters[["outputrate"]]=100
 parameters=as.data.frame(expand.grid(allparameters))
 repet=nsm
 parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
 
 
-omega=2
+#omega=2
 n=1000
 b=2
 tstep=50000
@@ -59,15 +64,17 @@ for(gene in genes){
                               {
                                   print(paste0("g",gene,", sim #",v,"/",nrow(parameters)))
                                   delta=parameters[v,"delta"]
+                                  omega=parameters[v,"omega"]
                                   K=parameters[v,"K"]
                                   outputrate=parameters[v,"outputrate"]
+                                  vt=parameters[v,"vt"]
                                   mu[gene]=parameters[v,"mu"]
                                   m[gene]=parameters[v,"m"]
                                   E[gene]=parameters[v,"E"]
                                   sigma["s"]=parameters[v,"sigma"]
                                   if(gene == "x") pop[,gene]=runif(n,-1,1)
                                   else pop[,gene]=runif(n,0,1)
-                                  fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate)
+                                  fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt)
                                   filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
                                   save(file=filename_mat,fullmat)
                                   c(as.list(getSummary(fullmat,nstep=100,vars=c("var_x","N","mean_w"))),filename=filename_mat)
