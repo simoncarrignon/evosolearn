@@ -177,13 +177,14 @@ addMeanSD <- function(x,y,col=1,plot=T){
     return(rbind(meany+sdy,meany,meany-sdy))
 }
 
-getFullExperimentSummary <- function(fold){
+getFullExperimentSummary <- function(fold,exclude=NULL){
     allfolds=list.dirs(fold,recursive=F)
     allsummary=c()
     for(f in allfolds){
         try({
         load(file.path(f,"crossExplore.bin"))
         #binded[,c("N","var_x","mean_w")]=apply(binded[,c("N","var_x","mean_w")],2,function(i)as.numeric(as.character(i)))
+        if(!is.null(exclude))binded=binded[,which(colnames(binded)!="outputrate")]
         allsummary=rbind(allsummary,binded)
         })
     }
@@ -211,6 +212,7 @@ alpha <- function(color,alpha) rgb(t(col2rgb(color)/255),alpha=alpha)
 #' @param  n number or shades wanted
 shades<-function(color,n) sapply(seq(0,1,length.out=n+1),alpha,color=color)[2:(n+1)]
 
+eq2833a <- function(n,mu,sigma,m)return(mu*m^2*n)
 
 eq2830a <- function(n,mu,sigma,m)return((4*mu*sigma)/(1+sigma/(n*m^2)))
 
