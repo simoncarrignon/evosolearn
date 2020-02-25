@@ -22,15 +22,21 @@ plotAllVariableSummaries <- function(summaryresults,E,estimate=NULL,ylim=NULL){
                                      allmeans=tapply(singlesetup$var_x,singlesetup[,c("K","m")],mean,na.rm=T)
                                      allsds=tapply(singlesetup$var_x,singlesetup[,c("K","m")],sd,na.rm=T)
                                      allestimates=NULL
+                                     noselection=NULL
                                      if(!is.null(estimate)){
                                          allpopMean=tapply(singlesetup$N,singlesetup[,c("K","m")],mean,na.rm=T)
                                          allestimates=allpopMean
+                                         if(sigma>1000)
+                                             noselection=allpopMean
                                          for(k in as.character(Ks))
-                                             for(im in as.character(ms))
+                                             for(im in as.character(ms)){
                                                  allestimates[k,im]=estimate(allpopMean[k,im],mu,sigma,as.numeric(im))
+                                                 if(sigma>1000)
+                                                     noselection[k,im]=eq2833a(allpopMean[k,im],mu,sigma,as.numeric(im))
+                                             }
                                      }
                                      allranges=range(allmeans+allsds,allmeans-allsds,allestimates)
-                                     return(list(mean=allmeans,sd=allsds,range=allranges,estimate=allestimates)) 
+                                     return(list(mean=allmeans,sd=allsds,range=allranges,estimate=allestimates,noselection=noselection)) 
                                  }
             )
             if(sum(lengths(getallmetrics))==0)break
@@ -49,14 +55,25 @@ plotAllVariableSummaries <- function(summaryresults,E,estimate=NULL,ylim=NULL){
                 d=getallmetrics[[id]]
                 nres=res+id/10
                 if(!is.null(estimate)) points(as.vector(nres),as.vector(d$estimate),pch=21,bg="white",cex=1)
+                if(sigma>1000) points(as.vector(nres),as.vector(d$noselection),pch=22,bg="white",cex=1)
                 arrows(as.vector(nres), d$mean+d$sd, as.vector(nres), d$mean-d$sd,angle=90,code=3,length=.01,lwd=1.5,col=colsK,lty=id)
             }
-        legend("topleft",
-               legend=c(paste0("K=",Ks),"Hermisson",sapply(subdeltas,function(d)as.expression(bquote(delta==.(d))))),
-               col=c(colsK,1,rep(1,length(subdeltas))),
-               lty=c(rep(1,length(Ks)),NA,seq_along(subdeltas)),
-               pch=c(rep(NA,length(Ks)),21,rep(NA,length(subdeltas))),
-               )
+            if(sigma>1000){
+                legend("topleft",
+                       legend=c(paste0("K=",Ks),"Hermisson","no selection",sapply(subdeltas,function(d)as.expression(bquote(delta==.(d))))),
+                       col=c(colsK,1,1,rep(1,length(subdeltas))),
+                       lty=c(rep(1,length(Ks)),NA,NA,seq_along(subdeltas)),
+                       pch=c(rep(NA,length(Ks)),21,22,rep(NA,length(subdeltas))),
+                       )
+            }
+            else{
+                legend("topleft",
+                       legend=c(paste0("K=",Ks),"Hermisson",sapply(subdeltas,function(d)as.expression(bquote(delta==.(d))))),
+                       col=c(colsK,1,rep(1,length(subdeltas))),
+                       lty=c(rep(1,length(Ks)),NA,seq_along(subdeltas)),
+                       pch=c(rep(NA,length(Ks)),21,rep(NA,length(subdeltas))),
+                       )
+            }
         }
     }
 
