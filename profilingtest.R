@@ -40,3 +40,34 @@ dsondf=summaryRprof(newfunction)
 
  microbenchmark(simpleEvoModel(100, 100,omega = 0,delta = 0 ,b=2,K=2000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=1000,y=1,z=1),log=T,sls="random",pop=pop,outputrate=10),simpleEvoModel(100, 100,omega = 0,delta = 0 ,b=2,K=2000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=.1,y=0,z=0),sigma=c(s=1000,y=1,z=1),log=T,sls="random",pop=pop,outputrate=10))
 
+
+n=1000
+popsize=c(100,500,1000,2000,5000)
+
+testN=lapply(popsize,function(n)
+             {
+                 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
+                 print(n)
+                 microbenchmark(simpleEvoModel(n=n,tstep=1000,omega = 0,delta = 0 ,b=2,K=2000,m=c(x=.1,y=0,z=0),mu=c(x=.001,y=0,z=0),E=c(x=0,y=0,z=0),sigma=c(s=1000,y=1,z=1),log=F,sls="random",pop=pop,outputrate=1),unit="s")
+             }
+)
+
+
+testALLRandom=lapply(popsize,function(n)
+               {
+                   pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n),z=runif(n)),df=F)
+                   print(n)
+                   microbenchmark(simpleEvoModel(n=n,tstep=1000,omega = 0,delta = 0 ,b=2,K=2000,m=c(x=.1,y=.1,z=.1),mu=c(x=.001,y=0.001,z=0.001),E=c(x=0,y=0,z=0),sigma=c(s=1000,y=10,z=10),log=F,sls="random",pop=pop,outputrate=1),unit="s")
+               }
+)
+
+
+
+testALLBest=lapply(popsize,function(n)
+               {
+                   pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n),z=runif(n)),df=F)
+                   print(n)
+                   microbenchmark(simpleEvoModel(n=n,tstep=1000,omega = 0,delta = 0 ,b=2,K=2000,m=c(x=.1,y=.1,z=.1),mu=c(x=.001,y=0.001,z=0.001),E=c(x=0,y=0,z=0),sigma=c(s=1000,y=10,z=10),log=F,sls="best",pop=pop,outputrate=1),unit="s")
+               }
+)
+
