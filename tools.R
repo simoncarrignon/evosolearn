@@ -71,7 +71,10 @@ getSummary <- function(fullmat,gene,nstep,sumstat=mean,vars){
 
 getTraj  <-  function(filename,var){
     load(file=as.character(filename))
-    fullmat[,var]
+    if(var=="dist")
+        fullmat[,"mean_x"]-fullmat[,"theta"]
+    else
+        fullmat[,var]
 }
 
 writeResults <- function(final,var,gene){
@@ -190,12 +193,7 @@ getFullExperimentSummary <- function(fold){
 getSubsetWithTraj <- function(summarydataset,m,sigma,E,K,mu,delta=0,var="var_x",traj=T){
     res=list()
     res$summary=summarydataset[summarydataset$mu %in% mu & summarydataset$sigma %in% sigma & summarydataset$m %in% m & summarydataset$E %in% E & summarydataset$delta %in% delta & summarydataset$K %in% K,]
-    if(traj){
-        if(var=="dist"){
-            res$traj=sapply(res$summary$filename,getTraj,var="theta")-sapply(res$summary$filename,getTraj,var="mean_x")
-        }
-        else res$traj=sapply(res$summary$filename,getTraj,var=var)
-    }
+    if(traj)res$traj=sapply(res$summary$filename,getTraj,var=var)
     return(res)
 }
 
