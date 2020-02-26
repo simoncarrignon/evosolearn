@@ -1,0 +1,67 @@
+# Exploring code speed
+
+## Population size
+```{r,eval=FALSE}
+load("data/constant_env.bin")
+load("data/testN.bin")
+load("data/testALLRandom.bin")
+load("data/testALLBest.bin")
+```
+
+
+Testing how execution time  change  when K increase when no social learn vs random selection vs best selection:
+```{r,include=FALSE}
+load("data/allstr.bin")
+```
+
+```{r,eval=FALSE}
+Ks=c(100,500,1000,2000,5000)
+tstep=100
+n=100
+o=0 #omega
+d=1 #delta
+m=c(x=.1,y=.1,z=.1)
+mu=c(x=.001,y=0.001,z=0.001)
+E=c(x=0,y=0,z=0)
+sigma=c(s=1000,y=10,z=10)
+pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n),z=runif(n)),df=F)
+
+strategies=c("best","random")
+names(strategies)=strategies
+colsstrategies=c("red","blue")
+names(colsstrategies)=strategies
+allstr=lapply( strategies,function(strat)
+              {
+                  timings=lapply(Ks,function(k)
+                                 microbenchmark(
+                                                simpleEvoModel(
+                                                               n=n,
+                                                               tstep=tstep,
+                                                               omega = o,
+                                                               delta = d ,
+                                                               b=2,
+                                                               K=k,
+                                                               m=m,
+                                                               mu=mu,
+                                                               E=E,
+                                                               sigma=sigma,
+                                                               sls=strat,
+                                                               pop=pop,
+                                                               outputrate=1,log=F
+                                                               ),
+                                                times=5,
+                                                unit="s")
+                                 )
+                  print(strat)
+                  sapply(timings,function(i)mean(i[,"time"]))
+              }
+)
+```
+
+save(file="data/allstr.bin",allstr)
+
+```{r profileKs,fig.cap="Executation time for differente carrying capacities"}
+plot(Ks,allstr$best,col="red",type="l",ylab="Execution time",xlab="K")
+lines(Ks,allstr$random,col="blue",type="l")
+```
+

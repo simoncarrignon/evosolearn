@@ -1,0 +1,63 @@
+# Explore environment function and properties
+
+```{r , include=FALSE}
+source("environment.R")
+```
+
+## Check color of noise: 
+
+Quic exploration of function used to generate $\frac{1}{f}$-noise:
+
+```{r slope,fig.cap="noise generator"}
+par(mfrow=c(3,2))
+t=1000 #number of timestep
+par(mfrow=c(3,2),mar=c(2,2,1,1))
+for(alpha in 0:2){ #alpha as used in YK95 as our $\omega$
+    ts=TK95(t,alpha) #generate random noise following Timmer & Koenig (1995) implemented in tuner package(https://rdrr.io/cran/tuner/src/r/waveforms.r)
+    plot(ts,type="l") #plot the environment
+    y=getSpectrum(ts) #get spectrum of the environment generated
+    x=1:length(y)
+    plot(log(x),log(y))
+    fit=lm(log(y)~log(x),cbind.data.frame(x=1:length(y),y=y)) #fit a linear model to check slope
+    abline(fit,col="red") #visualise the fit and coefficient computed
+    text(1,max(log(y)),paste("coef=",abs(round(fit$coefficients[2],2))),col="red")
+}
+```
+
+## Check $\delta$ (variance) of noise
+
+```{r ,fig.cap="enrivonment generator"}
+par(mfrow=c(3,2))
+t=1000 #number of timestep
+par(mfrow=c(3,2),mar=c(2,2,1,1))
+for(omega in 0:2){ 
+    ts=environment(0,omega)
+    plot(ts,type="l") #plot the environment
+    y=getSpectrum(ts) #get spectrum of the environment generated
+    x=1:length(y)
+    plot(log(x),log(y))
+    fit=lm(log(y)~log(x),cbind.data.frame(x=1:length(y),y=y)) #fit a linear model to check slope
+    abline(fit,col="red") #visualise the fit and coefficient computed
+    text(1,max(log(y)),paste("coef=",abs(round(fit$coefficients[2],2))),col="red")
+}
+```
+
+
+## Check auto-correlation
+
+Using the same function we can have different level of auto-correlation 
+
+```{r cov,fig.cap="autocorrelation"}
+    par(mfrow=c(1,3))
+
+    for(omega in 0:2){
+        t=environment(50000,omega,.1)
+        vtm=t[1:(length(t)-1)]
+        vt=t[2:length(t)]
+        print(cov(vt,vtm))
+        cv=round(cov(vt,vtm),digit=3)
+        plot((1:50000)[seq(1,50000,100)],t[seq(1,50000,100)],main=bquote(omega == .(omega)~","~delta==.1~", cov("*theta[t]*","*theta[t-1]*")" == .(cv)),ylab=bquote(theta[t]),,xlab="t",type="l",lwd=1)
+    }
+
+```
+
