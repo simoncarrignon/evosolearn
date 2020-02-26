@@ -8,6 +8,12 @@ To clone this folder:
 git clone git@framagit.org:sc/pleistoclimate.git
 ```
 
+Most of in bookdown:
+```r
+library(bookdown)
+render_book("index.Rmd",output_dir="~/public_html/report/")
+```
+
 then to test the model:
 
 ```bash
