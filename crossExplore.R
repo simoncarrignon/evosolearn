@@ -49,7 +49,7 @@ E=c(x=0,y=0,z=0)
 m=c(x=0,y=0,z=0)
 sigma=c(s=1,y=1,z=1)
 
-genes=c("x")
+genes=c("y")
 pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)),df=F)
 cl <- makeForkCluster(ns,outfile="")
 for(gene in genes){
