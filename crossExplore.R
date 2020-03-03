@@ -30,7 +30,7 @@ allparameters[["m"]]=c(.05,.1,.2)
 #allparameters[["m"]]=.1
 allparameters[["sigma"]]=c(1,2,4,10000)
 allparameters[["delta"]]=c(0,.1,.2,.4,1)
-#allparameters[["delta"]]=c(0,1,4)
+#allparameters[["delta"]]=0
 #allparameters[["vt"]]=c(0.001,0.02,.04,.08,.2)
 allparameters[["vt"]]=0
 allparameters[["omega"]]=c(0,2)
@@ -43,7 +43,7 @@ parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
 #omega=2
 n=1000
 b=2
-tstep=50000
+tstep=10000
 mu=c(x=0,y=0,z=0)
 E=c(x=0,y=0,z=0)
 m=c(x=0,y=0,z=0)
@@ -77,7 +77,7 @@ for(gene in genes){
                                   fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt)
                                   filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
                                   save(file=filename_mat,fullmat)
-                                  c(as.list(getSummary(fullmat,nstep=100,vars=c("var_x","N","mean_w"))),filename=filename_mat)
+                                  c(as.list(getSummary(fullmat,nstep=10,vars=c(paste0("var_",gene),"N","mean_w"))),filename=filename_mat)
                               },parameters=parameters,gene=gene,pop=pop)
                     )
 
