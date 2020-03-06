@@ -58,11 +58,12 @@ updateOutputLine <- function(pop,statfun,statvar,getname=F){
     else unlist(lapply(statfun,function(sf)lapply(statvar,function(sv)match.fun(sf)(pop[,sv]))))
 }
 
-simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL){
+simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL){
 
     if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
-    env=c()
-    theta=environment(tstep,omega,delta,vt)
+	if(is.null(theta)){
+	   theta=environment(tstep,omega,delta,vt)
+	}
 
     #Generate initial population (here all gene are randomly selected
     if(is.null(pop))pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1)),df=F)
@@ -132,10 +133,10 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
         childs=matrix(nrow=sum(nchilds),ncol=ncol(pop))
         colnames(childs)=colnames(pop)
         c=1
-        if(sum(nchilds)==0)return(NULL)
         for( p in seq_along(selected)){
             if(nchilds[p]>0){
-                childs[c:(c+nchilds[p]-1),]=do.call("rbind",replicate(nchilds[p],pop[selected[p],],simplify=F))
+				for(i in c:(c+nchilds[p]-1))
+					childs[i,]=pop[selected[p],]
                 c=c+nchilds[p]
             }
         }
