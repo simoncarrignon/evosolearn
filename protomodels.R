@@ -100,7 +100,7 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
 
         ##social learning phase
         if(sum(pop[,"z"])>0)
-            P=tryCatch({socialLearning(pop,reference=parents,sls=sls,thetat=theta[t])},error=function(e){print(parents);return(0)}) #get the list of which phenotype is socially copied by every agent
+            P=socialLearning(pop,reference=parents,sls=sls,thetat=theta[t]) #get the list of which phenotype is socially copied by every agent
         else
             P=0
         #e3=rnorm(n,0,E['z'])
@@ -157,7 +157,7 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
                 childs[mutated,g][childs[mutated,g]>1] = 1
             }
         }
-        parents=pop[selected,] #we keep parents info (fitness,behavior, etc...) for next social learning
+        parents=pop[selected,,drop=F] #we keep parents info (fitness,behavior, etc...) for next social learning
         oldpop=pop
         pop=childs
         n=newn
@@ -180,7 +180,6 @@ socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
     if(is.null(reference))reference=newpop #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
     if(is.null(reference[,"p"]))reference[,"p"]=reference[,"ilp"] #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
     if(anyNA(reference[,"p"]))reference[,"p"][is.na(reference[,"p"])]=reference[,"ilp"][is.na(reference[,"p"])] #if some of the reference group 
-
 
     if(sls=="parents")
         return(reference[,"p"][match(newnewpop[,"parent_id"],reference[,"id"])])
