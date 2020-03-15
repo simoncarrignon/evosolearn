@@ -24,6 +24,7 @@ library(parallel)
 allparameters=list()
 allparameters[["mu"]]=c(0.001,0.01)
 allparameters[["K"]]=c(500,1000,2000)
+#allparameters[["K"]]=c(1000)
 #allparameters[["E"]]=c(0,.05,.1)
 allparameters[["E"]]=0
 allparameters[["m"]]=c(.05,.1,.2)
@@ -34,6 +35,7 @@ allparameters[["delta"]]=c(0,.1,.2,.4,1)
 #allparameters[["vt"]]=c(0.001,0.02,.04,.08,.2)
 allparameters[["vt"]]=0
 allparameters[["omega"]]=c(0,2)
+#allparameters[["omega"]]=0
 allparameters[["outputrate"]]=100
 parameters=as.data.frame(expand.grid(allparameters))
 repet=nsm
@@ -50,7 +52,6 @@ m=c(x=0,y=0,z=0)
 sigma=c(s=1,y=1,z=1)
 
 genes=c("z")
-pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)),df=F)
 cl <- makeForkCluster(ns,outfile="")
 for(gene in genes){
     ##Reset all variable and population
@@ -60,7 +61,7 @@ for(gene in genes){
     sigma=c(s=1,y=1,z=1)
 
     explore=do.call("rbind.data.frame",
-                    parLapply(cl,1:nrow(parameters),function(v,parameters,gene,pop)
+                    parLapply(cl,1:nrow(parameters),function(v,parameters,gene)
                               {
                                   print(paste0("g",gene,", sim #",v,"/",nrow(parameters)))
                                   delta=parameters[v,"delta"]
@@ -72,13 +73,14 @@ for(gene in genes){
                                   m[gene]=parameters[v,"m"]
                                   E[gene]=parameters[v,"E"]
                                   sigma["s"]=parameters[v,"sigma"]
+								  pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)),df=F)
                                   if(gene == "x") pop[,gene]=runif(n,-1,1)
                                   else pop[,gene]=runif(n,0,1)
-                                  fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt)
+                                  fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random")
                                   filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
                                   save(file=filename_mat,fullmat)
                                   c(as.list(getSummary(fullmat,nstep=10,vars=c(paste0("var_",gene),"N","mean_w"))),filename=filename_mat)
-                              },parameters=parameters,gene=gene,pop=pop)
+                              },parameters=parameters,gene=gene)
                     )
 
 }
