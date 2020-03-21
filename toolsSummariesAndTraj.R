@@ -1,5 +1,5 @@
 
-plotAllVariableSummaries <- function(summaryresults,E,estimate=NULL,ylim=NULL){
+plotAllVariableSummaries <- function(summaryresults,E,estimate=NULL,ylim=NULL,var="var_x"){
     Ks=sort(unique(summaryresults$K))
     mus=sort(unique(summaryresults$mu))
     ms=sort(unique(summaryresults$m))
@@ -19,8 +19,8 @@ plotAllVariableSummaries <- function(summaryresults,E,estimate=NULL,ylim=NULL){
                                  {
                                      singlesetup=getSubsetWithTraj(subset,sigma=sigma,mu=mu,m=ms,E=E,K=Ks,delta=d,traj=F)$summary
                                      if(sum(lengths(singlesetup))==0)return(NULL)
-                                     allmeans=tapply(singlesetup$var_x,singlesetup[,c("K","m")],mean,na.rm=T)
-                                     allsds=tapply(singlesetup$var_x,singlesetup[,c("K","m")],sd,na.rm=T)
+                                     allmeans=tapply(singlesetup[,var],singlesetup[,c("K","m")],mean,na.rm=T)
+                                     allsds=tapply(singlesetup[,var],singlesetup[,c("K","m")],sd,na.rm=T)
                                      allestimates=NULL
                                      noselection=NULL
                                      if(!is.null(estimate)){
@@ -48,7 +48,7 @@ plotAllVariableSummaries <- function(summaryresults,E,estimate=NULL,ylim=NULL){
             axis(1,at=res[2,],labels=sapply(ms,function(i)as.expression(bquote(m[x] == .(i)))),lwd=0)
 
             axis(2)
-            mtext(bquote(var[x]),2,2,cex=1)
+            mtext(var,2,2,cex=1)
             mtext(bquote(mu == .(mu) ~ sigma[s] == .(sigma) ),3,0)
             box()
             for(id in 1:length(getallmetrics)){
@@ -58,20 +58,30 @@ plotAllVariableSummaries <- function(summaryresults,E,estimate=NULL,ylim=NULL){
                 if(sigma>1000) points(as.vector(nres),as.vector(d$noselection),pch=22,bg="white",cex=1)
                 arrows(as.vector(nres), d$mean+d$sd, as.vector(nres), d$mean-d$sd,angle=90,code=3,length=.01,lwd=1.5,col=colsK,lty=id)
             }
-            if(sigma>1000){
-                legend("topleft",
-                       legend=c(paste0("K=",Ks),"Hermisson","no selection",sapply(subdeltas,function(d)as.expression(bquote(delta==.(d))))),
-                       col=c(colsK,1,1,rep(1,length(subdeltas))),
-                       lty=c(rep(1,length(Ks)),NA,NA,seq_along(subdeltas)),
-                       pch=c(rep(NA,length(Ks)),21,22,rep(NA,length(subdeltas))),
-                       )
+            if(!is.null(estimate)){
+                if(sigma>1000){
+                    legend("topleft",
+                           legend=c(paste0("K=",Ks),"Hermisson","no selection",sapply(subdeltas,function(d)as.expression(bquote(delta==.(d))))),
+                           col=c(colsK,1,1,rep(1,length(subdeltas))),
+                           lty=c(rep(1,length(Ks)),NA,NA,seq_along(subdeltas)),
+                           pch=c(rep(NA,length(Ks)),21,22,rep(NA,length(subdeltas))),
+                           )
+                }
+                else{
+                    legend("topleft",
+                           legend=c(paste0("K=",Ks),"Hermisson",sapply(subdeltas,function(d)as.expression(bquote(delta==.(d))))),
+                           col=c(colsK,1,rep(1,length(subdeltas))),
+                           lty=c(rep(1,length(Ks)),NA,seq_along(subdeltas)),
+                           pch=c(rep(NA,length(Ks)),21,rep(NA,length(subdeltas))),
+                           )
+                }
             }
             else{
                 legend("topleft",
-                       legend=c(paste0("K=",Ks),"Hermisson",sapply(subdeltas,function(d)as.expression(bquote(delta==.(d))))),
-                       col=c(colsK,1,rep(1,length(subdeltas))),
-                       lty=c(rep(1,length(Ks)),NA,seq_along(subdeltas)),
-                       pch=c(rep(NA,length(Ks)),21,rep(NA,length(subdeltas))),
+                       legend=c(paste0("K=",Ks),sapply(subdeltas,function(d)as.expression(bquote(delta==.(d))))),
+                       col=c(colsK,rep(1,length(subdeltas))),
+                       lty=c(rep(1,length(Ks)),seq_along(subdeltas)),
+                       pch=c(rep(NA,length(Ks)),rep(NA,length(subdeltas))),
                        )
             }
         }
