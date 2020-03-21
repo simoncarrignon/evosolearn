@@ -1,0 +1,48 @@
+# Full Geneome
+
+```{r,eval=FALSE}
+moving_theta=getAlllSummaries("fullGenomesAllmeans/")
+moving_theta=updateScale(moving_theta)
+```
+
+## Moving Optimum
+
+
+```{r}
+load(file="data/fullgenome.bin")
+rates=sort(unique(moving_theta$vt))
+```
+
+
+#### Population Size
+Check the trajectory of  the effective population size:
+```{r,fig.width=10,fig.height=10}
+for(t in seq_along(rates)){
+    print(paste("rate=",rates[t]))
+    plotAllTrajVar(moving_theta[moving_theta$vt == rates[t],],m=0.2,E=0,obs="N")
+}
+```
+
+### Distance to Optimum
+Check the trajectory of the distance to optimum:
+```{r,fig.width=10,fig.height=10}
+for(t in seq_along(rates)){
+    print(paste("rate=",rates[t]))
+    plotAllTrajVar(moving_theta[moving_theta$vt == rates[t],],m=0.2,E=0,obs="dist")#,ylim=c(0,.005))
+}
+```
+
+###  Fitness
+Check the trajectory of the distance to optimum:
+```{r,fig.width=10,fig.height=10}
+for(t in seq_along(rates)){
+    print(paste("rate=",rates[t]))
+    plotAllTrajVar(moving_theta[moving_theta$vt == rates[t],],m=0.2,E=0,obs="mean_w")#,ylim=c(0,.005))
+}
+```
+
+```{r,fig.width=10,fig.height=10}
+plotAllVariableSummaries(moving_theta,E=0,estimate=eq2833b,var="mean_x") #we use only simulations without noise
+plotAllVariableSummaries(moving_theta,E=0,estimate=eq2833b,var="mean_y") #we use only simulations without noise
+plotAllVariableSummaries(moving_theta,E=0,estimate=eq2833b,var="mean_z") #we use only simulations without noise
+```
