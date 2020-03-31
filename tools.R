@@ -13,8 +13,8 @@ plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,t=NULL,...){
     }
     cols=c(rainbow(length(varnames)))
     names(cols)=varnames
-    par(mfrow=c(length(vars),1),mar=c(0,4,0,1))
-    for(i in 1:(length(varnames)-1)){
+    par(mfrow=c(length(vars)+1,1),mar=c(0,4,0,4))
+    for(i in 1:(length(varnames))){
         varname=varnames[i]
         if(hdr){
             yvalues=lapply(results$allpop,"[[",varname)
@@ -40,32 +40,16 @@ plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,t=NULL,...){
         }
     }
 
-    par(mar=c(2,4,0,1))
+    t=t[!is.na(t)]
+    par(mar=c(2,4,0,4))
     varname=varnames[length(varnames)]
-    if(hdr){
-        yvalues=lapply(results$allpop,"[[",varname)
-        ylim=range(yvalues)
-        if(varname %in% c("y","z"))ylim=c(0,1)
-        hdr.boxplot(yvalues,border=NA,pch=".",outline=F,col=shades(cols[varname],3),prob=c(50,75,99),space=0,ylab=varname,ylim=ylim,h=.01,...)
-        if(varname %in% c("x","ilp","gp","p") & !is.null(theta))
-            lines(theta,col="red",lwd=1,lty=1)
-    }
-    else {
-        if(!is.null(results$allpop)){
-            meanvar=allmean[varname,]
-            sdvar=allsd[varname,]
-        }
-        else{
-            meanvar=results$mean[[varname]]
-            sdvar=results$sd[[varname]]
-        }
-        lims=range(c(meanvar+sdvar,meanvar-sdvar))
-        plot(meanvar,ylab=varname,sls="l",col=cols[varname],ylim=lims,xaxt='n',lwd=2,...)
-        lines(meanvar+sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
-        lines(meanvar-sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
-    }
-    #plot(results$theta,sls="l",col=cols["theta"],ylab="theta")
+    plot(sapply(results$allpop,nrow),ylab="N",xaxt="n",type="l") 
     i=axis(1,labels=NA,col=NA)
+    if(!is.null(t))axis(1,at=i,labels=t[seq(1,length(t),length.out=length(i))])
+    par(new=T)
+    plot(t,xlab="",type="l",col="red",yaxt="n",xaxt="n",bty="n",ylab="")
+    axis(4,col="red",col.axis="red")
+    mtext(expression(theta),4,2,col="red")
     if(!is.null(t))axis(1,at=i,labels=t[seq(1,length(t),length.out=length(i))])
 
 }
