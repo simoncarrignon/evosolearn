@@ -1,7 +1,7 @@
 
 
-plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,...){
-    varnmaes=NULL
+plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,t=NULL,...){
+    varnames=NULL
     if(!is.null(vars))varnames=vars
     if(!is.null(results$allpop)){
         allsd=sapply(results$allpop,function(i)apply(i[,vars],2,sd))
@@ -13,35 +13,61 @@ plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,...){
     }
     cols=c(rainbow(length(varnames)))
     names(cols)=varnames
-    par(mfrow=c(8,1),mar=c(1,4,0,0),cex=1.5)
-    lapply(varnames,function(varname)
-           {
+    par(mfrow=c(length(vars),1),mar=c(0,4,0,1))
+    for(i in 1:(length(varnames)-1)){
+        varname=varnames[i]
+        if(hdr){
+            yvalues=lapply(results$allpop,"[[",varname)
+            ylim=range(yvalues)
+            if(varname %in% c("y","z"))ylim=c(0,1)
+            hdr.boxplot(yvalues,border=NA,pch=".",outline=F,col=shades(cols[varname],3),prob=c(50,75,99),space=0,ylab=varname,ylim=ylim,...)
+            if(varname %in% c("x","ilp","gp","p") & !is.null(theta))
+                lines(theta,col="red",lwd=1,lty=1)
+        }
+        else {
+            if(!is.null(results$allpop)){
+                meanvar=allmean[varname,]
+                sdvar=allsd[varname,]
+            }
+            else{
+                meanvar=results$mean[[varname]]
+                sdvar=results$sd[[varname]]
+            }
+            lims=range(c(meanvar+sdvar,meanvar-sdvar))
+            plot(meanvar,ylab=varname,sls="l",col=cols[varname],ylim=lims,xaxt='n',lwd=2,...)
+            lines(meanvar+sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
+            lines(meanvar-sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
+        }
+    }
 
-               if(hdr){
-                   yvalues=lapply(results$allpop,"[[",varname)
-                   ylim=range(yvalues)
-                   if(varname %in% c("y","z"))ylim=c(0,1)
-                   hdr.boxplot(yvalues,border=NA,pch=".",outline=F,col=shades(cols[varname],3),prob=c(50,75,99),space=0,ylab=varname,ylim=ylim,...)
-                   if(varname %in% c("x","ilp","gp","p") & !is.null(theta))
-                       lines(theta,col="red",lwd=1,lty=1)
-               }
-
-               else {
-                   if(!is.null(results$allpop)){
-                       meanvar=allmean[varname,]
-                       sdvar=allsd[varname,]
-                   }
-                   else{
-                       meanvar=results$mean[[varname]]
-                       sdvar=results$sd[[varname]]
-                   }
-                   lims=range(c(meanvar+sdvar,meanvar-sdvar))
-                   plot(meanvar,ylab=varname,sls="l",col=cols[varname],ylim=lims,xaxt='n',lwd=2,...)
-                   lines(meanvar+sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
-                   lines(meanvar-sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
-               }
-           })
+    par(mar=c(2,4,0,1))
+    varname=varnames[length(varnames)]
+    if(hdr){
+        yvalues=lapply(results$allpop,"[[",varname)
+        ylim=range(yvalues)
+        if(varname %in% c("y","z"))ylim=c(0,1)
+        hdr.boxplot(yvalues,border=NA,pch=".",outline=F,col=shades(cols[varname],3),prob=c(50,75,99),space=0,ylab=varname,ylim=ylim,...)
+        if(varname %in% c("x","ilp","gp","p") & !is.null(theta))
+            lines(theta,col="red",lwd=1,lty=1)
+    }
+    else {
+        if(!is.null(results$allpop)){
+            meanvar=allmean[varname,]
+            sdvar=allsd[varname,]
+        }
+        else{
+            meanvar=results$mean[[varname]]
+            sdvar=results$sd[[varname]]
+        }
+        lims=range(c(meanvar+sdvar,meanvar-sdvar))
+        plot(meanvar,ylab=varname,sls="l",col=cols[varname],ylim=lims,xaxt='n',lwd=2,...)
+        lines(meanvar+sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
+        lines(meanvar-sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
+    }
     #plot(results$theta,sls="l",col=cols["theta"],ylab="theta")
+    i=axis(1,labels=NA,col=NA)
+    if(!is.null(t))axis(1,at=i,labels=t[seq(1,length(t),length.out=length(i))])
+
 }
 
 #wrappers for exploration
