@@ -1,20 +1,31 @@
 
 
-plotAllVariable <- function(results,hdr=F,vars=3:9,...){
+plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,...){
+    varnmaes=NULL
+    if(!is.null(vars))varnames=vars
     if(!is.null(results$allpop)){
         allsd=sapply(results$allpop,function(i)apply(i[,vars],2,sd))
         allmean=sapply(results$allpop,function(i)apply(i[,vars],2,mean))
-        varnames=rownames(allsd)
+        if(is.null(vars))varnames=rownames(allsd)
     }
-    else
-        varnames=names(results[[1]])
-    cols=c(rainbow(length(varnames)),"black")
-    names(cols)=c(varnames,"theta")
-    par(mfrow=c(8,1),mar=c(1,4,1,1),cex=1.5)
+    else{
+        if(is.null(vars))varnames=names(results$allpop[[1]])
+    }
+    cols=c(rainbow(length(varnames)))
+    names(cols)=varnames
+    par(mfrow=c(length(vars),1),mar=c(1,4,1,1),cex=1.5)
     lapply(varnames,function(varname)
            {
 
-               if(hdr)hdr.boxplot(lapply(results$allpop,"[[",varname),border=NA,pch=".",outline=F,col=shades(cols[varname],3),prob=c(50,75,99),space=0,ylab=varname,...)
+               if(hdr){
+                   yvalues=lapply(results$allpop,"[[",varname)
+                   ylim=range(yvalues)
+                   if(varname %in% c("y","z"))ylim=c(0,1)
+                   hdr.boxplot(yvalues,border=NA,pch=".",outline=F,col=shades(cols[varname],3),prob=c(50,75,99),space=0,ylab=varname,ylim=ylim,...)
+                   if(varname %in% c("x","ilp","gp","p") & !is.null(theta))
+                       lines(theta,col="red",lwd=2,lty=1)
+               }
+
                else {
                    if(!is.null(results$allpop)){
                        meanvar=allmean[varname,]
@@ -31,7 +42,7 @@ plotAllVariable <- function(results,hdr=F,vars=3:9,...){
                }
            })
     par(mar=c(2,4,0,1))
-    plot(results$theta,sls="l",col=cols["theta"],ylab="theta")
+    #plot(results$theta,sls="l",col=cols["theta"],ylab="theta")
 }
 
 #wrappers for exploration
