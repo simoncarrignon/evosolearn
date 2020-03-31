@@ -189,7 +189,7 @@ updateScale <- function(df.exp){
 
 
 #plot tow lines: distance to optimum and fintes
-plotDistVsFitness <- function(summaryresults,ylim=NULL,legside="topleft"){
+plotDistVsFitness <- function(summaryresults,ylim=NULL,legside="topleft",...){
     Ks=sort(unique(summaryresults$K))
     mus=sort(unique(summaryresults$mu))
     ms=sort(unique(summaryresults$m))
@@ -197,56 +197,117 @@ plotDistVsFitness <- function(summaryresults,ylim=NULL,legside="topleft"){
     deltas=sort(unique(summaryresults$delta))
     omega=sort(unique(summaryresults$omega))
 
-            subsetraj=getSubsetWithTraj(summaryresults,sigma=sigmas,mu=mus,m=ms,E=0,K=Ks,delta=deltas,var="dist",traj=T)
-            param=bquote(sigma[s] == .(sigma) ~ E == .(E) ~ m == .(m) ~ mu == .(mu) ~ omega == .(omega) )
+    subsetraj=getSubsetWithTraj(summaryresults,sigma=sigmas,mu=mus,m=ms,E=0,K=Ks,delta=deltas,var="dist",traj=T)
+    subsetrajFitness=getSubsetWithTraj(summaryresults,sigma=sigmas,mu=mus,m=ms,E=0,K=Ks,delta=deltas,var="mean_w",traj=T)
 
-            if(is.null(dim(subsetraj$traj))){#some simulation have differen lenght
-                minlen=min(lengths(subsetraj$traj))
-                subsetraj$traj=sapply(subsetraj$traj,function(i){
-                            if(length(i)>minlen){
-                                rescale=seq(1,length(i),length.out=minlen)
-                                return(i[rescale])
-                            }
-                            return(i)
-               })
-            }
+    if(is.null(dim(subsetraj$traj))){#some simulation have differen lenght
+        minlen=min(lengths(subsetraj$traj))
+        subsetraj$traj=sapply(subsetraj$traj,function(i){
+                              if(length(i)>minlen){
+                                  rescale=seq(1,length(i),length.out=minlen)
+                                  return(i[rescale])
+                              }
+                              return(i)
+    })
+    }
 
-            a=apply(subsetraj$traj,1,function(l)quantile(l[(length(l)/2):length(l)],na.rm=T))
-            maxts_n=max(subsetraj$summary$extinction) # get real scale of observation
+    a=apply(subsetraj$traj,1,function(l)quantile(l,na.rm=T))
+    b=apply(subsetrajFitness$traj,1,function(l)quantile(l,na.rm=T))
+    maxts_n=max(subsetraj$summary$extinction) # get real scale of observation
 
-            if(is.null(ylim))yl=range(a,na.rm=T)
-            else yl =ylim
-            if(any(is.infinite(yl)))yl=c(-1,1)
-
-            #param=bquote("full traj" ~ .(obs) ~ "with" ~ sigma[s] == .(sigma) ~ E == .(E) ~ m == .(m) ~ mu == .(mu) )
-
-            #prepare main plot area
-
-            plot(1,1,xlab="time",ylab=obs,ylim=yl,xlim=c(1,maxts_n),type="n",main=param)
-            for(id in 1:length(deltas)){
-                d=deltas[id]
-
-                singlesetup=lapply(Ks,function(k)getSubsetWithTraj(subsetraj$summary,sigma=sigma,mu=mu,m=m,E=E,K=k,delta=d,var=obs,traj=T)$traj)
-
-                if(sum(lengths(singlesetup))==0)break
-                #adjust length of single setup to ouptut
-                maxts=nrow(singlesetup[[1]])
+                maxts=nrow(subsetraj$traj)
                 rangesummaries=seq(1,maxts_n,length.out=maxts)
 
-                lapply(1:length(Ks),function(sub)
-                       {
-                           plotTraj(rangesummaries,singlesetup[[sub]],col=cols[sub],xlim=range(rangesummaries),add=T,mean=T,lty=id,lwd=.8)
-                       })
-            }
-            legend(legside,
-                   legend=c(paste0("K=",Ks),sapply(deltas,function(d)as.expression(bquote(delta==.(d))))),
-                   col=c(cols,rep(1,length(deltas))),
-                   lty=c(rep(1,length(Ks)),seq_along(deltas))
-                   )
-        }
+    if(is.null(ylim))yl=range(a[c(2,4),],na.rm=T)
+    else yl =ylim
+    if(any(is.infinite(yl)))yl=c(-1,1)
 
-    }
+    #param=bquote("full traj" ~ .(obs) ~ "with" ~ sigma[s] == .(sigma) ~ E == .(E) ~ m == .(m) ~ mu == .(mu) )
+
+    #prepare main plot area
+    par(mar=c(2,4,2,4))
+    plot(1,1,xlab="time",ylim=yl,xlim=c(1,maxts_n),type="n",ylab=expression(group("|",theta - p,"|")))
+    qts=a
+    lines(rangesummaries,qts[3,],col="black",lwd=1,lty=1)
+    lines(rangesummaries,qts[4,],lty=2,col="black",lwd=.5)
+    lines(rangesummaries,qts[2,],lty=2,col="black",lwd=.5)
+    par(new=T)
+    if(is.null(ylim))yl=range(b,na.rm=T)
+    else yl =ylim
+    if(any(is.infinite(yl)))yl=c(-1,1)
+    plot(1,1,xlab="",type="l",ylim=yl,xlim=c(1,maxts_n),col="red",yaxt="n",xaxt="n",bty="n",ylab="",...)
+    qts=b
+    axis(4,col="red",col.axis="red")
+    mtext("w",4,2,col="red")
+    lines(rangesummaries,qts[3,],col="red",lwd=1,lty=1)
+    lines(rangesummaries,qts[4,],lty=2,col="red",lwd=.5)
+    lines(rangesummaries,qts[2,],lty=2,col="red",lwd=.5)
+
 
 }
 
+
+
+#plot tow lines: distance to optimum and fintes
+plot3Genes <- function(summaryresults,ylim=NULL,side="topright",...){
+    Ks=sort(unique(summaryresults$K))
+    mus=sort(unique(summaryresults$mu))
+    ms=sort(unique(summaryresults$m))
+    sigmas=sort(unique(summaryresults$sigma))
+    deltas=sort(unique(summaryresults$delta))
+    omega=sort(unique(summaryresults$omega))
+
+    subsetrajX=getSubsetWithTraj(summaryresults,sigma=sigmas,mu=mus,m=ms,E=0,K=Ks,delta=deltas,var="mean_x",traj=T)
+    subsetrajY=getSubsetWithTraj(summaryresults,sigma=sigmas,mu=mus,m=ms,E=0,K=Ks,delta=deltas,var="mean_y",traj=T)
+    subsetrajZ=getSubsetWithTraj(summaryresults,sigma=sigmas,mu=mus,m=ms,E=0,K=Ks,delta=deltas,var="mean_z",traj=T)
+    subsetrajT=getSubsetWithTraj(summaryresults,sigma=sigmas,mu=mus,m=ms,E=0,K=Ks,delta=deltas,var="distX",traj=T)
+
+        subsetraj=subsetrajX
+    if(is.null(dim(subsetraj$traj))){#some simulation have differen lenght
+        minlen=min(lengths(subsetraj$traj))
+        subsetraj$traj=sapply(subsetraj$traj,function(i){
+                              if(length(i)>minlen){
+                                  rescale=seq(1,length(i),length.out=minlen)
+                                  return(i[rescale])
+                              }
+                              return(i)
+    })
+    }
+
+    x=apply(subsetrajX$traj,1,function(l)quantile(l,na.rm=T))
+    y=apply(subsetrajY$traj,1,function(l)quantile(l,na.rm=T))
+    z=apply(subsetrajZ$traj,1,function(l)quantile(l,na.rm=T))
+    t=apply(subsetrajT$traj,1,function(l)quantile(l,na.rm=T))
+    maxts_n=max(subsetrajX$summary$extinction) # get real scale of observation
+
+    maxts=nrow(subsetrajX$traj)
+    rangesummaries=seq(1,maxts_n,length.out=maxts)
+
+    if(is.null(ylim))yl=range(z[c(2,4),],y[c(2,4),],na.rm=T)
+    else yl =ylim
+    if(any(is.infinite(yl)))yl=c(-1,1)
+
+    #prepare main plot area
+    par(mar=c(2,4,2,4))
+    plot(1,1,xlab="time",ylim=yl,xlim=c(1,maxts_n),type="n",ylab="learning",...)
+    lines(rangesummaries,y[3,],col="black",lwd=1,lty=1)
+    lines(rangesummaries,y[4,],lty=2,col="black",lwd=.5)
+    lines(rangesummaries,y[2,],lty=2,col="black",lwd=.5)
+    lines(rangesummaries,z[3,],col="green",lwd=1,lty=1)
+    lines(rangesummaries,z[4,],lty=2,col="green",lwd=.5)
+    lines(rangesummaries,z[2,],lty=2,col="green",lwd=.5)
+    legend(side,legend=c("individual","social","genetic"),lty=1,col=c("black","green","red"))
+    par(new=T)
+    if(is.null(ylim))yl=range(t[c(2,4),],na.rm=T)
+    else yl =ylim
+    if(any(is.infinite(yl)))yl=c(-1,1)
+    plot(1,1,xlab="",type="l",ylim=yl,xlim=c(1,maxts_n),col="red",yaxt="n",xaxt="n",bty="n",ylab="")
+    axis(4,col="red",col.axis="red")
+    mtext(expression(group("|",theta - x,"|")),4,3,col="red")
+    lines(rangesummaries,t[3,],col="red",lwd=1,lty=1)
+    lines(rangesummaries,t[4,],lty=2,col="red",lwd=.5)
+    lines(rangesummaries,t[2,],lty=2,col="red",lwd=.5)
+
+
+}
 
