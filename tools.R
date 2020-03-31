@@ -72,7 +72,9 @@ getSummary <- function(fullmat,gene,nstep,sumstat=mean,vars){
 getTraj  <-  function(filename,var){
     load(file=as.character(filename))
     if(var=="dist")
-        fullmat[,"mean_x"]-fullmat[,"theta"]
+        abs(fullmat[,"mean_p"]-fullmat[,"theta"])
+    else if(var=="distX")
+        abs(fullmat[,"mean_x"]-fullmat[,"theta"])
     else
         fullmat[,var]
 }
