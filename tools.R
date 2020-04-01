@@ -47,11 +47,9 @@ plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,t=NULL,...){
     i=axis(1,labels=NA,col=NA)
     if(!is.null(t))axis(1,at=i,labels=t[seq(1,length(t),length.out=length(i))])
     par(new=T)
-    plot(t,xlab="",type="l",col="red",yaxt="n",xaxt="n",bty="n",ylab="")
+    plot(theta,xlab="",type="l",col="red",yaxt="n",xaxt="n",bty="n",ylab="")
     axis(4,col="red",col.axis="red")
     mtext(expression(theta),4,2,col="red")
-    if(!is.null(t))axis(1,at=i,labels=t[seq(1,length(t),length.out=length(i))])
-
 }
 
 #wrappers for exploration
