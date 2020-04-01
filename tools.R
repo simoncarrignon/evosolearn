@@ -13,7 +13,7 @@ plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,t=NULL,...){
     }
     cols=c(rainbow(length(varnames)))
     names(cols)=varnames
-    par(mfrow=c(length(vars)+1,1),mar=c(0,4,0,4))
+    par(mfrow=c(length(vars)+1,1),mar=c(0,4,2,4))
     for(i in 1:(length(varnames))){
         varname=varnames[i]
         if(hdr){
@@ -38,6 +38,7 @@ plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,t=NULL,...){
             lines(meanvar+sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
             lines(meanvar-sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
         }
+        par(mar=c(0,4,0,4))
     }
 
     t=t[!is.na(t)]
