@@ -42,23 +42,21 @@ selection <- function(w,b,n,K) 1/(1+(b-1)*(n/(K*w)))
 #' @param pop the current population upon wihch statistics have to be calculated
 #' @param statfun a vector with the different function we apply on the population
 #' @param statvar a vector with the different varaible we measure in the population
-updateOutput <- function(output=NULL,pop,statfun,statvar){
-
-    if(is.null(output) || sum(statvar %in% colnames(pop))<length(statvar))
-        output=lapply(statfun,function(i)lapply(statvar,function(j)c()))
-    else
-        for(sf in statfun)
-            for(sv in statvar)
-                output[[sf]][[sv]]=c(output[[sf]][[sv]],match.fun(sf)(pop[,sv]))
-    return(output)
+#' @param prop if the proporition of different strategies should be ouptut
+updateOutputLine <- function(pop,statfun,statvar,getname=F,prop=T){
+    res=c()
+    if(getname){
+        res=unlist(lapply(statfun,function(sf)lapply(statvar,function(sv)paste(sf,sv,sep="_"))))
+        if(prop)res=c(res,c("prop_y","prop_z"))
+    }
+    else {
+        res=unlist(lapply(statfun,function(sf)lapply(statvar,function(sv)match.fun(sf)(pop[,sv]))))
+        if(prop)res=c(res,countStrategies(pop))
+    }
 }
 
-updateOutputLine <- function(pop,statfun,statvar,getname=F){
-    if(getname)unlist(lapply(statfun,function(sf)lapply(statvar,function(sv)paste(sf,sv,sep="_"))))
-    else unlist(lapply(statfun,function(sf)lapply(statvar,function(sv)match.fun(sf)(pop[,sv]))))
-}
 
-simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL){
+simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE){
 
     if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
 	if(is.null(theta)){
