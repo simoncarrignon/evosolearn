@@ -243,3 +243,14 @@ eq2833b <- function(n,mu,sigma,m){
     gamma=m^2/(2*sigma^2)
     return(1*m^2*(gamma*n+1)/(4*gamma*n)*(sqrt(1+2*(gamma*n*4*mu*n)/(gamma*n+1)^2)-1))
 }
+
+#' countStrategies
+#'
+#' A function to count the number of pure social learning and pure individual learner
+#' @param  upperlim the minimum value for the gene (y or z) to be considered as "pure" learning
+#' @param  lowerlim the maximum value for the other gene (y or z) to be considered as "pure" learning
+countStrategies <- function(pop,lowerlim=.25,upperlim=.75){
+    soc=sum(pop[,"z"] > upperlim & pop[,"y"]< lowerlim)/nrow(pop)
+    il=sum(pop[,"y"] > upperlim & pop[,"z"]< lowerlim)/nrow(pop)
+    return(c("prop_y"=il,"prop_z"=soc,"prop_div"=(1-(il+soc))))
+}
