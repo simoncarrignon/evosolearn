@@ -116,11 +116,11 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
 
 
         ##save the population state
-        if((t %% outputrate) == 0){
-            output[modt+1,]=c(t,updateOutputLine(pop,statfun,statvar),n,theta[t],outputparam)
+        if((t %% outputrate) == 0 && t > 1){
+            output[modt+1,]=c(t,updateOutputLine(pop,statfun,statvar),n,theta[t-1],outputparam)
+            if(allpops)allpop[[modt+1]]=pop
             modt=modt+1 #maybe a way to calculate the indice of the outptu matrix witouth keeping this indice
         }
-        if(allpops)allpop[[t]]=pop
 
 
         #selection
@@ -164,7 +164,7 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
 
 
     }
-	if(allpops)output$allpop=allpop
+	if(allpops){output=list(summary=output,allpop=allpop)}
     return(output)
 }
 
