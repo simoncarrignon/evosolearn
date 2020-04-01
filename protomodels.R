@@ -53,6 +53,7 @@ updateOutputLine <- function(pop,statfun,statvar,getname=F,prop=T){
         res=unlist(lapply(statfun,function(sf)lapply(statvar,function(sv)match.fun(sf)(pop[,sv]))))
         if(prop)res=c(res,countStrategies(pop))
     }
+    return(res)
 }
 
 
@@ -72,10 +73,10 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
     outputparam=c(E,sigma,omega,delta,b,K,mu,m)
     names(outputparam)=c(paste("E",names(E),sep="_"),paste("sigma",names(sigma),sep="_"),"omega","delta","b","K",paste("mu",names(mu),sep="_"),paste("m",names(m),sep="_"))
     outputparam=outputparam[c(1,4,8,9,10,11,14)]
-    outputsnames=c("t",updateOutputLine(NULL,statfun,statvar,getname=T),"N","theta",names(outputparam))
+    outputsnames=c("t",updateOutputLine(NULL,statfun,statvar,getname=T,prop=prop),"N","theta",names(outputparam))
     output=matrix(nrow=(tstep/outputrate)+1,ncol=length(outputsnames))
     colnames(output)=outputsnames
-    output[1,]=c(1,updateOutputLine(pop,statfun,statvar),n,theta[1],outputparam)
+    output[1,]=c(1,updateOutputLine(pop,statfun,statvar,prop=prop),n,theta[1],outputparam)
 
     popsize=c()
     err1=E['x']>0
@@ -115,7 +116,7 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
 
         ##save the population state
         if((t %% outputrate) == 0 && t > 1){
-            output[modt+1,]=c(t,updateOutputLine(pop,statfun,statvar),n,theta[t-1],outputparam)
+            output[modt+1,]=c(t,updateOutputLine(pop,statfun,statvar,prop=prop),n,theta[t-1],outputparam)
             if(allpops)allpop[[modt+1]]=pop
             modt=modt+1 #maybe a way to calculate the indice of the outptu matrix witouth keeping this indice
         }
