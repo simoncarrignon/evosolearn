@@ -51,7 +51,7 @@ updateOutputLine <- function(pop,statfun,statvar,getname=F,prop=T){
     }
     else {
         res=unlist(lapply(statfun,function(sf)lapply(statvar,function(sv)match.fun(sf)(pop[,sv]))))
-        if(prop)res=c(res,countStrategies(pop))
+        if(prop)res=c(res,countStrategies(pop)[1:2])
     }
     return(res)
 }
