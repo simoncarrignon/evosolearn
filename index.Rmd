@@ -1,0 +1,33 @@
+--- 
+title: "Exploration model Evolution of Social Learning"
+author: ""
+date: "2020"
+site: bookdown::bookdown_site
+output:
+  bookdown::gitbook: 
+    nature:
+      highlightStyle: github
+documentclass: book
+biblio-style: apalike
+link-citations: yes
+---
+
+# Intro
+
+tryign to centralized all exploration/observation here
+
+
+\tableofcontents
+
+```{r setup, include=FALSE}
+library(magrittr)
+knitr::opts_chunk$set(collapse=TRUE)
+```
+
+```{r write-bib, include=FALSE}
+knitr::write_bib(c(.packages(), 'bookdown','tidyverse'), 'packages.bib')
+```
+
+
+
+
