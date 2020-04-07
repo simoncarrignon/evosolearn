@@ -311,3 +311,104 @@ plot3Genes <- function(summaryresults,ylim=NULL,side="topright",...){
 
 }
 
+
+#plot tow lines: distance to optimum and fintes
+plotProp <- function(summaryresults,ylim=NULL,side="topright",...){
+    Ks=sort(unique(summaryresults$K))
+    mus=sort(unique(summaryresults$mu))
+    ms=sort(unique(summaryresults$m))
+    sigmas=sort(unique(summaryresults$sigma))
+    deltas=sort(unique(summaryresults$delta))
+    omega=sort(unique(summaryresults$omega))
+
+    subsetrajY=getSubsetWithTraj(summaryresults,sigma=sigmas,mu=mus,m=ms,E=0,K=Ks,delta=deltas,var="prop_y",traj=T)
+    subsetrajZ=getSubsetWithTraj(summaryresults,sigma=sigmas,mu=mus,m=ms,E=0,K=Ks,delta=deltas,var="prop_z",traj=T)
+
+        subsetraj=subsetrajX
+    if(is.null(dim(subsetraj$traj))){#some simulation have differen lenght
+        minlen=min(lengths(subsetraj$traj))
+        subsetraj$traj=sapply(subsetraj$traj,function(i){
+                              if(length(i)>minlen){
+                                  rescale=seq(1,length(i),length.out=minlen)
+                                  return(i[rescale])
+                              }
+                              return(i)
+    })
+    }
+
+    y=apply(subsetrajY$traj,1,function(l)quantile(l,na.rm=T))
+    z=apply(subsetrajZ$traj,1,function(l)quantile(l,na.rm=T))
+    maxts_n=max(subsetrajY$summary$extinction) # get real scale of observation
+
+    maxts=nrow(subsetrajY$traj)
+    rangesummaries=seq(1,maxts_n,length.out=maxts)
+
+    if(is.null(ylim))yl=range(z[c(2,4),],y[c(2,4),],na.rm=T)
+    else yl =ylim
+    if(any(is.infinite(yl)))yl=c(-1,1)
+
+    #prepare main plot area
+    par(mar=c(2,4,2,4))
+    plot(1,1,xlab="time",ylim=yl,xlim=c(1,maxts_n),type="n",ylab="learning",...)
+    lines(rangesummaries,y[3,],col="black",lwd=1,lty=1)
+    lines(rangesummaries,y[4,],lty=2,col="black",lwd=.5)
+    lines(rangesummaries,y[2,],lty=2,col="black",lwd=.5)
+    lines(rangesummaries,z[3,],col="green",lwd=1,lty=1)
+    lines(rangesummaries,z[4,],lty=2,col="green",lwd=.5)
+    lines(rangesummaries,z[2,],lty=2,col="green",lwd=.5)
+    legend(side,legend=c("individual","social"),lty=1,col=c("black","green"))
+}
+
+
+
+#this function use the filename stored in an summarized ouput  to get the individual trajectory for each experimetn an trace them.
+plotAllProp <- function(summaryresults,obs="prop",m,E,ylim=NULL,legside="topleft"){
+    Ks=sort(unique(summaryresults$K))
+    mus=sort(unique(summaryresults$mu))
+    ms=sort(unique(summaryresults$m))
+    sigmas=sort(unique(summaryresults$sigma))
+    deltas=sort(unique(summaryresults$delta))
+    omega=sort(unique(summaryresults$omega))
+    if(is.null(omega))omega=0
+
+    par(mfrow=c(length(sigmas),length(mus)))
+
+    #different colos will represent different Ks
+    cols=colorRampPalette(c("red","blue"))(length(Ks))
+    names(cols)=Ks
+
+    for(sigma in sigmas){
+        for(mu in mus){
+
+            subsetrajY=getSubsetWithTraj(summaryresults,sigma=sigma,mu=mu,m=m,E=E,K=Ks,delta=deltas,var="prop_y",traj=T)
+            param=bquote(sigma[s] == .(sigma) ~ E == .(E) ~ m == .(m) ~ mu == .(mu) ~ omega == .(omega) )
+
+            maxts_n=max(subsetrajY$summary$extinction) # get real scale of observation
+
+            #prepare main plot area
+
+            plot(1,1,xlab="time",ylab=obs,ylim=c(0,1),xlim=c(1,maxts_n),type="n",main=param)
+            for(id in 1:length(deltas)){
+                d=deltas[id]
+
+                singlesetupY=lapply(Ks,function(k)getSubsetWithTraj(subsetrajY$summary,sigma=sigma,mu=mu,m=m,E=E,K=k,delta=d,var="prop_y",traj=T)$traj)
+                singlesetupZ=lapply(Ks,function(k)getSubsetWithTraj(subsetrajY$summary,sigma=sigma,mu=mu,m=m,E=E,K=k,delta=d,var="prop_z",traj=T)$traj)
+
+                if(sum(lengths(singlesetupY))==0)break
+                #adjust length of single setup to ouptut
+                maxts=nrow(singlesetupY[[1]])
+                rangesummaries=seq(1,maxts_n,length.out=maxts)
+
+                plotTraj(rangesummaries,singlesetupY[[1]],col="red",xlim=range(rangesummaries),add=T,lty=1,lwd=.8)
+                plotTraj(rangesummaries,singlesetupZ[[1]],col="green",xlim=range(rangesummaries),add=T,lty=1,lwd=.8)
+            }
+            legend(legside,
+                   legend=c("individual","social",sapply(deltas,function(d)as.expression(bquote(delta==.(d))))),
+                   col=c("green","red",rep(1,length(deltas))),
+                   lty=c(rep(1,2),seq_along(deltas))
+                   )
+        }
+
+    }
+
+}
