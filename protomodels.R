@@ -63,6 +63,7 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
 	if(is.null(theta)){
 	   theta=environment(tstep,omega,delta,vt)
 	}
+    tstep=min(length(theta),tstep)
 
     #Generate initial population (here all gene are randomly selected
     if(is.null(pop))pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1)),df=F)
@@ -74,17 +75,18 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
     names(outputparam)=c(paste("E",names(E),sep="_"),paste("sigma",names(sigma),sep="_"),"omega","delta","b","K",paste("mu",names(mu),sep="_"),paste("m",names(m),sep="_"))
     outputparam=outputparam[c(1,4,8,9,10,11,14)]
     outputsnames=c("t",updateOutputLine(NULL,statfun,statvar,getname=T,prop=prop),"N","theta",names(outputparam))
-    output=matrix(nrow=(tstep/outputrate)+1,ncol=length(outputsnames))
+    output=matrix(nrow=(tstep/outputrate),ncol=length(outputsnames))
     colnames(output)=outputsnames
-    output[1,]=c(1,updateOutputLine(pop,statfun,statvar,prop=prop),n,theta[1],outputparam)
+
+    #output[1,]=c(1,updateOutputLine(pop,statfun,statvar,prop=prop),n,NA,outputparam)
 
     popsize=c()
-    err1=E['x']>0
+    err1=E['x']>0 #precomputing error
     err2=E['y']>0
     err3=E['z']>0
     parents=NULL
     if(allpops)allpop=list()
-    modt=1
+    #modt=1
     for( t in 1:tstep){
         if(log &&  ((t %% outputrate) == 0))print(paste(" timestep:",t))
 
@@ -115,10 +117,10 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
 
 
         ##save the population state
-        if((t %% outputrate) == 0 && t > 1){
-            output[modt+1,]=c(t,updateOutputLine(pop,statfun,statvar,prop=prop),n,theta[t-1],outputparam)
+        if((t %% outputrate) == 0 ){
+            output[t,]=c(t,updateOutputLine(pop,statfun,statvar,prop=prop),n,theta[t],outputparam)
             if(allpops)allpop[[modt+1]]=pop
-            modt=modt+1 #maybe a way to calculate the indice of the outptu matrix witouth keeping this indice
+            #modt=modt+1 #maybe a way to calculate the indice of the output matrix witouth keeping this indice
         }
 
 
