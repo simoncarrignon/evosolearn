@@ -9,34 +9,6 @@ source("tools.R")
 #' @return: numeric vector of probabilities
 selection <- function(w,b,n,K) 1/(1+(b-1)*(n/(K*w)))
 
-#' @param newpop: a dataframe with fitness and agents ID
-#' @param reference: a dataframe with phenotype and agents ID
-#' @param sls: a string define the sls of copy to be done: \in {"parents","best","average","randon"}
-#' @return: a unique numeric value or a vector of size nrow(newpop) with phenotypes to be copied 
-#socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
-#
-#    ##Checking for imature
-#    if(is.null(reference))reference=newpop #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
-#    if(is.null(reference$p))reference$p=reference$ilp #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
-#    if(anyNA(reference$p))reference$p[is.na(reference$p)]=reference$ilp[is.na(reference$p)] #if some of the reference group 
-#
-#    if(sls=="parents")
-#        return(reference$p[match(newnewpop$parent_id,reference$id)])
-#
-#    if(sls=="best"){
-#        if(is.null(thetat))stop("when selecting best agents an environmental condition has to be given")
-#        best=which.min(abs(reference$p-thetat))
-#        return(reference$p[best]) #return the phenotype of the best individual in the reference group 
-#    }
-#    if(sls=="average")
-#        return(mean(reference$p))
-#    if(sls=="random"){
-#        selected=sample(reference$id,nrow(newpop),replace=T) #we radomly assign a teacher for each individual of the new newpop
-#        return(reference$p[match(selected,reference$id)])
-#    }
-#    stop("a sls of copy should be chosen among parents,best,average,randon")
-#}
-
 
 #' @param ouptut a current output to be update or initialized if NULL
 #' @param pop the current population upon wihch statistics have to be calculated
