@@ -156,7 +156,7 @@ socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
     if(anyNA(reference[,"p"]))reference[,"p"][is.na(reference[,"p"])]=reference[,"ilp"][is.na(reference[,"p"])] #if some of the reference group 
 
     if(sls=="parents")
-        return(reference[,"p"][match(newnewpop[,"parent_id"],reference[,"id"])])
+        return(reference[,"p"][match(newpop[,"parent_id"],reference[,"id"])])
 
     if(sls=="best"){
         if(is.null(thetat))stop("when selecting best agents an environmental condition has to be given")
