@@ -1,4 +1,6 @@
 
+i_sls <- 1:4 #a  global variable to store the indices of individidual socil laerning strategies
+names(i_sls) <- c("best","parents","average","random")
 
 plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,t=NULL,...){
     varnames=NULL
