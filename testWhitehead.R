@@ -7,6 +7,25 @@ getFirst <- function(allpopres){
     return(ctsls)
 }
 
+old <- Sys.time() 
+
+args=commandArgs(trailingOnly = TRUE) #pass number of slave by comand line, should be #node - 1 as one node is used by the master 
+
+ns=args[1]#first argument is the number of slave
+nsm=args[2]#second argument the number of simulation 
+mainfold=args[3] #third argument = name of the folder wher to store the results
+
+if(is.na(mainfold) | mainfold=="") mainfold=Sys.info()['nodename']
+
+fi=0
+fold=paste0(mainfold,fi)
+while(file.exists(fold)){
+    fi=fi+1
+    fold=paste0(mainfold,fi)
+}
+
+print(paste0("short comparison will be writen in: ",fold))
+dir.create(fold)
 
 q=0.8494 #sigma_s
 
@@ -49,7 +68,7 @@ allresults=lapply(1:7,function(d)
                                            {
                                                print(i);
                                                p=unlist(u[sample(nrow(u),1),])
-                                               result=getFirst(simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=K,mu=c(x=0,y=0,z=0),m=c(x=0,y=0,z=0),E=c(x=0,y=0,z=unname(p["sigma"]),sigma=c(s=exp(1),y=exp(unname(p["C_i"])),z=exp(unname(p["C_v"]))),log=F,sls="mixed",pop=pop,outputrate=1,allpops=T,theta=env))
+                                               result=getFirst(simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=K,mu=c(x=0,y=0,z=0),m=c(x=0,y=0,z=0),E=c(x=0,y=0,z=unname(p["sigma"])),sigma=c(s=exp(1),y=exp(unname(p["C_i"])),z=exp(unname(p["C_v"]))),log=F,sls="mixed",pop=pop,outputrate=1,allpops=T,theta=env))
                                                return(result)
                                            }
                                  )
@@ -61,7 +80,9 @@ allresults=lapply(1:7,function(d)
 stopCluster(cl)
 
 summarized=lapply(rev(allresults),lapply,function(i)apply(sapply(i,function(i)(i>0)/(sum(i>0))),1,mean))
-save(file=paste0("summarized.bin",summarized))
+save(file=file.path(fold,"summarized.bin"),summarized)
+new <- Sys.time() - old # calculate difference
+print(new) # print in nice format
 
 
 pdf("whitehead2007.pdf",width=6,height=6)
