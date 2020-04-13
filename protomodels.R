@@ -156,20 +156,46 @@ socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
     if(anyNA(reference[,"p"]))reference[,"p"][is.na(reference[,"p"])]=reference[,"ilp"][is.na(reference[,"p"])] #if some of the reference group 
 
     if(sls=="parents")
-        return(reference[,"p"][match(newpop[,"parent_id"],reference[,"id"])])
+        return(unname(reference[,"p"][match(newpop[,"parent_id"],reference[,"id"])]))
 
     if(sls=="best"){
         if(is.null(thetat))stop("when selecting best agents an environmental condition has to be given")
         best=which.min(abs(reference[,"p"]-thetat))
-        return(reference[,"p"][best]) #return the phenotype of the best individual in the reference group 
+        return(unname(unname(reference[,"p"][best]))) #return the phenotype of the best individual in the reference group 
     }
     if(sls=="average")
         return(mean(reference[,"p"]))
     if(sls=="random"){
         selected=sample(reference[,"id"],nrow(newpop),replace=T) #we radomly assign a teacher for each individual of the new newpop
-        return(reference[,"p"][match(selected,reference[,"id"])])
+        return(unname(reference[,"p"][match(selected,reference[,"id"])]))
     }
-    stop("a sls should be chosen among parents,best,average,randon")
+    if(sls=="mixed"){
+        #parents Vertical
+        selected_p = newpop[,"p"]
+
+        #This could/should be done in a loop/apply for all sls
+
+        best=which(newpop[,"sls"] == i_sls["best"])
+        if(length(best)>0)
+            selected_p[best]=reference[,"p"][which.min(abs(reference[,"p"]-thetat))]
+
+        random=which(newpop[,"sls"] ==i_sls["random"])
+        if(length(random)>0){
+            randsel=sample(reference[,"id"],length(random),replace=T) #we radomly assign a teacher for each individual of the new newpop
+            selected_p[random]= reference[,"p"][match(randsel,reference[,"id"])]
+        }
+
+        parentsls=which(newpop[,"sls"] == i_sls["parents"])
+        if(length(parentsls)>0)
+            selected_p[parentsls]=reference[,"p"][match(newpop[parentsls,"parent_id"],reference[,"id"])]
+
+        average=which(newpop[,"sls"] == i_sls["average"])
+        if(length(average)>0)selected_p[average]=mean(reference[,"p"])
+
+        return(unname(selected_p))
+
+    }
+    stop("a sls should be chosen among parents,best,average,randon,mmixed")
 }
 
 
