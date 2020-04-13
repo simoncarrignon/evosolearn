@@ -12,12 +12,46 @@ parents=pop
 meanw=c()
 popsize=c()
 
-socialLearning(childs,parents,type="average") - mean(parents$slp)
+socialLearning(childs,parents,sls="average") - mean(parents$slp)
 
 t=sample(tstep,1)
-socialLearning(childs,parents,type="best",theta=env$theta[t]) - parents$ilp[which.min(abs(parents$ilp-env$theta[t]))] #should be 0
+n=100
+pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)),df=F)
+pop=cbind(pop,sls=rep(sls["parents"],n))
+childs=pop
+parents=pop
+parents[,"p"]=runif(n)
+socialLearning(childs,parents,sls="best",theta=1) - max(parents[,"p"]) == 0
 
-length(socialLearning(childs,parents,type="random"))-nrow(childs) #should be equal to zero
+socialLearning(childs,parents,sls="average",theta=1) - mean(parents[,"p"]) == 0
+
+childs[,"parent_id"]=sample(c(4,10,20),n,replace=T) 
+slp=socialLearning(childs,parents,sls="parents",theta=1) 
+sonfor=childs[,"parent_id"]==4
+sum(slp[sonfor] !=  parents[4,"p"]) ==0
+
+
+## testin mixed:
+childs[,"sls"]=i_sls["parents"]
+sum(socialLearning(childs,parents,sls="parents",theta=1)  - socialLearning(childs,parents,sls="mixed",theta=1) ) == 0
+
+childs[,"sls"]=i_sls["average"]
+sum(socialLearning(childs,parents,sls="average",theta=1)  - socialLearning(childs,parents,sls="mixed",theta=1) ) == 0
+
+childs[,"sls"]=i_sls["best"]
+sum(socialLearning(childs,parents,sls="best",theta=1)  - socialLearning(childs,parents,sls="mixed",theta=1) ) == 0
+
+childs[1:10,"sls"]=i_sls["best"]
+childs[11:20,"sls"]=i_sls["average"]
+childs[21:40,"sls"]=i_sls["parents"]
+res=socialLearning(childs,parents,sls="mixed",theta=1)
+res[22] == parents[childs[22,"parent_id"],"p"]
+res[2] - max(parents[,"p"]) == 0
+res[12] == mean(parents[,"p"]) 
+
+
+length(socialLearning(childs,parents,sls="random"))-nrow(childs) #should be equal to zero
+
 
 
 
