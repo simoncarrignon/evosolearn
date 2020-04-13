@@ -57,18 +57,18 @@ tstep=15000
 K=1500
 
 library(parallel)
-cl <- makeForkCluster(3,outfile="")
+cl <- makeForkCluster(16,outfile="")
 allresults=lapply(1:7,function(d)
                   {
                       lapply(1:7,function(o)
                              {
                                  print(paste(o,d))
                                  env=environment(N=tstep,omega=omega[o],delta=delta[d])
-                                 parLapply(cl,1:5,function(i)
+                                 parLapply(cl,1:100,function(i)
                                            {
                                                print(i);
                                                p=unlist(u[sample(nrow(u),1),])
-                                               result=getFirst(simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=K,mu=c(x=0,y=0,z=0),m=c(x=0,y=0,z=0),E=c(x=0,y=0,z=unname(p["sigma"])),sigma=c(s=exp(1),y=exp(unname(p["C_i"])),z=exp(unname(p["C_v"]))),log=F,sls="mixed",pop=pop,outputrate=1,allpops=T,theta=env))
+                                               result=getFirst(simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=K,mu=c(x=0,y=0,z=0),m=c(x=0,y=0,z=0),E=c(x=unname(p["sigma"]),y=unname(p["sigma"]),z=unname(p["sigma"])),sigma=c(s=exp(1),y=exp(unname(p["C_i"])),z=exp(unname(p["C_v"]))),log=F,sls="mixed",pop=pop,outputrate=1,allpops=T,theta=env))
                                                return(result)
                                            }
                                  )
@@ -85,7 +85,7 @@ new <- Sys.time() - old # calculate difference
 print(new) # print in nice format
 
 
-pdf("whitehead2007.pdf",width=6,height=6)
+pdf(file.path(fold,"whitehead2007.pdf"),width=6,height=6)
 par(mfrow=c(7,7),mar=rep(.1,4),oma=c(6,6,1,1))
 lapply(rev(summarized),lapply,function(i)pie(i,labels=NA))
 par(new=T,mfrow=c(1,1),oma=rep(0,4),mar=c(4,4,1,1))
