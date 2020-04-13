@@ -20,7 +20,7 @@ C_v=1-c(0.01,0.03,0.05,0.07,0.1) #cost vertical learning
 C_h=C_v-c(0.01,0.03,0.05,0.07,0.1)#cost horizont learning
 C_i=C_h-c(0.01,0.03,0.05,0.07,0.1)#cost individual learning
 
-expand.grid(sigma=E_x,C_v=C_v,C_i=C_i)
+u=expand.grid(sigma=E_x,C_v=C_v,C_i=C_i)
 
 n=100
 pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)))
@@ -38,25 +38,27 @@ tstep=15000
 K=1500
 
 library(parallel)
-cl <- makeForkCluster(16,outfile="")
+cl <- makeForkCluster(3,outfile="")
 allresults=lapply(1:7,function(d)
                   {
                       lapply(1:7,function(o)
                              {
                                  print(paste(o,d))
                                  env=environment(N=tstep,omega=omega[o],delta=delta[d])
-                                 parLapply(cl,1:100,function(i)
-                                        {
-                                            print(i);
-                                            result=getFirst(simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=K,mu=c(x=0,y=0,z=0),m=c(x=0,y=0,z=0),E=c(x=0,y=0,z=sigma),sigma=c(s=exp(1),y=exp(C_i[1]),z=exp(C_v[1])),log=F,sls="mixed",pop=pop,outputrate=1,allpops=T,theta=env))
-                                            return(result)
-                                        }
+                                 parLapply(cl,1:5,function(i)
+                                           {
+                                               print(i);
+                                               p=unlist(u[sample(nrow(u),1),])
+                                               result=getFirst(simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=K,mu=c(x=0,y=0,z=0),m=c(x=0,y=0,z=0),E=c(x=0,y=0,z=unname(p["sigma"]),sigma=c(s=exp(1),y=exp(unname(p["C_i"])),z=exp(unname(p["C_v"]))),log=F,sls="mixed",pop=pop,outputrate=1,allpops=T,theta=env))
+                                               return(result)
+                                           }
                                  )
                              }
                       )
                   }
 )
 
+stopCluster(cl)
 
 summarized=lapply(rev(allresults),lapply,function(i)apply(sapply(i,function(i)(i>0)/(sum(i>0))),1,mean))
 save(file=paste0("summarized.bin",summarized))
