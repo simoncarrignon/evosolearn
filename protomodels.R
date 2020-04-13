@@ -9,34 +9,6 @@ source("tools.R")
 #' @return: numeric vector of probabilities
 selection <- function(w,b,n,K) 1/(1+(b-1)*(n/(K*w)))
 
-#' @param newpop: a dataframe with fitness and agents ID
-#' @param reference: a dataframe with phenotype and agents ID
-#' @param sls: a string define the sls of copy to be done: \in {"parents","best","average","randon"}
-#' @return: a unique numeric value or a vector of size nrow(newpop) with phenotypes to be copied 
-#socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
-#
-#    ##Checking for imature
-#    if(is.null(reference))reference=newpop #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
-#    if(is.null(reference$p))reference$p=reference$ilp #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
-#    if(anyNA(reference$p))reference$p[is.na(reference$p)]=reference$ilp[is.na(reference$p)] #if some of the reference group 
-#
-#    if(sls=="parents")
-#        return(reference$p[match(newnewpop$parent_id,reference$id)])
-#
-#    if(sls=="best"){
-#        if(is.null(thetat))stop("when selecting best agents an environmental condition has to be given")
-#        best=which.min(abs(reference$p-thetat))
-#        return(reference$p[best]) #return the phenotype of the best individual in the reference group 
-#    }
-#    if(sls=="average")
-#        return(mean(reference$p))
-#    if(sls=="random"){
-#        selected=sample(reference$id,nrow(newpop),replace=T) #we radomly assign a teacher for each individual of the new newpop
-#        return(reference$p[match(selected,reference$id)])
-#    }
-#    stop("a sls of copy should be chosen among parents,best,average,randon")
-#}
-
 
 #' @param ouptut a current output to be update or initialized if NULL
 #' @param pop the current population upon wihch statistics have to be calculated
@@ -63,9 +35,11 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
 	if(is.null(theta)){
 	   theta=environment(tstep,omega,delta,vt)
 	}
+    tstep=min(length(theta),tstep)
 
     #Generate initial population (here all gene are randomly selected
     if(is.null(pop))pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1)),df=F)
+    n=nrow(pop)
 
 	#prepare outputs
 	names(statfun)=statfun
@@ -74,12 +48,13 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
     names(outputparam)=c(paste("E",names(E),sep="_"),paste("sigma",names(sigma),sep="_"),"omega","delta","b","K",paste("mu",names(mu),sep="_"),paste("m",names(m),sep="_"))
     outputparam=outputparam[c(1,4,8,9,10,11,14)]
     outputsnames=c("t",updateOutputLine(NULL,statfun,statvar,getname=T,prop=prop),"N","theta",names(outputparam))
-    output=matrix(nrow=(tstep/outputrate)+1,ncol=length(outputsnames))
+    output=matrix(nrow=(tstep/outputrate),ncol=length(outputsnames))
     colnames(output)=outputsnames
-    output[1,]=c(1,updateOutputLine(pop,statfun,statvar,prop=prop),n,theta[1],outputparam)
+
+    #output[1,]=c(1,updateOutputLine(pop,statfun,statvar,prop=prop),n,NA,outputparam)
 
     popsize=c()
-    err1=E['x']>0
+    err1=E['x']>0 #precomputing error
     err2=E['y']>0
     err3=E['z']>0
     parents=NULL
@@ -115,10 +90,10 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
 
 
         ##save the population state
-        if((t %% outputrate) == 0 && t > 1){
-            output[modt+1,]=c(t,updateOutputLine(pop,statfun,statvar,prop=prop),n,theta[t-1],outputparam)
+        if((t %% outputrate) == 0 ){
+            output[modt,]=c(t,updateOutputLine(pop,statfun,statvar,prop=prop),n,theta[t],outputparam)
             if(allpops)allpop[[modt+1]]=pop
-            modt=modt+1 #maybe a way to calculate the indice of the outptu matrix witouth keeping this indice
+            modt=modt+1 #maybe a way to calculate the indice of the output matrix witouth keeping this indice
         }
 
 
@@ -181,20 +156,46 @@ socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
     if(anyNA(reference[,"p"]))reference[,"p"][is.na(reference[,"p"])]=reference[,"ilp"][is.na(reference[,"p"])] #if some of the reference group 
 
     if(sls=="parents")
-        return(reference[,"p"][match(newnewpop[,"parent_id"],reference[,"id"])])
+        return(unname(reference[,"p"][match(newpop[,"parent_id"],reference[,"id"])]))
 
     if(sls=="best"){
         if(is.null(thetat))stop("when selecting best agents an environmental condition has to be given")
         best=which.min(abs(reference[,"p"]-thetat))
-        return(reference[,"p"][best]) #return the phenotype of the best individual in the reference group 
+        return(unname(unname(reference[,"p"][best]))) #return the phenotype of the best individual in the reference group 
     }
     if(sls=="average")
         return(mean(reference[,"p"]))
     if(sls=="random"){
         selected=sample(reference[,"id"],nrow(newpop),replace=T) #we radomly assign a teacher for each individual of the new newpop
-        return(reference[,"p"][match(selected,reference[,"id"])])
+        return(unname(reference[,"p"][match(selected,reference[,"id"])]))
     }
-    stop("a sls should be chosen among parents,best,average,randon")
+    if(sls=="mixed"){
+        #parents Vertical
+        selected_p = newpop[,"p"]
+
+        #This could/should be done in a loop/apply for all sls
+
+        best=which(newpop[,"sls"] == i_sls["best"])
+        if(length(best)>0)
+            selected_p[best]=reference[,"p"][which.min(abs(reference[,"p"]-thetat))]
+
+        random=which(newpop[,"sls"] ==i_sls["random"])
+        if(length(random)>0){
+            randsel=sample(reference[,"id"],length(random),replace=T) #we radomly assign a teacher for each individual of the new newpop
+            selected_p[random]= reference[,"p"][match(randsel,reference[,"id"])]
+        }
+
+        parentsls=which(newpop[,"sls"] == i_sls["parents"])
+        if(length(parentsls)>0)
+            selected_p[parentsls]=reference[,"p"][match(newpop[parentsls,"parent_id"],reference[,"id"])]
+
+        average=which(newpop[,"sls"] == i_sls["average"])
+        if(length(average)>0)selected_p[average]=mean(reference[,"p"])
+
+        return(unname(selected_p))
+
+    }
+    stop("a sls should be chosen among parents,best,average,randon,mmixed")
 }
 
 
