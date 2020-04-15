@@ -29,7 +29,7 @@ updateOutputLine <- function(pop,statfun,statvar,getname=F,prop=T){
 }
 
 
-simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE){
+simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE,reproduction="asex"){
 
     if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
 	if(is.null(theta)){
@@ -86,7 +86,7 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
         #print(mean(pop[,"p"] - pop[,"p"]))
 
         ##computation of the fitness
-        pop[,"w"] = exp(-((pop[,"p"]-theta[t])^2)/(2*sigma['s']^2)-((pop[,"y"])^2)/(2*sigma['y']^2)-((pop[,"z"])^2)/(2*sigma['z']^2))
+        pop[,"w"] = fitness(pop[,"p"],theta[t],pop[,"x"],pop[,"y"],pop[,"z"],sigma['s'],sigma['y'],sigma['z'])
 
 
         ##save the population state
@@ -109,8 +109,14 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
         c=1
         for( p in seq_along(selected)){
             if(nchilds[p]>0){
-				for(i in c:(c+nchilds[p]-1))
-					childs[i,]=pop[selected[p],]
+                for(i in c:(c+nchilds[p]-1)){
+                    childs[i,]=pop[selected[p],]
+                    if(reproduction=="sex"){
+                        p2=sample(selected[-p],1)
+                        cross=runif(3)<1/3
+                        childs[i,c("x","y","z")][cross]=pop[p2,c("x","y","z")][cross]
+                    }
+                }
                 c=c+nchilds[p]
             }
         }
@@ -142,6 +148,10 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
     return(output)
 }
 
+fitness <- function(p,theta,x,y,z,sigma_s,sigma_y,sigma_z){
+        w = exp(-(p-theta)^2/(2*sigma_s^2)- y^2/(2*sigma_y^2)-z^2/(2*sigma_z^2))
+        return(w)
+}
 
 
 #' @param newpop: a dataframe with fitness and agents ID
