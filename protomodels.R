@@ -86,7 +86,7 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
         #print(mean(pop[,"p"] - pop[,"p"]))
 
         ##computation of the fitness
-        pop[,"w"] = exp(-((pop[,"p"]-theta[t])^2)/(2*sigma['s']^2)-((pop[,"y"])^2)/(2*sigma['y']^2)-((pop[,"z"])^2)/(2*sigma['z']^2))
+        pop[,"w"] = fitness(pop[,"p"],theta[t],pop[,"x"],pop[,"y"],pop[,"z"],sigma['s'],sigma['y'],sigma['z'])
 
 
         ##save the population state
@@ -142,6 +142,10 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
     return(output)
 }
 
+fitness <- function(p,theta,x,y,z,sigma_s,sigma_y,sigma_z){
+        w = exp(-(p-theta)^2/(2*sigma_s^2)- y^2/(2*sigma_y^2)-z^2/(2*sigma_z^2))
+        return(w)
+}
 
 
 #' @param newpop: a dataframe with fitness and agents ID
