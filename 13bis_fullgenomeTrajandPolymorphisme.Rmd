@@ -1,0 +1,47 @@
+# (Sexual reproduction) Exploring Polymorphism for a few test cases
+
+Exploring single runs and evolution of genomes for all individuals for some given parameters of interest.
+
+
+```{r,include=F}
+library(hdrcde)
+color.gradient <- function(x, colors=c("red","yellow","green"), colsteps=100) {
+      return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+}
+load(file="testFullPopSexualReproCORRRECTED/testFullPopSexualReproCORRRECTED_amd010/crossExplore.bin")
+```
+
+```{r,fig.width=10,fig.height=10,results='asis'}
+
+
+for( mu in unique(binded$mu)){
+    for( v in unique(binded$vt)){
+        for( s in unique(binded$sigma)){
+            cat(paste0("## With vt = ",v,", $\\sigma = ",s,"$ and $\\mu = ",mu,"$"), sep="\n\r")
+            low=binded$filename[ binded$vt == v & binded$sigma == s & binded$mu == mu]
+            u=0
+            for(i in as.character(low)){
+                cat(paste0("Example ",u), sep="\n\r")
+                load(file=paste0(i,"pop"))
+                fullmat$allpop=fullmat$allpop[2:length(fullmat$allpop)]
+                fullmat$allpop=lapply(fullmat$allpop,as.data.frame)
+                plotAllVariable(fullmat,hdr=T,vars=c("x","y","z"),fullmat$summary[,"theta"],t=fullmat$summary[,"t"],main=bquote( mu == .(0.01) ~ k[z] == 2 ~ k[y]== 1 ~ sigma[s] == .(4)))
+                l=length(fullmat$allpop)
+                last=fullmat$allpop[[l]]
+                par(mfrow=c(1,1),mar=c(8,8,8,8))
+                plot(last[,"y"],last[,"z"],col=alpha(color.gradient(last[,"x"]),.6),ylab="z",xlab="y",ylim=c(0,1),xlim=c(0,1),pch=20,main="genome of last generation",cex=2)
+                leg=seq(min(last[,"x"]),max(last[,"x"]),length.out=5)
+                legend("bottomleft",
+                       legend=round(leg,digit=2),
+                       pch=20,
+                       col=color.gradient(leg),
+                       title="x"
+                       )
+                u=u+1
+            }
+            cat("\n\r")
+        }
+    }
+}
+
+```

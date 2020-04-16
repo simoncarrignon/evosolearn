@@ -21,6 +21,7 @@ tryign to centralized all exploration/observation here
 
 ```{r setup, include=FALSE}
 library(magrittr)
+library(scales)
 knitr::opts_chunk$set(collapse=TRUE)
 ```
 

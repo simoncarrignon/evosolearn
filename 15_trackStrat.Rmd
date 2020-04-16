@@ -1,0 +1,25 @@
+# Exploring Mixed Strategies (Whitehead 2007)
+
+
+```{r,fig.width=7,fig.height=7}
+load("data/summaryStrategiesRandomParametersWhitehad07.bin")
+delta=2^seq(-3,3)
+omega=seq(-.5,2.5,.5)
+par(mfrow=c(7,7),mar=rep(.1,4),oma=c(6,6,1,1))
+na=lapply(summarized,lapply,function(i)pie(i,labels=NA))
+par(new=T,mfrow=c(1,1),oma=rep(0,4),mar=c(4,4,1,1))
+plot(1,1,ylim=c(0,1),xlim=c(0,1),type="n",xaxt="n",yaxt="n",xlab=expression(omega),ylab=expression(delta))
+axis(1,at=seq(0,1,length.out=4),labels=omega[seq(1,7,length.out=4)])
+axis(2,at=seq(0,1,length.out=4),labels=delta[seq(1,7,length.out=4)])
+```
+
+The pie chart represent the mean percentage over 100 runs of the proportion of the different strategies at the end of the simulation
+```{r}
+par(mar=rep(0,4))
+    pie(c(genetics=.25,individual=.25,vertical=.25,horizontal=.25))
+```
+
+
+Compare to [Whitehead (2007)](https://www.sciencedirect.com/science/article/abs/pii/S0022519306004681) Figure 1 and 2:
+![roger](https://ars.els-cdn.com/content/image/1-s2.0-S0022519306004681-gr1.jpg)
+![roger](https://ars.els-cdn.com/content/image/1-s2.0-S0022519306004681-gr2.jpg)
