@@ -23,23 +23,19 @@ dir.create(fold)
 	library(parallel)
 allparameters=list()
 	allparameters[["mu"]]=c(0.001,0.005,0.01,0.05)
-#allparameters[["K"]]=c(2000)
-	allparameters[["k_y"]]=0
-	allparameters[["k_z"]]=0
-	allparameters[["K"]]=c(1000)
+    allparameters[["K"]]=c(2000)
+	#allparameters[["k_y"]]=0
+	#allparameters[["k_z"]]=0
+	#allparameters[["K"]]=c(1000)
 	allparameters[["E"]]=c(0)#,.05,.1)
 #allparameters[["E"]]=0
 	allparameters[["m"]]=c(0.2,0.3,.5,8)
-#allparameters[["m"]]=.1
 	allparameters[["sigma"]]=c(2,3,6,8)
 	allparameters[["delta"]]=c(1,2,4,6)
-#allparameters[["delta"]]=0
 	allparameters[["vt"]]=c(0.001,.002,.02)
-#allparameters[["vt"]]=0
 	allparameters[["omega"]]=c(.5,1,3,6)
-#allparameters[["omega"]]=0
-	allparameters[["outputrate"]]=1000
-parameters=as.data.frame(expand.grid(allparameters))
+	allparameters[["outputrate"]]=100
+    parameters=as.data.frame(expand.grid(allparameters))
 	repet=nsm
 	parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
 
@@ -75,11 +71,11 @@ sigma=c(s=1,y=1,z=1)
 				mu[genes]=parameters[v,"mu"]
 				m[genes]=parameters[v,"m"]
 				E[genes]=parameters[v,"E"]
-				sigma=c(s=parameters[v,"sigma"],y=parameters[v,"sigma"]*parameters[v,"k_y"],z=parameters[v,"sigma"]*parameters[v,"k_y"]*parameters[v,"k_z"])
-				pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n,0,0),z=runif(n,0,0)),df=F)
-				fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random",allpop=F,repro="sex",prop=F)
+				sigma["s"]=parameters[v,"sigma"]
+				pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
+				fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random",allpop=F,repro="asex",prop=F)
 				filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
-				summary=fullmat$summary
+				summary=fullmat
 				save(file=filename_mat,summary)
 #save(file=paste0(filename_mat,"pop"),fullmat)
 				c(as.list(getSummary(summary,nstep=1,vars=c(paste0("mean_",genes),paste0("var_",genes),"N","mean_w","mean_p","theta"))),filename=filename_mat)
