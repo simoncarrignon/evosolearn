@@ -34,7 +34,7 @@ allparameters=list()
 	allparameters[["delta"]]=c(1,2,4,6)
 	allparameters[["vt"]]=c(0.001,.002,.02)
 	allparameters[["omega"]]=c(.5,1,3,6)
-	allparameters[["outputrate"]]=100
+	allparameters[["outputrate"]]=1
     parameters=as.data.frame(expand.grid(allparameters))
 	repet=nsm
 	parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
@@ -77,14 +77,13 @@ sigma=c(s=1,y=1,z=1)
 				filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
 				summary=fullmat
 				save(file=filename_mat,summary)
-#save(file=paste0(filename_mat,"pop"),fullmat)
-				c(as.list(getSummary(summary,nstep=1,vars=c(paste0("mean_",genes),paste0("var_",genes),"N","mean_w","mean_p","theta"))),filename=filename_mat)
+				c(as.list(getSummary(summary,nstep=10,vars=c(paste0("mean_",genes),paste0("var_",genes),"N","mean_w","mean_p","theta"))),filename=filename_mat)
 				},parameters=parameters)
 )
 
-stopCluster(cl)
+	stopCluster(cl)
 
-binded=cbind(explore,parameters)
+	binded=cbind(explore,parameters)
 	save(file=file.path(fold,"crossExplore.bin"),binded)
 	new <- Sys.time() - old # calculate difference
 	print(new) # print in nice format
