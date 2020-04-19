@@ -1,7 +1,7 @@
 # Full Genome, Best Social Learning
 
 ```{r,eval=FALSE}
-moving_theta=getAlllSummaries("fullGenomesAllmeans")
+moving_theta=getAlllSummaries("fullGenomesAllmeans/")
 moving_theta=updateScale(moving_theta)
 ```
 

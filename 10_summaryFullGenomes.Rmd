@@ -1,0 +1,174 @@
+# Full Genome, Random Social Learning
+
+So far all simulations with the full genome are done with a cost for y and z = 1
+
+```{r,eval=TRUE}
+load(file="data/fullgenomeRandom.bin")
+moving_thetaRandom=moving_theta
+moving_thetaRandom$distX=abs(moving_thetaRandom$theta - moving_thetaRandom$mean_x)
+load(file="data/fullgenome.bin")
+moving_thetaBest=moving_theta
+moving_thetaBest$distX=abs(moving_thetaBest$theta - moving_thetaBest$mean_x)
+```
+
+```{r}
+uniquesetupRandomMULT=moving_thetaRandom[ moving_thetaRandom$sigma == 1 & moving_thetaRandom$delta == 1 & moving_thetaRandom$m == .5 & moving_thetaRandom$vt == .001 & moving_thetaRandom$K == 2000 & moving_thetaRandom$mu == 0.01 & moving_thetaRandom$omega == 4,]
+uniquesetupRandomMuLT=moving_thetaRandom[ moving_thetaRandom$sigma == 1 & moving_thetaRandom$delta == 1 & moving_thetaRandom$m == .5 & moving_thetaRandom$vt == .001 & moving_thetaRandom$K == 2000 & moving_thetaRandom$mu == 0.001 & moving_thetaRandom$omega == 4,]
+uniquesetupBestMULT=moving_thetaBest[ moving_thetaBest$sigma == 1 & moving_thetaBest$delta == 1 & moving_thetaBest$m == .5 & moving_thetaBest$vt == .001 & moving_thetaBest$K == 2000 & moving_thetaBest$mu == 0.01 & moving_thetaBest$omega == 4,]
+uniquesetupBestMuLT=moving_thetaBest[ moving_thetaBest$sigma == 1 & moving_thetaBest$delta == 1 & moving_thetaBest$m == .5 & moving_thetaBest$vt == .001 & moving_thetaBest$K == 2000 & moving_thetaBest$mu == 0.001 & moving_thetaBest$omega == 4,]
+
+uniquesetupRandomMUHT=moving_thetaRandom[ moving_thetaRandom$sigma == 1 & moving_thetaRandom$delta == 1 & moving_thetaRandom$m == .5 & moving_thetaRandom$vt == .02 & moving_thetaRandom$K == 2000 & moving_thetaRandom$mu == 0.01 & moving_thetaRandom$omega == 4,]
+uniquesetupRandomMuHT=moving_thetaRandom[ moving_thetaRandom$sigma == 1 & moving_thetaRandom$delta == 1 & moving_thetaRandom$m == .5 & moving_thetaRandom$vt == .02 & moving_thetaRandom$K == 2000 & moving_thetaRandom$mu == 0.001 & moving_thetaRandom$omega == 4,]
+uniquesetupBestMUHT=moving_thetaBest[ moving_thetaBest$sigma == 1 & moving_thetaBest$delta == 1 & moving_thetaBest$m == .5 & moving_thetaBest$vt == .02 & moving_thetaBest$K == 2000 & moving_thetaBest$mu == 0.01 & moving_thetaBest$omega == 4,]
+uniquesetupBestMuHT=moving_thetaBest[ moving_thetaBest$sigma == 1 & moving_thetaBest$delta == 1 & moving_thetaBest$m == .5 & moving_thetaBest$vt == .02 & moving_thetaBest$K == 2000 & moving_thetaBest$mu == 0.001 & moving_thetaBest$omega == 4,]
+```
+
+
+## Mean fitness with and distance to $\theta$
+
+### Low rate of change  ($vt = 0.01$)
+Random Social Learning (top), Best Social Learning (bottom)  high $\mu=0.01$ (left), low $\mu = 0.001$ (right)
+```{r}
+par(mfrow=c(2,2))
+plotDistVsFitness(uniquesetupRandomMULT,main="mu=0.01, random copy")
+plotDistVsFitness(uniquesetupRandomMuLT,main="mu=0.001, random copy")
+plotDistVsFitness(uniquesetupBestMULT,main="mu=0.01, copy the best")
+plotDistVsFitness(uniquesetupBestMuLT,main="mu=0.001, copy the best")
+```
+
+### High rate of change ($vt = 0.2$)
+Random Social Learning (top), Best Social Learning (bottom)  high $\mu=0.01$ (left), low $\mu = 0.001$ (right)
+```{r}
+par(mfrow=c(2,2))
+plotDistVsFitness(uniquesetupRandomMUHT,main="mu=0.01, random copy")
+plotDistVsFitness(uniquesetupRandomMuHT,main="mu=0.001, random copy")
+plotDistVsFitness(uniquesetupBestMUHT,main="mu=0.01, copy the best")
+plotDistVsFitness(uniquesetupBestMuHT,main="mu=0.001,copy the best")
+```
+
+## Compare the mean value of the three genes during the simulation
+
+### Low rate of change ($vt = 0.01$)
+Random Social Learning (top), Best Social Learning (bottom)  high $\mu=0.01$ (left), low $\mu = 0.001$ (right)
+```{r}
+par(mfrow=c(2,2))
+plot3Genes(uniquesetupRandomMULT,main="mu=0.01, random copy")
+plot3Genes(uniquesetupRandomMuLT,main="mu=0.001, random copy")
+plot3Genes(uniquesetupBestMULT,main="mu=0.01, copy the best")
+plot3Genes(uniquesetupBestMuLT,main="mu=0.001, copy the best")
+```
+
+### High rate of change($vt = 0.2$) 
+Random Social Learning (top), Best Social Learning (bottom)  high $\mu=0.01$ (left), low $\mu = 0.001$ (right)
+```{r}
+par(mfrow=c(2,2))
+plot3Genes(uniquesetupRandomMUHT,main="mu=0.01, random copy")
+plot3Genes(uniquesetupRandomMuHT,main="mu=0.001, random copy")
+plot3Genes(uniquesetupBestMUHT,main="mu=0.01, copy the best")
+plot3Genes(uniquesetupBestMuHT,main="mu=0.001, copy the best")
+```
+
+## Compare $\omega$, $\delta$, and rate of increase
+
+With $\mu = 0.01$ and $m=.5$
+
+```{r,fig.width=10,fig.height=10}
+MMTR=moving_thetaRandom[ moving_thetaRandom$sigma == 1 & moving_thetaRandom$m == .5  & moving_thetaRandom$K == 2000 & moving_thetaRandom$mu == 0.01 ,]
+ds=unique(MMTR$delta)
+vts=unique(MMTR$vt)
+colds=rev(colorRampPalette(c("red","blue"))(length(ds)))
+names(colds)=ds
+par(mfrow=c(3,3))
+for(d in unique(MMTR$omega)){
+    for(var in c("mean_z","mean_y","distX")){
+        vtDelta=tapply(MMTR[,var][MMTR$omega==d],MMTR[MMTR$omega == d,c("vt","delta")],mean)
+        plot(1,1,type="n",main=bquote(omega==.(d)),ylim=range(vtDelta,na.rm=T),xlim=range(vts),xlab="vt",ylab=var)
+        for(i in ds)lines(vts,vtDelta[,as.character(i)],col=colds[as.character(i)],lwd=2)
+    }
+}
+legend("topleft",legend=sapply(ds,function(d)as.expression(bquote(delta==.(d)))),lwd=2,lty=1,col=colds)
+```
+
+With $\mu = 0.001$ and $m=.2$
+
+```{r,fig.width=10,fig.height=10}
+MMTR=moving_thetaRandom[ moving_thetaRandom$sigma == 1 & moving_thetaRandom$m == .2  & moving_thetaRandom$K == 2000 & moving_thetaRandom$mu == 0.001 ,]
+ds=unique(MMTR$delta)
+vts=unique(MMTR$vt)
+colds=colorRampPalette(c("red","blue"))(length(ds))
+names(colds)=ds
+par(mfrow=c(3,3))
+for(d in unique(MMTR$omega)){
+    for(var in c("mean_z","mean_y","distX")){
+        vtDelta=tapply(MMTR[,var][MMTR$omega==d],MMTR[MMTR$omega == d,c("vt","delta")],mean)
+        plot(1,1,type="n",main=bquote(omega==.(d)),ylim=range(vtDelta,na.rm=T),xlim=range(vts),xlab="vt",ylab=var)
+        for(i in ds)lines(vts,vtDelta[,as.character(i)],col=colds[as.character(i)],lwd=2)
+    }
+}
+legend("topleft",legend=sapply(ds,function(d)as.expression(bquote(delta==.(d)))),lwd=2,lty=1,col=colds)
+```
+
+   
+
+
+
+## Different environmental variance
+
+###  Population Size
+Check the trajectory of  the effective population size with rate of changes = 0.02 and autocorrelation $\omega = 4$
+
+#### Random Copy
+```{r,fig.width=10,fig.height=10}
+    plotAllTrajVar(moving_thetaRandom[moving_thetaRandom$vt == 0.02& moving_thetaBest$omega == 4,],m=0.5,E=0,obs="N")
+```
+
+#### Copy the Best
+```{r,fig.width=10,fig.height=10}
+    plotAllTrajVar(moving_thetaBest[moving_thetaBest$vt == 0.02& moving_thetaBest$omega == 4,],m=0.5,E=0,obs="N")
+```
+
+### Distance to Optimum
+Check the trajectory of the distance to optimum:
+
+#### Random Copy 
+```{r,fig.width=10,fig.height=10}
+    plotAllTrajVar(moving_thetaRandom[moving_thetaRandom$vt == 0.02& moving_thetaBest$omega == 4,],m=0.5,E=0,obs="dist")
+```
+
+#### Copy the Best
+```{r,fig.width=10,fig.height=10}
+    plotAllTrajVar(moving_thetaBest[moving_thetaBest$vt == 0.02& moving_thetaBest$omega == 4,],m=0.5,E=0,obs="dist")
+```
+
+###  Fitness
+
+Check the trajectory of the distance to optimum:
+
+#### Random Copy 
+```{r,fig.width=10,fig.height=10}
+    plotAllTrajVar(moving_thetaRandom[moving_thetaRandom$vt == 0.02& moving_thetaBest$omega == 4,],m=0.5,E=0,obs="mean_w")
+```
+
+#### Copy the Best
+```{r,fig.width=10,fig.height=10}
+    plotAllTrajVar(moving_thetaBest[moving_thetaBest$vt == 0.02& moving_thetaBest$omega == 4,],m=0.5,E=0,obs="mean_w")
+```
+
+## Value at equilibrium
+
+```{r,fig.width=10,fig.height=10}
+mtr=moving_thetaRandom[moving_thetaRandom$omega== 4 & moving_thetaRandom$vt== 0.02,]
+mtb=moving_thetaBest[moving_thetaBest$omega== 4 & moving_thetaBest$vt== 0.02,]
+plotAllVariableSummaries(mtr,E=0,estimate=NULL,var="distX") #we use only simulations without noise
+plotAllVariableSummaries(mtr,E=0,estimate=NULL,var="mean_y") #we use only simulations without noise
+plotAllVariableSummaries(mtr,E=0,estimate=NULL,var="mean_z") #we use only simulations without noise
+plotAllVariableSummaries(mtb,E=0,estimate=NULL,var="distX") #we use only simulations without noise
+plotAllVariableSummaries(mtb,E=0,estimate=NULL,var="mean_y") #we use only simulations without noise
+plotAllVariableSummaries(mtb,E=0,estimate=NULL,var="mean_z") #we use only simulations without noise
+```
+
+
+
+## Social Learning vs rates, autocorel and variance:
+
+plot(1,1,ylim=c(0,1))

@@ -188,8 +188,8 @@ plotTraj <- function(x,alltraj,col=1,ylim=NULL,xlim=NULL,add=F,lty=1,lwd=1.4,mea
     if(is.null(ylim))ylim=range(qts[c(2,4),])
     if(!add)plot(1,1,type="n",xlim=xlim,ylim=ylim,...)
     lines(x,qts[3,],col=col,lwd=lwd,lty=lty)
-    if(!mean)lines(x,qts[4,],lty=1,col=col,lwd=lwd/14,lty=lty)
-    if(!mean)lines(x,qts[2,],lty=1,col=col,lwd=lwd/14,lty=lty)
+    if(!mean)lines(x,qts[4,],col=col,lwd=lwd/14,lty=lty)
+    if(!mean)lines(x,qts[2,],col=col,lwd=lwd/14,lty=lty)
 }
 
 addMeanSD <- function(x,y,col=1,plot=T){

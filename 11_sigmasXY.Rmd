@@ -1,0 +1,78 @@
+# Exploring Sigmas  X and Y
+
+
+```{r,eval=FALSE}
+moving_theta=getAlllSummaries("genetAndILsmall")
+moving_theta=updateScale(moving_theta)
+save(file="data/moving_thetaGeneIL.bin",moving_theta)
+```
+
+```{r}
+load(file="data/moving_thetaGeneIL.bin")
+```
+
+## Compare final mean value of x and y given $\sigma_s$ and $\sigma_y$
+```{r,fig.width=7,fig.height=7}
+par(mfrow=c(2,2))
+for(m in unique(moving_theta$mu)){
+    for(var in c("mean_x","mean_y")){
+        uniquesetup=moving_theta[ moving_theta$m == .5 &  moving_theta$K == 2000 & moving_theta$mu == m ,]
+        sigmas=sort(unique(uniquesetup$sigma))
+        ks=sort(unique(uniquesetup$k))
+        colsigmas=colorRampPalette(c("red","blue"))(length(sigmas))
+        names(colsigmas)=sigmas
+        sigmaK = tapply( uniquesetup[,var],uniquesetup[,c("sigma","k")],mean)
+        plot(1,1,type="n",main=bquote(mu==.(m)),ylim=range(sigmaK,na.rm=T),xlab="k",ylab=var,xlim=range(ks))
+        for(i in sigmas)lines(ks,sigmaK[as.character(i),],col=colsigmas[as.character(i)],lwd=2,type="b")
+        legend("topleft",legend=sapply(sigmas,function(d)as.expression(bquote(sigma[s]==.(d)))),lwd=2,lty=1,col=colsigmas)
+    }
+}
+```
+
+
+
+## Mean fitness with and distance to $\theta$
+
+### $\sigma_s > \sigma_y$
+
+Distance to optimum and fitness
+```{r}
+par(mfrow=c(1,2))
+for(m in unique(moving_theta$mu)){
+        uniquesetup=moving_theta[ moving_theta$m == .5 &  moving_theta$K == 2000 & moving_theta$mu == m & moving_theta$sigma == 4 & moving_theta$k == .5,]
+plotDistVsFitness(uniquesetup,main=bquote(mu==.(m)))
+}
+```
+
+Mean value of genes and distance between x and optimum
+
+```{r}
+par(mfrow=c(1,2))
+for(m in unique(moving_theta$mu)){
+        uniquesetup=moving_theta[ moving_theta$m == .5 &  moving_theta$K == 2000 & moving_theta$mu == m & moving_theta$sigma == 4 & moving_theta$k == .5,]
+plot3Genes(uniquesetup,main=bquote(mu==.(m)))
+}
+```
+
+
+### $\sigma_s > \sigma_y$
+
+Distance to optimum and fitness
+```{r}
+par(mfrow=c(1,2))
+for(m in unique(moving_theta$mu)){
+        uniquesetup=moving_theta[ moving_theta$m == .5 &  moving_theta$K == 2000 & moving_theta$mu == m & moving_theta$sigma == 4 & moving_theta$k == 2,]
+plotDistVsFitness(uniquesetup,main=bquote(mu==.(m)))
+}
+```
+
+Mean value of genes and distance between x and optimum
+
+```{r}
+par(mfrow=c(1,2))
+for(m in unique(moving_theta$mu)){
+        uniquesetup=moving_theta[ moving_theta$m == .5 &  moving_theta$K == 2000 & moving_theta$mu == m & moving_theta$sigma == 4 & moving_theta$k == 2,]
+plot3Genes(uniquesetup,main=bquote(mu==.(m)))
+}
+```
+
