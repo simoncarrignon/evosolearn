@@ -83,7 +83,7 @@ getVarXMeanW <- function(n,tstep,omega,delta,b,K,mu,E,sigma,pop,m,gene,nstep,sum
 #' @param sumstat function used to compute the summary statistic
 #' @param fullmat a matrice with the result of a simulation
 #' @param vars a vector with the variable we want to summarize using sumstat
-getSummary <- function(fullmat,gene,nstep,sumstat=mean,vars){
+getSummary <- function(fullmat,nstep,sumstat=mean,vars){
     res=c()
     tstep=nrow(fullmat)
     pre=max(tstep-nstep,1)
