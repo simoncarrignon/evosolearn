@@ -23,20 +23,19 @@ source("protomodels.R")
 library(parallel)
 allparameters=list()
 allparameters[["mu"]]=c(0.001,0.005,0.01,0.05)
-allparameters[["K"]]=c(1000)
+allparameters[["K"]]=c(2000)
 allparameters[["E"]]=c(0)
 allparameters[["m"]]=c(0.2,0.3,.5,.8)
 allparameters[["sigma"]]=c(2,3,6,8)
 allparameters[["delta"]]=c(1,2,4,6)
 allparameters[["vt"]]=c(0.001,.005,0.01,.02)
 allparameters[["omega"]]=c(.5,1,3,6)
-allparameters[["outputrate"]]=1
+allparameters[["outputrate"]]=1000
 parameters=as.data.frame(expand.grid(allparameters))
 repet=nsm
 parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
-n=1000
 b=2
-tstep=3000
+tstep=12000
 mu=c(x=0,y=0,z=0)
 E=c(x=0,y=0,z=0)
 m=c(x=0,y=0,z=0)
@@ -69,8 +68,8 @@ explore=do.call("rbind.data.frame",
                               fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random",allpop=F,repro="asex",prop=F)
                               filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
                               summary=fullmat
-                              save(file=filename_mat,summary)
-                              c(as.list(getSummary(summary,nstep=10,vars=c(paste0("mean_",genes),paste0("var_",genes),"N","mean_w","mean_p","theta"))),filename=filename_mat)
+                              #save(file=filename_mat,summary)
+                              c(as.list(getSummary(summary,nstep=0,vars=c(paste0("mean_",genes),paste0("var_",genes),"N","mean_w","mean_p","theta"))),filename=filename_mat)
                           },parameters=parameters)
                 )
 
