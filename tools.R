@@ -83,7 +83,7 @@ getVarXMeanW <- function(n,tstep,omega,delta,b,K,mu,E,sigma,pop,m,gene,nstep,sum
 #' @param sumstat function used to compute the summary statistic
 #' @param fullmat a matrice with the result of a simulation
 #' @param vars a vector with the variable we want to summarize using sumstat
-getSummary <- function(fullmat,gene,nstep,sumstat=mean,vars){
+getSummary <- function(fullmat,nstep,sumstat=mean,vars){
     res=c()
     tstep=nrow(fullmat)
     pre=max(tstep-nstep,1)
@@ -255,5 +255,6 @@ eq2833b <- function(n,mu,sigma,m){
 countStrategies <- function(pop,lowerlim=.25,upperlim=.75){
     soc=sum(pop[,"z"] > upperlim & pop[,"y"]< lowerlim)/nrow(pop)
     il=sum(pop[,"y"] > upperlim & pop[,"z"]< lowerlim)/nrow(pop)
-    return(c("prop_y"=il,"prop_z"=soc,"prop_div"=(1-(il+soc))))
+    mix=sum(pop[,"z"] > upperlim & pop[,"y"]> upperlim)/nrow(pop)
+    return(c("prop_y"=il,"prop_z"=soc,"prop_yz"=mix,"prop_div"=(1-(il+soc+mix))))
 }

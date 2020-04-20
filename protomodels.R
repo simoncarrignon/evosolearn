@@ -19,11 +19,11 @@ updateOutputLine <- function(pop,statfun,statvar,getname=F,prop=T){
     res=c()
     if(getname){
         res=unlist(lapply(statfun,function(sf)lapply(statvar,function(sv)paste(sf,sv,sep="_"))))
-        if(prop)res=c(res,c("prop_y","prop_z"))
+        if(prop)res=c(res,c("prop_y","prop_z","prop_yz"))
     }
     else {
         res=unlist(lapply(statfun,function(sf)lapply(statvar,function(sv)match.fun(sf)(pop[,sv]))))
-        if(prop)res=c(res,countStrategies(pop)[1:2])
+        if(prop)res=c(res,countStrategies(pop)[1:3])
     }
     return(res)
 }
