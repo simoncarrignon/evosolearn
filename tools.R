@@ -22,7 +22,7 @@ plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,t=NULL,...){
             yvalues=lapply(results$allpop,"[[",varname)
             ylim=range(yvalues)
             if(varname %in% c("y","z"))ylim=c(0,1)
-            hdr.boxplot(yvalues,border=NA,pch=".",outline=F,col=shades(cols[varname],3),prob=c(50,75,99),space=0,ylab=varname,ylim=ylim,h=.01,...)
+            hdr.boxplot(yvalues,border=NA,pch=".",outline=F,col=cols[varname],prob=c(50,75,99),space=0,ylab=varname,ylim=ylim,h=.01,...)
             if(varname %in% c("x","ilp","gp","p") & !is.null(theta))
                 lines(theta,col="red",lwd=1,lty=1)
         }
@@ -92,6 +92,7 @@ getSummary <- function(fullmat,gene,nstep,sumstat=mean,vars){
 
 getTraj  <-  function(filename,var){
     load(file=as.character(filename))
+    if(length(fullmat)==2)fullmat=fullmat$summary
     if(var=="dist")
         abs(fullmat[,"mean_p"]-fullmat[,"theta"])
     else if(var=="distX")
