@@ -100,6 +100,7 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
         #selection
         selected=which(runif(n)<selection(pop[,"w"],b,n,K))
         if(length(selected)<1)break
+        if(repro=="sex" && length(selected) < 2)break #in case of sexual reproduction we need at least 2 parents
 
         #reproduction
         nchilds=rpois(length(selected),b)
