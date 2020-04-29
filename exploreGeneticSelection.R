@@ -23,7 +23,7 @@ source("protomodels.R")
 library(parallel)
 allparameters=list()
 allparameters[["mu"]]=c(0.001,0.005,0.01,0.05)
-allparameters[["K"]]=c(2000)
+allparameters[["K"]]=c(1000)
 allparameters[["E"]]=c(0)
 allparameters[["m"]]=c(0.2,0.3,.5,.8)
 allparameters[["sigma"]]=c(2,3,6,8)
@@ -35,7 +35,7 @@ parameters=as.data.frame(expand.grid(allparameters))
 repet=nsm
 parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
 b=2
-tstep=12000
+tstep=3000
 mu=c(x=0,y=0,z=0)
 E=c(x=0,y=0,z=0)
 m=c(x=0,y=0,z=0)
@@ -65,7 +65,7 @@ explore=do.call("rbind.data.frame",
                               E[genes]=parameters[v,"E"]
                               sigma["s"]=parameters[v,"sigma"]
                               pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
-                              fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random",allpop=F,repro="asex",prop=F)
+                              fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random",allpop=F,repro="sex",prop=F)
                               filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
                               summary=fullmat
                               #save(file=filename_mat,summary)
