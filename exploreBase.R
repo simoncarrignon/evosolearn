@@ -11,6 +11,16 @@ names(deltas)=deltas
 ##X and Z knockout
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)))
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
+n=200
+omegas=seq(-0.5,2.5,.5)
+deltas=.0625*2^seq(0:6)
+names(omegas)=omegas
+names(deltas)=deltas
+
+
+##X and Z knockout
+pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)))
+pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
 t=simpleEvoModel(n,200,omega = 0,delta = 0 ,b=2,K=1000,mu=c(x=0.01,y=0,z=0),E=c(x=1,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,sls="random",pop=pop)
 plotAllVariable(t)
 
