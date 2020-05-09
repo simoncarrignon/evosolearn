@@ -91,14 +91,32 @@ getSummary <- function(fullmat,nstep,sumstat=mean,vars){
 }
 
 getTraj  <-  function(filename,var){
+    fullmat=c()
+    summary=c()
+    rm(summary)
+    rm(fullmat)
+    rm("summary")
+    rm("fullmat")
     load(file=as.character(filename))
+    if(!exists("fullmat")){
+        fullmat=summary
+    }
     if(length(fullmat)==2)fullmat=fullmat$summary
     if(var=="dist")
-        abs(fullmat[,"mean_p"]-fullmat[,"theta"])
+        res=abs(fullmat[,"mean_p"]-fullmat[,"theta"])
     else if(var=="distX")
-        abs(fullmat[,"mean_x"]-fullmat[,"theta"])
-    else
-        fullmat[,var]
+        res=abs(fullmat[,"mean_x"]-fullmat[,"theta"])
+    else{
+        if(var %in% colnames(fullmat)){
+            res=fullmat[,var]
+        }
+        else{
+            res=rep(NA,nrow(fullmat))
+        }
+    }
+    rm("fullmat")
+    rm("summary")
+    return(res)
 }
 
 writeResults <- function(final,var,gene){
