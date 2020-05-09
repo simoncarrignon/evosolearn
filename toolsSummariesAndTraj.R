@@ -9,7 +9,7 @@ plotAllVariableSummaries <- function(summaryresults,E,estimate=NULL,ylim=NULL,va
     if(is.null(omegas))omega=0
     colsK=rev(colorRampPalette(c("red","blue"))(length(Ks)))
 
-    par(mfrow=c(length(sigmas),length(mus)),mar=c(3,4,2,0))
+    par(mfrow=c(length(vars)+1,1),mar=c(0,0,0,0),oma=c(4,4,1,4))
 
     for(sigma in sigmas){
         for(mu in mus){
@@ -393,6 +393,7 @@ plotAllProp <- function(summaryresults,obs="prop",m,E,ylim=NULL,legside="topleft
 
                 singlesetupY=lapply(Ks,function(k)getSubsetWithTraj(subsetrajY$summary,sigma=sigma,mu=mu,m=m,E=E,K=k,delta=d,var="prop_y",traj=T)$traj)
                 singlesetupZ=lapply(Ks,function(k)getSubsetWithTraj(subsetrajY$summary,sigma=sigma,mu=mu,m=m,E=E,K=k,delta=d,var="prop_z",traj=T)$traj)
+                singlesetupYZ=lapply(Ks,function(k)getSubsetWithTraj(subsetrajY$summary,sigma=sigma,mu=mu,m=m,E=E,K=k,delta=d,var="prop_yz",traj=T)$traj)
 
                 if(sum(lengths(singlesetupY))==0)break
                 #adjust length of single setup to ouptut
@@ -400,12 +401,13 @@ plotAllProp <- function(summaryresults,obs="prop",m,E,ylim=NULL,legside="topleft
                 rangesummaries=seq(1,maxts_n,length.out=maxts)
 
                 plotTraj(rangesummaries,singlesetupY[[1]],col="red",xlim=range(rangesummaries),add=T,lty=1,lwd=.8)
+                plotTraj(rangesummaries,singlesetupYZ[[1]],col="orange",xlim=range(rangesummaries),add=T,lty=1,lwd=.8)
                 plotTraj(rangesummaries,singlesetupZ[[1]],col="green",xlim=range(rangesummaries),add=T,lty=1,lwd=.8)
             }
             legend(legside,
-                   legend=c("individual","social",sapply(deltas,function(d)as.expression(bquote(delta==.(d))))),
-                   col=c("green","red",rep(1,length(deltas))),
-                   lty=c(rep(1,2),seq_along(deltas))
+                   legend=c("individual","social","mixed",sapply(deltas,function(d)as.expression(bquote(delta==.(d))))),
+                   col=c("green","red","orange",rep(1,length(deltas))),
+                   lty=c(rep(1,3),seq_along(deltas))
                    )
         }
 
