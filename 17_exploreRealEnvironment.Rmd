@@ -1,0 +1,133 @@
+# Exploring Real Environment
+
+In this section we use the parameters ranges explored before to run simulation with the real data from 
+the paper: https://www.nature.com/articles/nature02805
+
+In this paper 
+
+```{r echo=FALSE, message=FALSE}
+realdata=read.csv("data/theta_real.csv")
+plot(realdata$years,realdata$permille,ylab=expression(delta[18]),xlab="BP 2000")
+```
+
+To better characterise when genetic adaptation can follow environmental changes (and thus when learning is more likely to evolve) we explore which cases genetic evolution can keep track of the environment. To do so we run a series of simulations combining different parameters affecting:
+
+1. Optimum $\theta$:
+* $\omega$ the autocorelation of omptimum between $t$ and $t+1$:$\omega \in\{0.5,1,2,4,8\}$
+* $\delta$ the variation around the optimum $\theta$ : $\delta \in \{1,2,4,8,16\}$
+* $v$ rate of change (increase) of $\theta$: $v \in\{0.001,0.005,0.025,0.125,0.625\}$
+
+2. Evolution of $x$:
+*  $\mu_x$ the rate of mutation: $\mu_x \in \{0.001,0.005,0.025,0.125,0.625\}$
+*  $m_x$ the variance of the mutation:$m_x \in \{.2,.4,.6,.8,1\}$
+
+
+3. Selective pressure $\sigma_s \in \{2,3,6,8\}$
+
+The rest of the parameters (linked to genes $y$ and $z$) are set at 0.
+
+Note: There is no noise on the expression of the behavior, \emph{ie} $E_x=0$
+
+
+## General properties at the end of the simulation
+
+<a href="images/exploringRealEnv.png"><img src="images/exploringRealEnv.png" alt="exemple4" width="30%"/></a>
+<a href="images/exploringRealEnvN.png"><img src="images/exploringRealEnvN.png" alt="exemple4" width="30%"/></a>
+<a href="images/exploringRealEnv3Genes.png"><img src="images/exploringRealEnv3Genes.png" alt="exemple4" width="30%"/></a>
+
+## Observe Strategies Distributions full trajectories 
+
+```{r gradiant2,include=TRUE,echo=F,fig.width=3,fig.height=3,fig.pointsize=8,out.width=300,fig.align="center"}
+par(xpd=NA,mar=rep(6,4),cex=.8)
+a=expand.grid(x=seq(0,1,.05),y=seq(0,1,.05))
+plot(a$x,a$y,col=rgb(a$x,.5,a$y,alpha=1),pch=15,cex=.9,xlim=c(0,1),xlab=expression(bar(y)),ylab=expression(bar(z)),xaxt="n",yaxt="n")
+axis(1,at=c(0,.5,1),line=4)
+axis(2,at=c(0,.5,1),line=4)
+text(-.1,-.1,"genetic adaptation",srt=-30)
+text(1.1,1.1,"Mixed Strategies",srt=-30)
+text(-.1,1.1,"Social Learner",srt=30)
+text(1.1,-.1,"Individual Learner",srt=30)
+```
+
+The color scale used in he following graphs follows the one described in the section \@ref(interactiongenenv): purple represent agents that can use both individual and social learning, blue social learning only and orange individual learning only. 
+
+
+```{r echo=FALSE, message=FALSE}
+slpalette=colorRampPalette(c(rgb(0,.5,0),rgb(0,.5,1)))
+ilpalette=colorRampPalette(c(rgb(0,.5,0),rgb(1,.5,0)))
+survivalpallette=colorRampPalette(c("grey","yellow","dark green"))
+extinctpalette=colorRampPalette(c("chartreuse","white"))
+pureSl=slpalette(2)[2]
+pureIl=ilpalette(2)[2]
+
+environment=read.csv("data/theta_real.csv")
+binded=do.call("rbind",lapply(list.files(path="exploreRealEnvBESTfull",recursive=T,full.names=T,pattern="*cross*"),function(u){load(u);return(binded)}))
+
+plotMatrixStrateAndEn <- function(sum_mat,environment){
+    pureIl=rgb(1,.5,0)
+    pureSl=rgb(0,.5,1)
+    mixed=rgb(1,.5,1)
+    par(fig=c(0,1,.8,1),mar=rep(0,4),oma=c(2,2,1,1))
+    plot(environment$permille,col="dark green",lwd=1,type="l",axes=F)
+    par(new=T)
+    plotTres(sum_mat$mean_x,ylim=range(sum_mat$mean_x,na.rm=T))
+    mtext(expression(theta),4,0,col="dark green")
+    mtext(expression(bar(x)),2,0,col="1")
+    par(fig=c(0,1,0,.8),new=T)
+    plotTres(sum_mat$prop_y,col=pureIl,ylim=c(0,1))
+    par(new=T)
+    plotTres(sum_mat$prop_z,col=pureSl,ylim=c(0,1))
+    par(new=T)
+    plotTres(sum_mat$prop_yz,col=mixed,ylim=c(0,1))
+    axis(1);axis(2);box()
+}
+
+
+plotTres <- function(u,col=1,...){
+    plot(u[2,],col=col,axes=F,type="l",...)
+    lines(u[1,],col=col,lty=3,lwd=.8)
+    lines(u[3,],col=col,lty=3,lwd=.8)
+}
+```
+
+
+We explore with different $\mu$ and $m$. 
+
+* $\mu$ decrease from top to bottom following those values:
+$\mu=$ `r paste0(rev(unique(binded$mu))) `
+
+* $m$ increase from left to right following those values:
+$m=$ `r paste0(unique(binded$m)) `
+
+
+```{r,echo=F,fig.width=3,fig.height=3, out.width = "24%", results='asis'}
+for(s in unique(binded$sigma)){
+    for(kz in unique(binded$k_z)){
+        for(ky in unique(binded$k_y)){
+            cat(paste0("### $k_z$ = ",kz," $k_y$ = ",ky,"\n\r"), sep="")
+            for(mu in rev(unique(binded$mu))){
+                for(m in unique(binded$m)){
+                    subb=droplevels(binded[binded$mu ==mu &binded$m ==m &binded$sigma ==s & binded$k_z ==kz & binded$k_y ==ky,])
+                    nexpe=nrow(subb)
+                    vars=c("prop_y","prop_z","mean_x","N","prop_yz")
+                    names(vars)=vars
+                    mat_allexp= lapply(vars,function(i)matrix(NA,nexpe,4918))
+
+                    for(i in 1:50){
+                        load(as.character(subb$filename[i]))
+                        for(v  in vars) mat_allexp[[v]][i,]=summary[,v]
+                    }
+                    sum_mat=lapply(mat_allexp,function(m)apply(m,2,quantile,probs=c(.05,.5,.95),na.rm=T))
+                    fname=paste0("traj_s",s,"_m",m,"_mu",mu,"_ky",ky,"_kz",kz,".png")
+                    plotMatrixStrateAndEn(sum_mat,environment)
+                    mtext(bquote(mu == .(mu) ~ m == .(m) ),3,0,outer=T)
+                }
+            }
+            cat(paste0("---\n\r", sep=""))
+        }
+    }
+}
+
+```
+
+
