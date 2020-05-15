@@ -1,23 +1,22 @@
 # Exploring Real Environment
 
-In this section we use the parameters ranges explored before to run simulation with the real data from 
-the paper: https://www.nature.com/articles/nature02805
-
-In this paper 
-
 ```{r echo=FALSE, message=FALSE}
-realdata=read.csv("data/theta_real.csv")
-plot(realdata$years,realdata$permille,ylab=expression(delta[18]),xlab="BP 2000")
+realdata=read.csv("data/41586_2004_BFnature02805_MOESM1_ESM.csv")
 ```
 
-To better characterise when genetic adaptation can follow environmental changes (and thus when learning is more likely to evolve) we explore which cases genetic evolution can keep track of the environment. To do so we run a series of simulations combining different parameters affecting:
+In this section we use the parameters ranges explored before to run simulations using data from 
+the paper: https://www.nature.com/articles/nature02805 as the environment.
 
-1. Optimum $\theta$:
-* $\omega$ the autocorelation of omptimum between $t$ and $t+1$:$\omega \in\{0.5,1,2,4,8\}$
-* $\delta$ the variation around the optimum $\theta$ : $\delta \in \{1,2,4,8,16\}$
-* $v$ rate of change (increase) of $\theta$: $v \in\{0.001,0.005,0.025,0.125,0.625\}$
+In this paper `r nrow(realdata)` records, each of which corresponds to 50 years, allow to reconstruct $122$ KYR  of temperature changes in global climate.
 
-2. Evolution of $x$:
+```{r echo=FALSE, message=FALSE}
+plot(realdata$years,realdata$permille,ylab=expression(delta[18]*O),xlab="Age (year BP)",type="l")
+```
+
+In this experiment we don't need to explore environmental parameters as they are fixed and given by the data from the pare cited previously. The parameters for genetics evolution of the genes 
+
+
+1. Evolution of $x$:
 *  $\mu_x$ the rate of mutation: $\mu_x \in \{0.001,0.005,0.025,0.125,0.625\}$
 *  $m_x$ the variance of the mutation:$m_x \in \{.2,.4,.6,.8,1\}$
 
