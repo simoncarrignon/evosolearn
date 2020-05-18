@@ -276,3 +276,35 @@ countStrategies <- function(pop,lowerlim=.25,upperlim=.75){
     mix=sum(pop[,"z"] > upperlim & pop[,"y"]> upperlim)/nrow(pop)
     return(c("prop_y"=il,"prop_z"=soc,"prop_yz"=mix,"prop_div"=(1-(il+soc+mix))))
 }
+
+#' plotMatrixStrateAndEn
+#'
+#' Function that allows to plot percentage of each different strategies below environment
+#' @param sum_mat a dataframe with the percentage to plot, mean ,x
+#' @param environment list  of values to be plot with sum_mat$mean_x  on top of the proportions
+plotMatrixStrateAndEn <- function(sum_mat,environment){
+    pureIl=rgb(1,.5,0)
+    pureSl=rgb(0,.5,1)
+    mixed=rgb(1,.5,1)
+    par(fig=c(0,1,.8,1),mar=rep(0,4),oma=c(2,2,1,1),new=T)
+    plot(environment,col="dark green",lwd=1,type="l",axes=F)
+    par(new=T)
+    plotTres(sum_mat$mean_x,ylim=range(sum_mat$mean_x))
+    mtext(expression(theta),4,0,col="dark green")
+    mtext(expression(bar(x)),2,0,col="1")
+    par(fig=c(0,1,0,.8),new=T)
+    plotTres(sum_mat$prop_y,col=pureIl,ylim=c(0,1))
+    par(new=T)
+    plotTres(sum_mat$prop_z,col=pureSl,ylim=c(0,1))
+    par(new=T)
+    plotTres(sum_mat$prop_yz,col=mixed,ylim=c(0,1))
+    axis(1);axis(2);box()
+}
+
+
+plotTres <- function(u,col=1,...){
+    plot(u[2,],col=col,axes=F,type="l",...)
+    lines(u[1,],col=col,lty=2,lwd=.2)
+    lines(u[3,],col=col,lty=2,lwd=.2)
+}
+

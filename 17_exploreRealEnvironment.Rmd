@@ -173,31 +173,6 @@ binded=do.call("rbind",lapply(list.files(path="exploreRealEnvBESTsigMas",recursi
 
 binded=binded[binded$sigma==2,]
 
-plotMatrixStrateAndEn <- function(sum_mat,environment){
-    pureIl=rgb(1,.5,0)
-    pureSl=rgb(0,.5,1)
-    mixed=rgb(1,.5,1)
-    par(fig=c(0,1,.8,1),mar=rep(0,4),oma=c(2,2,1,1))
-    plot(environment,col="dark green",lwd=1,type="l",axes=F)
-    par(new=T)
-    plotTres(sum_mat$mean_x,ylim=range(sum_mat$mean_x,na.rm=T))
-    mtext(expression(theta),4,0,col="dark green")
-    mtext(expression(bar(x)),2,0,col="1")
-    par(fig=c(0,1,0,.8),new=T)
-    plotTres(sum_mat$prop_y,col=pureIl,ylim=c(0,1))
-    par(new=T)
-    plotTres(sum_mat$prop_z,col=pureSl,ylim=c(0,1))
-    par(new=T)
-    plotTres(sum_mat$prop_yz,col=mixed,ylim=c(0,1))
-    axis(1);axis(2);box()
-}
-
-
-plotTres <- function(u,col=1,...){
-    plot(u[2,],col=col,axes=F,type="l",...)
-    lines(u[1,],col=col,lty=1,lwd=.2)
-    lines(u[3,],col=col,lty=1,lwd=.2)
-}
 ```
 
 
