@@ -1,42 +1,113 @@
 # Exploring Real Environment
 
+
+## Dataset and parameters
+
 ```{r echo=FALSE, message=FALSE}
-realdata=read.csv("data/41586_2004_BFnature02805_MOESM1_ESM.csv")
+realdata=read.csv("data/theta_real.csv")
+ns=length(list.files(path="exploreRealEnvBESTsigMas",recursive=T,full.names=T,pattern="*cross*"))
 ```
 
-In this section we use the parameters ranges explored before to run simulations using data from 
+In this section we use the parameters ranges explored before to run simulations with data from 
 the paper: https://www.nature.com/articles/nature02805 as the environment.
 
-In this paper `r nrow(realdata)` records, each of which corresponds to 50 years, allow to reconstruct $122$ KYR  of temperature changes in global climate.
+In this paper `r nrow(realdata)` records, describing periods of 50 years, allow to reconstruct 122,000 years of temperature changes in global climate, shown in Figure \@ref(realdata).
 
-```{r echo=FALSE, message=FALSE}
+```{r realdata,echo=FALSE, message=FALSE,fig.cap="Real Data from Andersen et. al 2004"}
 plot(realdata$years,realdata$permille,ylab=expression(delta[18]*O),xlab="Age (year BP)",type="l")
+theta=rev(tapply(realdata$permille,realdata$years.BP.2000,mean))
 ```
 
-In this experiment we don't need to explore environmental parameters as they are fixed and given by the data from the pare cited previously. The parameters for genetics evolution of the genes 
+We need to revert the timeserie as the geological time are displayed from Present Time (2000) on the left, to -122,000years BP on the right. We revert the it to have a chronological order with the oldest record on the right (-122,000 years BP) as the beginning of our simulation (_ie_ $\theta_{t=0}$ correspond to the older record in the real dataset), and the earliest record (year 2000) as the last time unit of our simulation on the right (_ie_ $\theta_{t_{max}}$ correspond to year 2000). This means $t_{max}$= `r length(theta)` in our simulation and each time unit $t$ represents 50 years.
+
+```{r echo=FALSE, message=FALSE,out.width=500,fig.width=6,fig.align="center"}
+plot(theta,xlab="time units (50y)",ylab=expression(delta[18]*O),type="l")
+    y=getSpectrum(theta) #get spectrum of the environment generated
+    x=1:length(y)
+    fit=lm(log(y)~log(x),cbind.data.frame(x=1:length(y),y=y)) #fit a linear model to check slope
+
+```
+
+From these data we can compute  $\delta$ = `r round(sd(theta),digit=2)` and $\omega$ = `r abs(round(fit$coefficients[2],2))`. 
 
 
-1. Evolution of $x$:
-*  $\mu_x$ the rate of mutation: $\mu_x \in \{0.001,0.005,0.025,0.125,0.625\}$
-*  $m_x$ the variance of the mutation:$m_x \in \{.2,.4,.6,.8,1\}$
+```{r slopereal, echo=FALSE, message=FALSE,fig.width=5,out.width=400,fig.align="center"}
+    plot(log(x),log(y))
+    abline(fit,col="red") #visualise the fit and coefficient computed
+    text(1,max(log(y)),bquote(omega == .(abs(round(fit$coefficients[2],2)))),col="red")
+```
 
 
-3. Selective pressure $\sigma_s \in \{2,3,6,8\}$
+We can calculate $\omega$ and  $\delta$ for the whole dataset but we can also look at how they change through time  using  sliding time windows of varying size.
 
-The rest of the parameters (linked to genes $y$ and $z$) are set at 0.
+```{r deltareal,echo=FALSE, message=FALSE,fig.height=7,fig.cap="delta sliding windows"}
+par(mfrow=c(2,2))
 
-Note: There is no noise on the expression of the behavior, \emph{ie} $E_x=0$
+for(w in c(10,50,250,1250)){
+delta=sapply(1:(length(theta)-w),function(i)sd(theta[i:(i+w)]))
+plot(delta,xlab="time",main=paste0("windows size=",w*50," years (",w,"x 50yr)"),ylab=expression(delta),type="l")
+}
 
+```
+
+```{r omegareal,echo=FALSE, message=FALSE,fig.height=7,fig.cap="omega sliding windows",fig.align="center"}
+par(mfrow=c(2,2))
+
+for(w in c(10,50,250,1250)){
+omega=sapply(1:(length(theta)-w),function(i)
+       {
+       y=getSpectrum(theta[i:(i+w)]) #get spectrum of the environment generated
+       x=1:length(y)
+       fit=lm(log(y)~log(x),cbind.data.frame(x=1:length(y),y=y)) #fit a linear model to check slope
+       return(abs(fit$coefficients[2]))
+}
+)
+plot(omega,xlab="time",main=paste0("windows size=",w*50," years (",w,"x 50yr)"),ylab=expression(omega),type="l")
+}
+
+```
+
+
+In this experiment we don't need to explore the environmental parameters $\omega$, $\delta$ and $v$ as they are here given by the data. The parameters for genetics evolution, as we did in the section \@ref(interactiongenenvthree), are the same for all three genes:
+
+*  $\mu_z=\mu_y=\mu_x$ the rate of mutation: $\mu_x \in \{0.001,0.005,0.025,0.125,0.625\}$
+*  $m_z=m_y=m_x$ the variance of the mutation: $m_x \in \{.2,.4,.6,.8,1\}$
+
+All simulations in this chapter assume that the expression of a behavior or its learning (individual or social) is done without error  _ie_ $E_x=E_y=E_z=0$.  When social learning is used at time $t$, agents copy the best behavior among individuals at the previous generation (the one that minimise $|p-\theta_{t-1}|$).   
+
+The cost of $z$, $\sigma_z$, is defined relatively to the cost of $y$, $\sigma_y$, while $\sigma_y$ is defined relatively to the selective pressure $\sigma_s$:
+
+* $\sigma_z = k_z\times\sigma_y$ 
+* $\sigma_y = k_y\times\sigma_s$ 
+* $k_z \in \{1,2,4\}$
+* $k_y \in \{1,2,4\}$
+* $\sigma_s \in \{2,3,6,8\}$
+
+We repeat `r ns` times each unique set of parameters and monitor the change in population properties for all time steps of all simulations. In this chapter we only represents results for $\sigma_s = 2$.
 
 ## General properties at the end of the simulation
+
+Following the studies done in the section \@ref(interactiongenenv)  we look at the final outcome of the simulations for different parameters. In the figure below we show, from left to right:
+
+1. the number of extinctions among the `r ns` simulations
+2. the mean population size 
+3. a RGB representation of the combined mean genetic value 
 
 <a href="images/exploringRealEnv.png"><img src="images/exploringRealEnv.png" alt="exemple4" width="30%"/></a>
 <a href="images/exploringRealEnvN.png"><img src="images/exploringRealEnvN.png" alt="exemple4" width="30%"/></a>
 <a href="images/exploringRealEnv3Genes.png"><img src="images/exploringRealEnv3Genes.png" alt="exemple4" width="30%"/></a>
 
-## Observe Strategies Distributions full trajectories 
+The representation of the mean genetic value follows the scale defined and described the section \@ref(rgbscale) and reproduced below in Figure \@ref(gradiant2) where colors correspond to:
 
-```{r gradiant2,include=TRUE,echo=F,fig.width=3,fig.height=3,fig.pointsize=8,out.width=300,fig.align="center"}
+* blue = social learning only, 
+* orange=individual learning only
+* purple=mix of social and individual,
+* green=genetic adaptation
+* darker/greener colors= mix between one strategy and genetic adaptation: 
+    * darker blue means mix between social learning and genetic adaptation, 
+    * darker orange means mix between individual learning and genetic adaptation 
+
+```{r gradiant2,include=TRUE,echo=F,fig.width=3,fig.height=3,fig.pointsize=8,out.width=300,fig.align="center",fig.cap="RGB genotype scales"}
 par(xpd=NA,mar=rep(6,4),cex=.8)
 a=expand.grid(x=seq(0,1,.05),y=seq(0,1,.05))
 plot(a$x,a$y,col=rgb(a$x,.5,a$y,alpha=1),pch=15,cex=.9,xlim=c(0,1),xlab=expression(bar(y)),ylab=expression(bar(z)),xaxt="n",yaxt="n")
@@ -48,26 +119,66 @@ text(-.1,1.1,"Social Learner",srt=30)
 text(1.1,-.1,"Individual Learner",srt=30)
 ```
 
-The color scale used in he following graphs follows the one described in the section \@ref(interactiongenenv): purple represent agents that can use both individual and social learning, blue social learning only and orange individual learning only. 
 
 
-```{r echo=FALSE, message=FALSE}
+
+## Observe Strategies Distributions full trajectories 
+
+Using the RGB scale as a unique value to represent the genome of the whole population allows us to catch the three dimensions of our genetic space in one index. But to explore the parameter space of our model we need a statistic to summarize this index. In the previous graphs we use the mean of this unique value to do so, but using this prevent us to see if multiple groups relying on different strategies co-exist at the same time within one simulation. It's impossible to quantify in which proportion those groups are represented. Solving this issue isn't trivial as the parameters space of all simulations is huge and the genetic encoding is continuous: clustering "sub-species" or sub-groups within the population
+
+As a first approximation to solve this problem we roughly discretised the genetic space in different and exclusive areas defining different genotypes that we know lead to different mode of adaptation.  We define the areas as follow:
+
+* Pure Social Learner (sl): z > upperlim & y< lowerlim
+* Pure Individual Learner, (il): y > upperlim & z< lowerlim
+* mix: z > upperlim & y> upperlim
+
+With upperlim = .75 and lowerlim=.25.
+
+To represent the three strategies we use a color scale that follows a similar logic that the one described above and in the section \@ref(rgbscale): purple represent agents that can use both individual and social learning (mix genotype), blue social learning only (sl genotype) and orange individual learning only (il genotype). 
+
+We represent this discretized version of our color scale in the Figure \@ref(discrete) below.
+
+```{r discrete,include=TRUE,echo=F,fig.width=3,fig.height=3,fig.pointsize=8,out.width=300,fig.align="center",fig.cap="RGB genotype scales"}
 slpalette=colorRampPalette(c(rgb(0,.5,0),rgb(0,.5,1)))
 ilpalette=colorRampPalette(c(rgb(0,.5,0),rgb(1,.5,0)))
 survivalpallette=colorRampPalette(c("grey","yellow","dark green"))
 extinctpalette=colorRampPalette(c("chartreuse","white"))
 pureSl=slpalette(2)[2]
 pureIl=ilpalette(2)[2]
+mixed=rgb(1,.5,1)
+par(xpd=NA,mar=rep(6,4),cex=.8)
+a=expand.grid(y=seq(0,1,.05),z=seq(0,1,.05))
+a$col=rep(0,nrow(a))
+a$col[a$z > .75 & a$y < .25]=pureSl
+a$col[a$y > .75 & a$z < .25]=pureIl
+a$col[a$y > .75 & a$z > .75]=mixed
+plot(a$y,a$z,col=a$col,pch=15,cex=.9,xlim=c(0,1),xlab=expression(bar(y)),ylab=expression(bar(z)),xaxt="n",yaxt="n")
+axis(1,at=c(0,.5,1),line=4)
+axis(2,at=c(0,.5,1),line=4)
+text(1.1,1.1,"mix",srt=-30)
+text(-.1,1.1,"il",srt=30)
+text(1.1,-.1,"sl",srt=30)
+par(xpd=F)
+abline(h=c(.75,.25),v=c(.75,.25),col="red")
+```
 
-environment=read.csv("data/theta_real.csv")
-binded=do.call("rbind",lapply(list.files(path="exploreRealEnvBESTfull",recursive=T,full.names=T,pattern="*cross*"),function(u){load(u);return(binded)}))
+For each time step we count the proportion of individuals that fall within each class. We show the mean trajectories of those proportion among our `r ns` runs in the next graphs.
+
+As for the green in the previous scale, we can assume that when the three strategies are absent in the population _and_ the population survives, it's because the adaptation to environmental changes is genetic. This time I haven't encoded a "green" strategy but we may assume that surviving agents with genome $y$ and $z$ below a small threshold rely on genetic adaptation to survive (and thus put of 4th class on the bottom left corner). But as I am not hundred percent sure of this, for this experiment I chose to rely on the match (or mismatch) between the green and the black curve (respectively $\theta$ and  $\bar{x}$) to estimate the amount of genetic adaptation in the figures below.
+
+
+```{r echo=FALSE, message=FALSE}
+environment=theta
+binded=do.call("rbind",lapply(list.files(path="exploreRealEnvBESTsigMas",recursive=T,full.names=T,pattern="*cross*"),function(u){load(u);return(binded)}))
+
+binded=binded[binded$sigma==2,]
 
 plotMatrixStrateAndEn <- function(sum_mat,environment){
     pureIl=rgb(1,.5,0)
     pureSl=rgb(0,.5,1)
     mixed=rgb(1,.5,1)
     par(fig=c(0,1,.8,1),mar=rep(0,4),oma=c(2,2,1,1))
-    plot(environment$permille,col="dark green",lwd=1,type="l",axes=F)
+    plot(environment,col="dark green",lwd=1,type="l",axes=F)
     par(new=T)
     plotTres(sum_mat$mean_x,ylim=range(sum_mat$mean_x,na.rm=T))
     mtext(expression(theta),4,0,col="dark green")
@@ -84,13 +195,13 @@ plotMatrixStrateAndEn <- function(sum_mat,environment){
 
 plotTres <- function(u,col=1,...){
     plot(u[2,],col=col,axes=F,type="l",...)
-    lines(u[1,],col=col,lty=3,lwd=.8)
-    lines(u[3,],col=col,lty=3,lwd=.8)
+    lines(u[1,],col=col,lty=1,lwd=.2)
+    lines(u[3,],col=col,lty=1,lwd=.2)
 }
 ```
 
 
-We explore with different $\mu$ and $m$. 
+In the next section we explore the proportion of different strategies with different $\mu$ and $m$ (and $\sigma_s=2$ as said earlier):
 
 * $\mu$ decrease from top to bottom following those values:
 $\mu=$ `r paste0(rev(unique(binded$mu))) `
@@ -98,6 +209,7 @@ $\mu=$ `r paste0(rev(unique(binded$mu))) `
 * $m$ increase from left to right following those values:
 $m=$ `r paste0(unique(binded$m)) `
 
+The orange, blue and  purple hard lines represent the median of the proportion of the three strategies within the population for `r ns` repetitions. The lighter lines represents the 5 and 95% percentiles (as we may be interested in situations where social learning, or mixed strategies, emerges, though not often).
 
 ```{r,echo=F,fig.width=3,fig.height=3, out.width = "24%", results='asis'}
 for(s in unique(binded$sigma)){
@@ -110,15 +222,15 @@ for(s in unique(binded$sigma)){
                     nexpe=nrow(subb)
                     vars=c("prop_y","prop_z","mean_x","N","prop_yz")
                     names(vars)=vars
-                    mat_allexp= lapply(vars,function(i)matrix(NA,nexpe,4918))
+                    mat_allexp= lapply(vars,function(i)matrix(NA,nexpe,length(theta)))
 
-                    for(i in 1:50){
+                    for(i in 1:nexpe){
                         load(as.character(subb$filename[i]))
                         for(v  in vars) mat_allexp[[v]][i,]=summary[,v]
                     }
                     sum_mat=lapply(mat_allexp,function(m)apply(m,2,quantile,probs=c(.05,.5,.95),na.rm=T))
                     fname=paste0("traj_s",s,"_m",m,"_mu",mu,"_ky",ky,"_kz",kz,".png")
-                    plotMatrixStrateAndEn(sum_mat,environment)
+                    plotMatrixStrateAndEn(sum_mat,theta)
                     mtext(bquote(mu == .(mu) ~ m == .(m) ),3,0,outer=T)
                 }
             }
