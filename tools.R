@@ -286,10 +286,10 @@ plotMatrixStrateAndEn <- function(sum_mat,environment){
     pureIl=rgb(1,.5,0)
     pureSl=rgb(0,.5,1)
     mixed=rgb(1,.5,1)
-    par(fig=c(0,1,.8,1),mar=rep(0,4),oma=c(2,2,1,1),new=T)
+    par(fig=c(0,1,.8,1),mar=rep(0,4),oma=c(2,2,1,1))
     plot(environment,col="dark green",lwd=1,type="l",axes=F)
     par(new=T)
-    plotTres(sum_mat$mean_x,ylim=range(sum_mat$mean_x))
+    plotTres(sum_mat$mean_x,ylim=range(sum_mat$mean_x,na.rm=T,finite=T))
     mtext(expression(theta),4,0,col="dark green")
     mtext(expression(bar(x)),2,0,col="1")
     par(fig=c(0,1,0,.8),new=T)
@@ -304,7 +304,7 @@ plotMatrixStrateAndEn <- function(sum_mat,environment){
 
 plotTres <- function(u,col=1,...){
     plot(u[2,],col=col,axes=F,type="l",...)
-    lines(u[1,],col=col,lty=2,lwd=.2)
-    lines(u[3,],col=col,lty=2,lwd=.2)
+    lines(u[1,],col=col,lwd=.1)
+    lines(u[3,],col=col,lwd=.1)
 }
 
