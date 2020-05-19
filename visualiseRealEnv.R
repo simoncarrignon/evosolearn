@@ -15,10 +15,6 @@ binded=binded[,]
 for(s in unique(binded$sigma)){
     for(kz in unique(binded$k_z)){
         for(ky in unique(binded$k_y)){
-            #ky=1
-            #kz=1
-            #par(mfrow=c(4,5),mar=rep(1,4),oma=c(4,3,0,0))
-            #par(mfrow=c(2,1))
             for(mu in unique(binded$mu)){
                 for(m in unique(binded$m)){
                     subb=droplevels(binded[binded$mu ==mu &binded$m ==m &binded$sigma ==s & binded$k_z ==kz & binded$k_y ==ky,])
@@ -33,9 +29,7 @@ for(s in unique(binded$sigma)){
                     }
                     sum_mat=lapply(mat_allexp,function(m)apply(m,2,quantile,probs=c(.05,.5,.95),na.rm=T))
                     fname=paste0("traj_s",s,"_m",m,"_mu",mu,"_ky",ky,"_kz",kz,".png")
-                    #png(fname,width=450,height=450,pointsize=28)
                     plotMatrixStrateAndEn(sum_mat,theta)
-                    #dev.off()
                 }
             }
         }
@@ -228,15 +222,6 @@ for(s in unique(binded$sigma)){
 	}
 }
 
-#png("~/public_html/report/images/vertical.png",width=900)
-#par(mar=rep(0,4),oma=c(1,4,4,1))
-#layout(matrix(c(1,2),ncol=2,nrow=1),width=c(.2,.8))
-#plot(rev(realdata$permille),rev(realdata$years.BP.2000),type="l",yaxs="i",axes=F)
-#plot(c(0, 1), c(0, 1), type = "n",xlim=c(0,1),ylim=c(0,1),axes=F,xlab="",ylab="",xaxs="i",yaxs="i")
-#rasterImage(bicpic, 0, 0, 1, 1,interpolate=F)
-#axis(2,outer=T)
-#axis(3,outer=T)
-#dev.off()
 
 
 
