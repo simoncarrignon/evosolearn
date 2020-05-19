@@ -165,6 +165,7 @@ dev.off()
 
 
 
+
 bicpic=matrix(nrow=length(theta),ncol=45*20)
 bicpic[,]=NA
 
@@ -198,14 +199,14 @@ for(s in unique(binded$sigma)){
                     #plotMatrixStrateAndEn(sum_mat,theta)
                     #dev.off()
                     print(paste("col",p,"/900"))
-                    par(mar=rep(0,4))
-                    layout(matrix(c(1,2),ncol=2,nrow=1),width=c(.2,.8))
-                    plot(rev(environment$permille),rev(environment$years.BP.2000),type="l",yaxs="i",axes=F)
-                    plot(c(0, 1), c(0, 1), type = "n",xlim=c(0,1),ylim=c(0,1),axes=F,xlab="",ylab="",xaxs="i",yaxs="i")
-                    rasterImage(bicpic, 0, 0, 1, 1,interpolate=F)
                 }
             }
         }
     }
 }
 
+                    par(mar=rep(0,4))
+                    layout(matrix(c(1,2),ncol=2,nrow=1),width=c(.2,.8))
+                    plot(rev(environment$permille),rev(environment$years.BP.2000),type="l",yaxs="i",axes=F)
+                    plot(c(0, 1), c(0, 1), type = "n",xlim=c(0,1),ylim=c(0,1),axes=F,xlab="",ylab="",xaxs="i",yaxs="i")
+                    rasterImage(bicpic, 0, 0, 1, 1,interpolate=F)
