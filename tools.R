@@ -282,6 +282,18 @@ countStrategies <- function(pop,lowerlim=.25,upperlim=.75){
 #' Function that allows to plot percentage of each different strategies below environment
 #' @param sum_mat a dataframe with the percentage to plot, mean ,x
 #' @param environment list  of values to be plot with sum_mat$mean_x  on top of the proportions
+#'  The process that generate mat:
+#' subb=droplevels(binded[binded$mu ==mu &binded$m ==m &binded$sigma ==s & binded$k_z ==kz & binded$k_y ==ky,])
+#' nexpe=nrow(subb)
+#' vars=c("prop_y","prop_z","mean_x","N","prop_yz")
+#' names(vars)=vars
+#'  mat_allexp= lapply(vars,function(i)matrix(NA,nexpe,length(theta)))
+#'
+#'  for(i in 1:50){
+#'      load(as.character(subb$filename[i]))
+#'      for(v  in vars) mat_allexp[[v]][i,]=summary[,v]
+#'  }
+#'  sum_mat=lapply(mat_allexp,function(m)apply(m,2,quantile,probs=c(.05,.5,.95),na.rm=T))
 plotMatrixStrateAndEn <- function(sum_mat,environment){
     pureIl=rgb(1,.5,0)
     pureSl=rgb(0,.5,1)
