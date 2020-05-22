@@ -68,3 +68,36 @@ exploreEnvironmentsProperties <- function(){
     }
     dev.off()
 }
+
+
+
+#Function interpolate
+#To add intermediate value between two theta (using straight linear interpolation)
+#' @param theta: the original theta vector to complete
+#' @param times: the time associated to the thetas
+#' @param finalres: the resolution (in the same unit than vector times) at which new data had to be generate
+#' @return a vector 
+
+interpolate <- function(theta,times,finalres){
+    newtheta=c()
+    for(i in 1:(length(times)-1)){
+        rangesyears=seq(times[i],(times[i+1]),by=finalres)
+        newt=seq(theta[i],theta[i+1],length.out=length(rangesyears))
+        names(newt)=rangesyears
+        newtheta=c(newtheta,newt[-length(newt)])
+    }
+    newtheta=c(newtheta,theta[length(theta)])
+    return(newtheta)
+}
+
+fillgape <- function(){
+
+    realdata=read.csv("data/theta_real.csv")
+    newt=interpolate(realdata$permille,realdata$years.BP.2000,finalres=.5)
+    newy=seq(min(realdata$years.BP.2000),max(realdata$years.BP.2000),.5)
+     plot(realdata$years.BP.2000[1:100],realdata$permille[1:100],type="l",lwd=10)
+     points(newy,newt,type="l",lwd=2,col="red")
+     par(mfrow=c(1,2))
+     plot(realdata$years.BP.2000,realdata$permille,type="l")
+     sub=seq(1,length(newy),length.out=length(newy)/5)
+     plot(rev(newy[sub]),newt[sub],type="l")
