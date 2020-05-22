@@ -101,3 +101,5 @@ fillgape <- function(){
      plot(realdata$years.BP.2000,realdata$permille,type="l")
      sub=seq(1,length(newy),length.out=length(newy)/5)
      plot(rev(newy[sub]),newt[sub],type="l")
+     }
+
