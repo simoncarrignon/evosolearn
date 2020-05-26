@@ -5,8 +5,8 @@ extinctpalette=colorRampPalette(c("chartreuse4","white"))
 pureSl=slpalette(2)[2]
 pureIl=ilpalette(2)[2]
 
-realdata=read.csv("data/41586_2004_BFnature02805_MOESM1_ESM.csv")
-theta=rev(tapply(realdata$permille,realdata$years.BP.2000,mean))
+realdata=read.csv("data/theta_real.csv")
+theta=rev(realdata$permille)
 plot(theta)
 binded=do.call("rbind",lapply(list.files(path="exploreRealEnvBESTsigMas",recursive=T,full.names=T,pattern="*cross*"),function(u){print(u);load(u);return(binded)}))
 binded=binded[binded$sigma==2,]
