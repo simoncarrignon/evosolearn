@@ -11,7 +11,7 @@ plot(theta)
 binded=do.call("rbind",lapply(list.files(path="exploreRealEnvBESTsigMas",recursive=T,full.names=T,pattern="*cross*"),function(u){print(u);load(u);return(binded)}))
 binded=binded[binded$sigma==2,]
 nonoise=binded
-binded=do.call("rbind",lapply(list.files(path="exploreRealEnvBESTNoisy",recursive=T,full.names=T,pattern="*cross*"),function(u){print(u);load(u);return(binded)}))
+binded=do.call("rbind",lapply(list.files(path="exploreRealEnvBESTNoisy/",recursive=T,full.names=T,pattern="*cross*"),function(u){print(u);load(u);return(binded)}))
 binded=rbind(nonoise,binded)
 
 nlines=3*3
@@ -124,4 +124,65 @@ text(1.5,top+.25,"#ext",cex=1.2,adj=0)
 mtext("Number of Extinctions",1,2,at=0.1,outer=T,adj=0,cex=1.2)
 
 dev.off()
+
+
+
+mum=as.data.frame(expand.grid(m=unique(binded$m),mu=unique(binded$mu)))
+mum$prod=mum$m*mum$mu
+lkz=length(unique(binded$k_z))
+lky=length(unique(binded$k_y))
+le=length(unique(binded$E))
+lm=length(unique(binded$m))
+lmu=length(unique(binded$mu))
+for(e in unique(binded$E)){
+	bicpic=matrix(nrow=length(theta),ncol=lkz*lky*lm*lmu)
+	bicpic[,]=NA
+	p=0
+	for(ky in unique(binded$k_y)){
+		for(kz in unique(binded$k_z)){
+			for(i in 1:nrow(mum)){
+				mu=mum$mu[i]
+				m=mum$m[i]
+				subb=droplevels(binded[binded$mu ==mu &binded$m ==m &binded$E ==e & binded$k_z ==kz & binded$k_y ==ky,])
+				nexpe=nrow(subb)
+				vars=c("mean_y","mean_z")
+				names(vars)=vars
+				mat_allexp= lapply(vars,function(i)matrix(NA,nexpe,length(theta)))
+				for(i in 1:nexpe){
+					load(as.character(subb$filename[i]))
+					for(v  in vars) mat_allexp[[v]][i,]=summary[,v]
+				}
+				sum_mat=lapply(mat_allexp,function(m)apply(m,2,mean,na.rm=T))
+				sum_mat$na=apply(mat_allexp$mean_y,2,function(i)sum(is.na(i)))
+				sum_mat=lapply(sum_mat,function(m)m[!is.na(m)])
+				if(length(sum_mat$mean_y)>1){
+					pxl=rgb(sum_mat$mean_y,.5,sum_mat$mean_z,alpha=1-sum_mat$na/nexpe)
+					bicpic[1:length(pxl),p]=pxl
+				}
+
+				p=p+1
+				print(paste("col",p,"/",ncol(bicpic)))
+			}
+			png(paste0("images/vertical_E",e,".png"),width=600)
+			par(mar=rep(0,4),oma=c(1,4,4,1))
+			prop=.1
+			layout(matrix(c(1,2),ncol=2,nrow=1),width=c(prop,1-prop))
+			plot(rev(realdata$permille),rev(realdata$years.BP.2000),type="l",yaxs="i",axes=F)
+			plot(c(0, 1), c(0, 1), type = "n",xlim=c(0,1),ylim=c(0,1),axes=F,xlab="",ylab="",xaxs="i",yaxs="i")
+			axis(2,label=realdata$years.BP.2000[seq(1,length(realdata$years.BP.2000),length.out=5)],at=seq(0,1,length.out=5),outer=T)
+			rasterImage(bicpic, 0, 0, 1, 1,interpolate=F)
+			mtext("year BP",3,2,at=0,outer=T)
+			mtext(expression(delta[18]*O),3,0,at=prop/2,outer=T)
+
+			kyl=sapply(unique(binded$k_y),function(u)as.expression(bquote(k[y] == .(u))))
+			mtext(kyl,side=3,line=2,at=seq(0+(1/3)/2,1-(1/3)/2,length.out=length(kyl)),cex=.9)
+
+			kzl=sapply(unique(binded$k_z),function(u)as.expression(bquote(k[z] == .(u))))
+			mtext(kzl,side=3,line=0,at=seq(0+(1/9)/2,3/9-(1/9)/2,length.out=length(kzl)),cex=.9)
+			mtext(bquote(E==.(e)),side=3,line=3)
+			dev.off()
+		}
+	}
+}
+
 
