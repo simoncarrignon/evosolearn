@@ -75,15 +75,21 @@ exploreEnvironmentsProperties <- function(){
 #To add intermediate value between two theta (using straight linear interpolation)
 #' @param theta: the original theta vector to complete
 #' @param times: the time associated to the thetas
-#' @param finalres: the resolution (in the same unit than vector times) at which new data had to be generate
-#' @return a vector 
+#' @param finalres: the resolution, in the unit used in the vector times, at which new data had to be generate. if times is in year and finalres is 1, the vector thetat will correspond to data ofr each eyar, if time is in thousand of years (as in LR04 stack) and finalres is 0.5 thus the output will correspond to one point every 500 years.
+#' @param omega: autocorrelation of the noise use to generate interpolate datapoints
+#' @param delta: variance of the noise use to generate interpolate datapoints
+#' @return a vector of dimension: seq(1,length(times),by=finalres)
 
-interpolate <- function(theta,times,finalres){
+interpolate <- function(theta,times,finalres,delta=0,omega=0){
     newtheta=c()
     for(i in 1:(length(times)-1)){
         rangesyears=seq(times[i],(times[i+1]),by=finalres)
         newt=seq(theta[i],theta[i+1],length.out=length(rangesyears))
         names(newt)=rangesyears
+        if(omega > 0 && delta >0){ #add generated noise between unknown data points
+            noise=environment(length(newt),omega=omega,delta=delta) # we generate noise between the two datapoints, including them
+            newt[2:(length(newt-1))]=newt[2:(length(newt-1))]+noise #we add the generated noise only to the new datapoints
+        }
         newtheta=c(newtheta,newt[-length(newt)])
     }
     newtheta=c(newtheta,theta[length(theta)])
@@ -93,13 +99,15 @@ interpolate <- function(theta,times,finalres){
 fillgape <- function(){
 
     realdata=read.csv("data/theta_real.csv")
+    theta=realdata$permille
     newt=interpolate(realdata$permille,realdata$years.BP.2000,finalres=.5)
     newy=seq(min(realdata$years.BP.2000),max(realdata$years.BP.2000),.5)
-     plot(realdata$years.BP.2000[1:100],realdata$permille[1:100],type="l",lwd=10)
-     points(newy,newt,type="l",lwd=2,col="red")
-     par(mfrow=c(1,2))
-     plot(realdata$years.BP.2000,realdata$permille,type="l")
-     sub=seq(1,length(newy),length.out=length(newy)/5)
-     plot(rev(newy[sub]),newt[sub],type="l")
-     }
+    plot(-realdata$years.BP.2000[1:100],realdata$permille[1:100],type="l")
+    plot(-realdata$years.BP.2000*1000,-realdata$permille,type="l")
+    points(newy,newt,type="l",lwd=2,col="red")
+    par(mfrow=c(1,2))
+    plot(realdata$years.BP.2000,realdata$permille,type="l")
+    sub=seq(1,length(newy),length.out=length(newy)/5)
+    plot(rev(newy[sub]),newt[sub],type="l")
+}
 
