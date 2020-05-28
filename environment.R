@@ -79,7 +79,6 @@ exploreEnvironmentsProperties <- function(){
 #' @param omega: autocorrelation of the noise use to generate interpolate datapoints
 #' @param delta: variance of the noise use to generate interpolate datapoints
 #' @return a vector of dimension: seq(1,length(times),by=finalres)
-
 interpolate <- function(theta,times,finalres,delta=0,omega=0){
     newtheta=c()
     for(i in 1:(length(times)-1)){
