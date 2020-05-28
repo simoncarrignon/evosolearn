@@ -99,17 +99,9 @@ fillgape <- function(){
 
     realdata=read.csv("data/theta_real.csv")
     theta=realdata$permille
-    newt=interpolate(-realdata$permille,-realdata$years.BP.2000,finalres=-.5)
-    newy=seq(min(-realdata$years.BP.2000),max(-realdata$years.BP.2000),.5)
-    plot(-realdata$years.BP.2000[1:100],realdata$permille[1:100],type="l")
-    plot(-realdata$years.BP.2000*1000,-realdata$permille,type="l")
-    points(newy,newt,type="l",lwd=2,col="red")
-    par(mfrow=c(1,2))
-    plot(realdata$years.BP.2000,realdata$permille,type="l")
-    sub=seq(1,length(newy),length.out=length(newy)/5)
-    plot(rev(newy[sub]),newt[sub],type="l")
+	### calculate mean for smaller time windows
+	#the order and signe of the timeseries dosent matter: omega(a) == omega(-rev(a))
 
-	w=10
 	delta_w=sapply(1:(length(theta)-w),function(i)sd(theta[i:(i+w)]))
 	plot(delta,xlab="time",main=paste0("windows size=",w*500," years (",w,"x 500yr)"),ylab=expression(delta),type="l")
 
@@ -122,8 +114,33 @@ fillgape <- function(){
 					   return(abs(fit$coefficients[2]))
 				   }
 	)
-	mean(omega_w)
-	mean(delta_w)
+
+    newt=interpolate(-realdata$permille,-realdata$years.BP.2000,finalres=-.25)
+	#linear interpolation
+    newy=seq(min(-realdata$years.BP.2000),max(-realdata$years.BP.2000),.25)
+	#linear + noise
+    newtN=interpolate(-realdata$permille,-realdata$years.BP.2000,finalres=-.25,omega=omw,delta=dtw)
+    plot(-realdata$years.BP.2000[1:100],realdata$permille[1:100],type="l",lwd=10)
+    plot(-realdata$years.BP.2000,-realdata$permille,type="l")
+    plot(newy,newt,type="l",lwd=2,col="red")
+    par(mfrow=c(1,2))
+    plot(realdata$years.BP.2000,realdata$permille,type="l")
+    sub=seq(1,length(newy),length.out=length(newy)/5)
+
+    plot(-realdata$years.BP.2000,-realdata$permille,type="l",lwd=10,xlim=c(-300,0))
+    lines(rev(newy),newtN,type="l",col="red",lwd=3)
+    lines(rev(newy),newt,type="l",col="green")
+
+	w=10
+
+	omega_w=sapply(1:(length(theta)-w),function(i)getOmega(theta[i:(i+w)]) )
 
 }
 
+getOmega <- function(t){
+	y=getSpectrum(t) #get spectrum of the environment generated
+	x=1:length(y)
+	fit=lm(log(y)~log(x),cbind.data.frame(x=1:length(y),y=y)) #fit a linear model to check slope
+	return(abs(fit$coefficients[2]))
+
+}
