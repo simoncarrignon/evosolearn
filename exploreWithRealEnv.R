@@ -22,16 +22,17 @@ dir.create(fold)
 source("protomodels.R")
 library(parallel)
 allparameters=list()
-allparameters[["mu"]]=5^(0:4)*10^-3
+allparameters[["mu"]]=10^(-5:-3)
 allparameters[["K"]]=c(1000)
-allparameters[["m"]]=(.2*(1:5))[-5]
+allparameters[["m"]]=(.2*(1:3))
 allparameters[["E"]]=c(0,.2*(c(1,3,5)))
-allparameters[["sigma"]]=(2^(0:4))[1]
+#allparameters[["sigma"]]=(2^(0:4))[1]
+allparameters[["sigma"]]=c(.5,1)
 #allparameters[["delta"]]=2^(0:4)
 #allparameters[["vt"]]=(5^(0:4)*10^-3)[1:4]
 #allparameters[["omega"]]=2^(-1:3)
-allparameters[["outputrate"]]=1
-allparameters[["k_z"]]=c(1,2,4)
+allparameters[["outputrate"]]=20
+allparameters[["k_z"]]=c(2,4,8)
 allparameters[["k_y"]]=c(.5,1,2)
 #allparameters[["sls"]]=c("random","best")
 parameters=as.data.frame(expand.grid(allparameters))
@@ -44,8 +45,10 @@ m=c(x=0,y=0,z=0)
 sigma=c(s=1,y=1,z=1)
 
 realdata=read.csv("data/theta_real.csv")
-newt=interpolate(realdata$permille,realdata$years.BP.2000,finalres=.5)
+#newt=interpolate(realdata$permille,realdata$years.BP.2000,finalres=.5)
+newt=interpolate(realdata$permille,realdata$years.BP.2000,finalres=.25,omega=1.788783,delta=0.09894122)
 env=rev(-newt)
+
 tstep=length(env)
 genes=c("x","y","z")
 cl <- makeForkCluster(ns,outfile="")
@@ -72,7 +75,7 @@ explore=do.call("rbind.data.frame",
                               sigma["s"]=parameters[v,"sigma"]
 			      #sls=parameters[v,"sls"]
                               pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
-			      pop[,"x"]=rnorm(n,mean(env[1:3]),sd(env[1:3]))
+			      pop[,"x"]=rnorm(n,mean(env[1]),sd(env[1:10]))
 			      sigma=c(s=parameters[v,"sigma"],y=parameters[v,"sigma"]*parameters[v,"k_y"],z=parameters[v,"sigma"]*parameters[v,"k_y"]*parameters[v,"k_z"])
                               fullmat=simpleEvoModel(n=n,tstep=tstep,omega = 0,delta = 0 ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random",allpop=F,repro="sex",prop=T,theta=env)
                               filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
