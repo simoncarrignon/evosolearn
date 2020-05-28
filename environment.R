@@ -99,8 +99,8 @@ fillgape <- function(){
 
     realdata=read.csv("data/theta_real.csv")
     theta=realdata$permille
-    newt=interpolate(realdata$permille,realdata$years.BP.2000,finalres=.5)
-    newy=seq(min(realdata$years.BP.2000),max(realdata$years.BP.2000),.5)
+    newt=interpolate(-realdata$permille,-realdata$years.BP.2000,finalres=-.5)
+    newy=seq(min(-realdata$years.BP.2000),max(-realdata$years.BP.2000),.5)
     plot(-realdata$years.BP.2000[1:100],realdata$permille[1:100],type="l")
     plot(-realdata$years.BP.2000*1000,-realdata$permille,type="l")
     points(newy,newt,type="l",lwd=2,col="red")
@@ -108,5 +108,22 @@ fillgape <- function(){
     plot(realdata$years.BP.2000,realdata$permille,type="l")
     sub=seq(1,length(newy),length.out=length(newy)/5)
     plot(rev(newy[sub]),newt[sub],type="l")
+
+	w=10
+	delta_w=sapply(1:(length(theta)-w),function(i)sd(theta[i:(i+w)]))
+	plot(delta,xlab="time",main=paste0("windows size=",w*500," years (",w,"x 500yr)"),ylab=expression(delta),type="l")
+
+
+	omega_w=sapply(1:(length(theta)-w),function(i)
+				   {
+					   y=getSpectrum(theta[i:(i+w)]) #get spectrum of the environment generated
+					   x=1:length(y)
+					   fit=lm(log(y)~log(x),cbind.data.frame(x=1:length(y),y=y)) #fit a linear model to check slope
+					   return(abs(fit$coefficients[2]))
+				   }
+	)
+	mean(omega_w)
+	mean(delta_w)
+
 }
 
