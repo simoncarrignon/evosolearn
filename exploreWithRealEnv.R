@@ -27,7 +27,7 @@ allparameters[["K"]]=c(1000)
 allparameters[["m"]]=(.2*(1:3))
 allparameters[["E"]]=c(0,.2*(c(1,3,5)))
 #allparameters[["sigma"]]=(2^(0:4))[1]
-allparameters[["sigma"]]=c(.5,1)
+allparameters[["sigma"]]=c(1,2)
 #allparameters[["delta"]]=2^(0:4)
 #allparameters[["vt"]]=(5^(0:4)*10^-3)[1:4]
 #allparameters[["omega"]]=2^(-1:3)
@@ -47,7 +47,7 @@ sigma=c(s=1,y=1,z=1)
 realdata=read.csv("data/theta_real.csv")
 #newt=interpolate(realdata$permille,realdata$years.BP.2000,finalres=.5)
 newt=interpolate(realdata$permille,realdata$years.BP.2000,finalres=.25,omega=1.788783,delta=0.09894122)
-env=rev(-newt)
+env=rev(-5*newt)
 
 tstep=length(env)
 genes=c("x","y","z")
