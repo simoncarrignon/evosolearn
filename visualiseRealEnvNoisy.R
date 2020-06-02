@@ -9,7 +9,7 @@ realdata=read.csv("data/theta_real.csv")
 theta=rev(realdata$permille)
 plot(theta)
 binded=do.call("rbind",lapply(list.files(path="exploreRealEnvBESTsigMas",recursive=T,full.names=T,pattern="*cross*"),function(u){print(u);load(u);return(binded)}))
-binded=binded[binded$sigma==2,]
+binded=binded[binded$sigma==1,]
 nonoise=binded
 binded=do.call("rbind",lapply(list.files(path="exploreRealEnvBESTNoisy/",recursive=T,full.names=T,pattern="*cross*"),function(u){print(u);load(u);return(binded)}))
 binded=rbind(nonoise,binded)
@@ -82,7 +82,7 @@ par(mfrow=c(nlines,ncols),oma=c(6,6,2,5))
 for(ky in rev(unique(binded$k_y))){
     for(kz in rev(sort(unique(binded$k_z)))){
         for(s in unique(binded$E)){
-            subb=binded[binded$E ==s & binded$k_z ==kz & binded$k_y ==sg,]
+            subb=binded[binded$E ==s & binded$k_z ==kz & binded$k_y ==ky,]
             par(mar=rep(0,4))
             res=tapply(subb$N,subb[,c("mu","m")],mean,na.rm=T)
             image(t(res),xaxt="n",yaxt="n",ylab="",xlab="",zlim=range(binded$N,na.rm=T),col=survivalpallette(4000))
