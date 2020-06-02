@@ -49,8 +49,10 @@ idexpe="stackLR04InterpolNoisyRescale")
 
 for( exp in allexp){
 
-    folder=exp$folder
-    idexpe=exp$idexpe
+folder=exp$folder
+idexpe=exp$idexpe
+
+ns=length(list.files(path=folder,recursive=T,full.names=T,pattern="*cross*"))
 
 binded=do.call("rbind",lapply(list.files(path=folder,recursive=T,full.names=T,pattern="*cross*"),function(u){print(u);load(u);return(binded)}))
 load(file=as.character(binded$filename[1]))
@@ -216,4 +218,63 @@ for(s in unique(binded2$sigma)){
 
 }
 
+for(s in unique(binded2$sigma)){
+    subnum=5
+
+    binded=binded2[binded2$sigma==s,]
+    mum=as.data.frame(expand.grid(m=unique(binded$m),mu=unique(binded$mu)))
+    mum$prod=mum$m*mum$mu
+    lkz=length(unique(binded$k_z))
+    lky=length(unique(binded$k_y))
+    le=length(unique(binded$E))
+    lm=length(unique(binded$m))
+    lmu=length(unique(binded$mu))
+    tsteps=nsteps
+    for(e in unique(binded$E)){
+        bicpic=matrix(nrow=tsteps,ncol=lkz*lky*lm*lmu*subnum+1)
+        bicpic[,]=NA
+        p=1
+        for(ky in unique(binded$k_y)){
+            for(kz in unique(binded$k_z)){
+                for(i in 1:nrow(mum)){
+                    mu=mum$mu[i]
+                    m=mum$m[i]
+                    subb=droplevels(binded[binded$mu ==mu &binded$m ==m &binded$E ==e & binded$k_z ==kz & binded$k_y ==ky,])
+                    nexpe=nrow(subb)
+                    for(i in sample.int(nexpe,subnum)){
+                        pxl=c()
+                        load(as.character(subb$filename[i]))
+                        na=which.max(is.na(summary[,1]))#find the first na ie when pop get extinct
+                        if(na>1) summary=summary[1:(na-1),]
+                        pxl=rgb(summary[,"mean_y" ],.5,summary[,"mean_z"],alpha=1-min(1,summary[,"N"]/1000))
+                        bicpic[1:length(pxl),p]=pxl
+                        p=p+1
+                        print(paste("exp",as.character(subb$filename[i])))
+                        print(paste("col",p,"/",ncol(bicpic)))
+                    }
+                }
+                scale=1000 #to convert time scale in year
+                png(paste0("images/vertical_",idexpe,"_sigma",s,"_E",e,".png"),width=600)
+                par(mar=rep(0,4),oma=c(1,4,4,1))
+                prop=.1
+                layout(matrix(c(1,2),ncol=2,nrow=1),width=c(prop,1-prop))
+                plot(rev(realdata$permille),rev(realdata$years.BP.2000)*scale,type="l",yaxs="i",axes=F)
+                plot(c(0, 1), c(0, 1), type = "n",xlim=c(0,1),ylim=c(0,1),axes=F,xlab="",ylab="",xaxs="i",yaxs="i")
+                axis(2,label=seq(0,max(realdata$years.BP.2000),length.out=5)*scale,at=seq(0,1,length.out=5),outer=T)
+                rasterImage(bicpic, 0, 0, 1, 1,interpolate=F)
+                mtext("year BP",3,2,at=0,outer=T)
+                mtext(expression(delta[18]*O),3,0,at=prop/2,outer=T)
+
+                kyl=sapply(unique(binded$k_y),function(u)as.expression(bquote(k[y] == .(u))))
+                mtext(kyl,side=3,line=2,at=seq(0+(1/3)/2,1-(1/3)/2,length.out=length(kyl)),cex=.9)
+
+                kzl=sapply(unique(binded$k_z),function(u)as.expression(bquote(k[z] == .(u))))
+                mtext(kzl,side=3,line=0,at=seq(0+(1/9)/2,3/9-(1/9)/2,length.out=length(kzl)),cex=.9)
+                mtext(bquote(E==.(e)),side=3,line=3)
+                dev.off()
+            }
+        }
+    }
+
+}
 }
