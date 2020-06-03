@@ -145,3 +145,15 @@ getOmega <- function(t){
 	return(abs(fit$coefficients[2]))
 
 }
+
+#Convert suite of delta 18 O and convert it to temperature
+convertEpstein <- function(d) return(16.5-4.5*d+.14*d^2)
+
+#get the lowest resolution of the
+getDateResolution <- function(years) years[2:length(years)]-years[1:(length(years)-1)]
+
+getLast <- function(x)return(x[1])
+getFirst <- function(x)return(x[length(x)])
+getMean <- function(x)mean(x)
+
+applySampling <- function(x,y,fun)tapply(y,x,fun)
