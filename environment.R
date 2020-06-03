@@ -92,6 +92,7 @@ interpolate <- function(theta,times,finalres,delta=0,omega=0){
         newtheta=c(newtheta,newt[-length(newt)])
     }
     newtheta=c(newtheta,theta[length(theta)])
+    names(newtheta)[length(newtheta)]=times[length(times)]
     return(newtheta)
 }
 
