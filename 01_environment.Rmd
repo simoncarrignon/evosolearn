@@ -1,12 +1,5 @@
-# Explore environment function and properties
+# Environment Generator and noise-color properties
 
-```{r echo=FALSE, message=FALSE}
-knitr::opts_chunk$set(warning=FALSE,message=FALSE,out.width='100%',echo=TRUE)
-source("tools.R")
-source("protomodels.R")
-source("toolsSummariesAndTraj.R")
-source("environment.R")
-```
 
 ## Check color of noise: 
 
