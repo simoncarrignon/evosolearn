@@ -1,7 +1,8 @@
-# Environment Generator and noise-color properties
+# Environments 
 
+## Simulated
 
-## Check color of noise: 
+### Check color of noise: 
 
 Quic exploration of function used to generate $\frac{1}{f}$-noise:
 
@@ -21,7 +22,7 @@ for(alpha in 0:2){ #alpha as used in YK95 as our $\omega$
 }
 ```
 
-## Check $\delta$ (variance) of noise
+### Check $\delta$ (variance) of noise
 
 ```{r ,fig.cap="enrivonment generator"}
 par(mfrow=c(3,2))
@@ -40,7 +41,7 @@ for(omega in 0:2){
 ```
 
 
-## Check auto-correlation
+### Check auto-correlation
 
 Using the same function we can have different level of auto-correlation 
 
@@ -57,4 +58,161 @@ Using the same function we can have different level of auto-correlation
     }
 
 ```
+
+## Real Environments
+
+### General Description
+
+Dataset :
+
+* NGRIP: greenland, $\delta^{18}0$ , [Andersen et al 2004](https://www.nature.com/articles/nature02805)
+* VOSTOK: Antartic, $\delta D$ (deuterium in ice) , [Petit et al 1999](https://www.nature.com/articles/nature02805)
+* LR04: wordlwid benthic drill, $\delta^{18}0$ (ratio 18/16 oxygen in sediment deposit) , [Lisiecki et al (2004)](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2004PA001071)
+* LS18: worldwide, benthic drill, $\delta^{18}0$ (ratio 18/16 oxygen in sediment deposit) , [Lisiecki et al (2016)](https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1002/2016PA003002)
+* EPICA:  Antartic, $\delta D$ (deuterium) , [Augustin et al (2004)](https://www.nature.com/articles/nature0259)
+* Martrat:  , $U_{37}^K$ alkenone , [Martrat et al (2007)](https://science.sciencemag.org/content/317/5837/502?casa_token=oYjqKMPDD3UAAAAA:qtAeeIsbioo_fQ5l5myKdbMBMPd5lgVc9IaxNOJgthW7UYqROk3_SXYIssG18PSA0bVCdocD1-zoQpc)
+* Baringo:  
+
+```{r allenvironment,out.width="45%",fig.show="hold",fig.cap="preview of all datasets"}
+    #ngripR=read.csv("data/ngripRAW.csv")
+    #ngrip$year=-(ngripR$years.BP.2000)
+    #ngrip$dOice=ngripR$permille #delta 18 O ice from greenland
+    #ngrip=as.data.frame(ngrip)
+    #ngrip=ngrip[order(ngrip$year),]
+    #write.csv(file="data/ngrip.csv",ngrip,row.names=F)
+    #ngrip=read.csv("data/ngrip.csv")
+
+    #lr04R=read.csv("data/lr04RAW.csv")
+    #lr04$year=-(lr04R$years.BP.2000*1000)
+    #lr04$Ts=convertEpstein(lr04R$permille) #conert d18O to temperature using epstein 71
+    #lr04$dOsea=lr04R$permille #delta 18 O ice from bentic drill  
+    #lr04=as.data.frame(lr04)
+    #lr04=lr04[order(lr04$year),]
+    #write.csv(file="data/lr04.csv",lr04,row.names=F)
+    #lr04=read.csv("data/lr04.csv")
+
+    #ls16R=read.csv("data/ls16RAW.csv")
+    #ls16$year=-(ls16R$years.BP.2000*1000)
+    #ls16$Ts=convertEpstein(ls16R$permille) #conert d18O to temperature using epstein 71
+    #ls16$dOsea=ls16R$permille #delta 18 O ice from bentic drill  
+    #ls16=as.data.frame(ls16)
+    #ls16=ls16[order(ls16$year),]
+    #write.csv(file="data/ls16.csv",ls16,row.names=F)
+    #ls16=read.csv("data/ls16.csv")
+
+    #vostokR=read.csv("data/vostokRAW.csv")
+    #vostok$year=-(vostokR$Ice.age..GT4.)
+    #vostok$dD=vostokR$deut #delta D deuterium
+    #vostok$dTs=vostokR$deltaTS #delta Temperature surface 
+    #vostok=as.data.frame(vostok)
+    #vostok=vostok[order(vostok$year),]
+    #write.csv(file="data/vostok.csv",vostok,row.names=F)
+    #vostok=read.csv("data/vostok.csv")
+
+    #epicaR=read.csv("data/epica04RAW.csv")
+    #epica$year=-(epicaR$Meanage.yrBP)
+    #epica$dD=epicaR$deltaD.permill #delta D deuterium
+    #epica=as.data.frame(epica)
+    #epica=epica[order(epica$year),]
+    #write.csv(file="data/epica.csv",epica,row.names=F)
+    #epica=read.csv("data/epica.csv")
+
+    #Everything above should be resumed by the 5 lines below
+    namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat")
+    namesFun=c("getMean","getLast","getFirst")
+
+    combiname=expand.grid(namesRealEnv,namesFun)
+
+    allRealEnv=lapply(namesRealEnv,function(i)assign(i,read.csv(paste0("data/",i,".csv")),pos=.GlobalEnv))
+    names(allRealEnv)=namesRealEnv
+    #lapply(allRealEnv,range)
+    na=lapply(names(allRealEnv),function(i)
+           {
+               env=allRealEnv[[i]]
+               plot(env$year,env[,2],type="l",lwd=3,ylab="data",xlab="year",main=i)
+           }
+    )
+    ```
+
+Each environment has different properties. The chronology is more or less precise, with resulting on un-even frequencies. Moreover, each dataset uses different isotopes, extracted at different place, following  differents ways. Each isotope  varies following its own scales and each scales can be translated in different way as temperatures.
+
+Here are some summary for all envrionment:
+
+
+```{r}
+summaryEnv=sapply(allRealEnv,function(env){
+       ri=range(getDateResolution(env$year))
+       if(sd(ri)==0)
+           resolution=paste0(ri[1],"years")
+       else
+           resolution=paste0("from:",ri[1],"years to: ",ri[2],"years")
+       t=2:(length(env[,2]))
+       correl=cor(env[t,2],env[t-1,2])
+       list(
+            "$\\omega$"=round(getOmega(env[,2]),digit=2),
+            "$\\delta$"=round(sd(env[,2]),digit=1),
+            "cor(t,t-1)"=round(correl,digit=1),
+            resolution=resolution,
+            "#records"=length(env[,2]),
+            date=min(env$year)
+            )
+}
+)
+knitr::kable(as.data.frame(t(summaryEnv)),digits=c(1))
+```
+
+The $\delta^{18}O$ measured by Lisiecki (2004, 2016), is a measure found in benthic sediments of the ratio between two isotopes of the oxygen. Changes observed in this ratio are expected to reflect changes in temperature. [Epstein et al. (1953)](https://sci-hub.tw/https://pubs.geoscienceworld.org/gsa/gsabulletin/article-abstract/64/11/1315/4537) measured empirically the realtionship  this relationship  : $$ t = 16.5 - 4.5 \delta + 0.14\delta^2 $$
+to translate measured $\delta^{18}O$ in temperature. 
+
+The $\delta D$ measured by in NGRIP and EPICA dataset, is a measure of the ratio between two isotopes of the Hydrogen, measure in benthic sediments. Changes observed in this ratio are expected to reflect changes in temperature. [Epstein et al. (1953)](https://sci-hub.tw/https://pubs.geoscienceworld.org/gsa/gsabulletin/article-abstract/64/11/1315/4537) give this relationship  : $$ t = 16.5 - 4.5 \delta + 0.14\delta^2 $$
+
+to translate measured $\delta^{18}O$ in temperature. 
+
+```{r autocorelation,fig.show="hold",out.width="33%",fig.capt="autocorleation"}
+for(e in namesRealEnv){
+    env=get(e)
+       t=2:(length(env[,2]))
+       correl=cor(env[t,2],env[t-1,2])
+       plot(env[t,2],env[t-1,2],main=e,ylab=expression(theta[t-1]),xlab=expression(theta[t1]))
+}
+```
+
+### Scale of variation
+
+In an attempt to harmonize all that I firsw rescale to fit with vostok (petit et al 1999), as they have already translated it in change of temperature.
+
+
+```{r rescale,out.width="45%",fig.show="hold",fig.cap="Rescale following Vostok Temperature"}
+
+ # rescale all temperature differences  using vostok temperature
+for(env in namesRealEnv){
+    i=get(env)
+    plot(i$year,i$dTsVscales,type="o",pch=20,main=env,ylab=expression(delta*T[vscale]),xlab="year")
+    points(vostok$year,vostok$dTs,col="red",type="o",pch=20)
+}
+
+
+```
+
+### Resolution of samples
+
+Then as resolution is changing, we need to resample the datasets or to interpolate missing point.
+
+To do so we can 
+
+```{r subsample,out.width="45%",fig.show="hold",fig.cap="regularize sampling frequencies"}
+env="epica"
+dates=getDateResolution(get(env)$year)
+plot(density(dates,from=min(dates),to=max(dates),bw=1),log="x")
+
+i=get(env)
+freq_max=abs(min(i$year)/max(getDateResolution(i$year)))
+i$yearSample=cut(i$year,breaks=freq_max)
+plot(i$year,i$dTsVscales)
+points(applySampling(i$yearSample,i$year,getMean),applySampling(i$yearSample,i$dTsVscales,getMean),col="blue")
+points(applySampling(i$yearSample,i$year,getFirst),applySampling(i$yearSample,i$dTsVscales,getFirst),col="green")
+points(applySampling(i$yearSample,i$year,getLast),applySampling(i$yearSample,i$dTsVscales,getLast),col="red")
+
+```
+
 
