@@ -1,17 +1,17 @@
 source("environment.R")
 setAxis <- function(data){
     mus=sapply(unique(data$mu),function(u)as.expression(bquote(mu == .(u))))
-    tm=5
+    tm=min(5,length(mus))
     nl=seq(1,length(mus),length.out=tm)
     axis(1,label=mus[nl],at=seq(0,1,length.out=length(nl)),cex.axis=1.1,las=3)
 
     ms=paste0("m=",unique(data$m))
-    tm=4
+    tm=min(4,length(ms))
     nl=seq(1,length(ms),length.out=tm)
     axis(4,label=ms[nl],at=seq(0,1,length.out=length(nl)),las=1,cex.axis=1.1)
 
     e=sapply(unique(data$E),function(u)as.expression(bquote(E == .(u))))
-    mtext(e,side=3,line=0,at=seq(.5/length(e),3.5/length(e),length.out=length(e)),cex=.9,outer=T)
+    mtext(e,side=3,line=0,at=seq(.5/length(e),1-1/length(e),length.out=length(e)),cex=.9,outer=T)
 
     vsp=1/nlines
 
@@ -24,7 +24,7 @@ setAxis <- function(data){
 }
 
 plotVertEnv <- function(realdata,scale,...){
-    plot(rev((realdata$dTsVscales)*scale),rev(realdata$year),type="l",yaxs="i",axes=F,...)
+    plot((realdata$dTsVscales)*scale,-realdata$year,type="l",yaxs="i",axes=F,...)
     plot(c(0, 1), c(0, 1), type = "n",xlim=c(0,1),ylim=c(0,1),axes=F,xlab="",ylab="",xaxs="i",yaxs="i")
     axis(2,label=rev(round(sort(seq(0,min(realdata$year),length.out=5)*scale))),at=seq(0,1,length.out=5),outer=T)
 }
@@ -200,6 +200,7 @@ for(s in unique(binded2$sigma)){
                         if(is.na(sum_mat$na[1]))
                             pxl=NA
                         else
+                            #pxl=rgb(sum_mat$mean_y,.5,sum_mat$mean_z,alpha=1)
                             pxl=rgb(sum_mat$mean_y,.5,sum_mat$mean_z,alpha=1-sum_mat$na/nexpe)
                         bicpic[1:length(pxl),p]=pxl
                     }
@@ -262,14 +263,15 @@ for(s in unique(binded2$sigma)){
                         if(na>1) summary=summary[1:(na-1),,drop=F]
                         if(na==1)pxl=NA
                         else
-                            pxl=rgb(summary[,"mean_y" ],.5,summary[,"mean_z"],alpha=.5+1/2*min(1,summary[,"N"]/1000))
+                            pxl=rgb(summary[,"mean_y" ],.5,summary[,"mean_z"],alpha=1)
+                            #pxl=rgb(summary[,"mean_y" ],.5,summary[,"mean_z"],alpha=.5+1/2*min(1,summary[,"N"]/1000))
                         bicpic[1:length(pxl),p]=pxl
                         p=p+1
                         print(paste("col",p,"/",ncol(bicpic)))
                     }
                 }
                 scale=1000 #to convert time scale in year
-                png(paste0("images/verticalM_",idexpe,"_sigma",s,"_E",e,".png"),width=1800,height=1000,pointsize=42)
+                png(paste0("images/verticalM_",idexpe,"_sigma",s,"_E",e,".png"),width=1800,height=1400,pointsize=42)
                 par(mar=rep(0,4),oma=c(1,4,4,1))
                 prop=.1
                 layout(matrix(c(1,2),ncol=2,nrow=1),width=c(prop,1-prop))
