@@ -37,7 +37,7 @@ pureSl=slpalette(2)[2]
 pureIl=ilpalette(2)[2]
 
 
-namesRealEnv=c("epica","lr04","ls16","vostok")
+namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat")
 namesFun=c("getMean","getLast","getFirst")
 allexp=list(
 #list(folder="exploreRealEnvRANDOMNoisy",
@@ -256,9 +256,9 @@ for(s in unique(binded2$sigma)){
                     m=mum$m[i]
                     subb=droplevels(binded[binded$mu ==mu &binded$m ==m &binded$E ==e & binded$k_z ==kz & binded$k_y ==ky,])
                     nexpe=nrow(subb)
-                    for(i in sample.int(nexpe,subnum)){
+                    for(f in sample.int(nexpe,subnum)){
                         pxl=c()
-                        load(as.character(subb$filename[i]))
+                        load(as.character(subb$filename[f]))
                         na=which.max(is.na(summary[,1]))#find the first na ie when pop get extinct
                         if(na>1) summary=summary[1:(na-1),,drop=F]
                         if(na==1)pxl=NA
