@@ -46,13 +46,12 @@ for(omega in 0:2){
 Using the same function we can have different level of auto-correlation 
 
 ```{r cov,fig.cap="autocorrelation"}
-    par(mfrow=c(1,3))
+    par(mfrow=c(3,1))
 
     for(omega in 0:2){
         t=environment(50000,omega,.1)
         vtm=t[1:(length(t)-1)]
         vt=t[2:length(t)]
-        print(cov(vt,vtm))
         cv=round(cov(vt,vtm),digit=3)
         plot((1:50000)[seq(1,50000,100)],t[seq(1,50000,100)],main=bquote(omega == .(omega)~","~delta==.1~", cov("*theta[t]*","*theta[t-1]*")" == .(cv)),ylab=bquote(theta[t]),,xlab="t",type="l",lwd=1)
     }
@@ -73,7 +72,7 @@ Dataset :
 * Martrat:  , $U_{37}^K$ alkenone , [Martrat et al (2007)](https://science.sciencemag.org/content/317/5837/502?casa_token=oYjqKMPDD3UAAAAA:qtAeeIsbioo_fQ5l5myKdbMBMPd5lgVc9IaxNOJgthW7UYqROk3_SXYIssG18PSA0bVCdocD1-zoQpc)
 * Baringo:  
 
-```{r allenvironment,out.width="45%",fig.show="hold",fig.cap="preview of all datasets"}
+```{r allenvironment,out.width="90%",fig.width=9,fig.height=7,fig.show="hold",fig.cap="preview of all datasets"}
     #ngripR=read.csv("data/ngripRAW.csv")
     #ngrip$year=-(ngripR$years.BP.2000)
     #ngrip$dOice=ngripR$permille #delta 18 O ice from greenland
@@ -126,6 +125,8 @@ Dataset :
     allRealEnv=lapply(namesRealEnv,function(i)assign(i,read.csv(paste0("data/",i,".csv")),pos=.GlobalEnv))
     names(allRealEnv)=namesRealEnv
     #lapply(allRealEnv,range)
+    par(mfrow=c(length(namesRealEnv),1))
+    par(mar=c(3,4,1,2))
     na=lapply(names(allRealEnv),function(i)
            {
                env=allRealEnv[[i]]
@@ -151,7 +152,7 @@ summaryEnv=sapply(allRealEnv,function(env){
        list(
             "$\\omega$"=round(getOmega(env[,2]),digit=2),
             "$\\delta$"=round(sd(env[,2]),digit=1),
-            "cor(t,t-1)"=round(correl,digit=1),
+            "cor(t,t-1)"=round(correl,digit=3),
             resolution=resolution,
             "#records"=length(env[,2]),
             date=min(env$year)
@@ -164,35 +165,62 @@ knitr::kable(as.data.frame(t(summaryEnv)),digits=c(1))
 The $\delta^{18}O$ measured by Lisiecki (2004, 2016), is a measure found in benthic sediments of the ratio between two isotopes of the oxygen. Changes observed in this ratio are expected to reflect changes in temperature. [Epstein et al. (1953)](https://sci-hub.tw/https://pubs.geoscienceworld.org/gsa/gsabulletin/article-abstract/64/11/1315/4537) measured empirically the realtionship  this relationship  : $$ t = 16.5 - 4.5 \delta + 0.14\delta^2 $$
 to translate measured $\delta^{18}O$ in temperature. 
 
-The $\delta D$ measured by in NGRIP and EPICA dataset, is a measure of the ratio between two isotopes of the Hydrogen, measure in benthic sediments. Changes observed in this ratio are expected to reflect changes in temperature. [Epstein et al. (1953)](https://sci-hub.tw/https://pubs.geoscienceworld.org/gsa/gsabulletin/article-abstract/64/11/1315/4537) give this relationship  : $$ t = 16.5 - 4.5 \delta + 0.14\delta^2 $$
+The $\delta D$ measured by in NGRIP and EPICA dataset, is a measure of the ratio between two isotopes of the Hydrogen, it measure the difference on isotope in th floor which also dependents   on temperature, but of the Antartic  [Petit et al. (1999)](https://sci-hub.tw/https://pubs.geoscienceworld.org/gsa/gsabulletin/article-abstract/64/11/1315/4537) propose an estimation of the Temperature given the $\delta D$ and a general and standard $\delta^{18}O$.
 
 to translate measured $\delta^{18}O$ in temperature. 
 
 ```{r autocorelation,fig.show="hold",out.width="33%",fig.capt="autocorleation"}
 for(e in namesRealEnv){
     env=get(e)
-       t=2:(length(env[,2]))
-       correl=cor(env[t,2],env[t-1,2])
-       plot(env[t,2],env[t-1,2],main=e,ylab=expression(theta[t-1]),xlab=expression(theta[t1]))
+    t=2:(length(env[,2]))
+    correl=cor(env[t,2],env[t-1,2])
+    plot(env[t,2],env[t-1,2],main=e,ylab=expression(theta[t-1]),xlab=expression(theta[t1]))
 }
 ```
 
 ### Scale of variation
 
-In an attempt to harmonize all that I firsw rescale to fit with vostok (petit et al 1999), as they have already translated it in change of temperature.
+As we can see the previous scales are not the same. to rescale all in siilar environment we match the variation of the changes during the time for VOSTOK dataset at the same scale as VOSTOK.
 
 
-```{r rescale,out.width="45%",fig.show="hold",fig.cap="Rescale following Vostok Temperature"}
+```{r rescale,out.width="80%",fig.show="hold",fig.width=8,fig.height=6,fig.cap="Rescale following Vostok Temperature"}
 
  # rescale all temperature differences  using vostok temperature
+par(mfrow=c(length(namesRealEnv),1))
+par(mar=c(3,4,0,2))
 for(env in namesRealEnv){
     i=get(env)
-    plot(i$year,i$dTsVscales,type="o",pch=20,main=env,ylab=expression(delta*T[vscale]),xlab="year")
+    plot(i$year,i$dTsVscales,type="o",pch=20,main="",ylab=expression(delta*T[vscale]),xlab="")
     points(vostok$year,vostok$dTs,col="red",type="o",pch=20)
+    mtext(env,4,0)
 }
-
-
+mtext("year",1,2)
 ```
+
+The effect of this rescaling on the properties of the environement can be seen below. $X_v$ mean the metrics for the rescaled environment.
+
+```{r}
+summaryEnv=sapply(allRealEnv,function(env)
+                  {
+                      t=2:(length(env[,"dTsVscales"]))
+                      correl_v=cor(env[t,"dTsVscales"],env[t-1,"dTsVscales"])
+                      t=2:(length(env[,2]))
+                      correl=cor(env[t,2],env[t-1,2])
+                      list(
+                           "$\\omega$"=round(getOmega(env[,2]),digit=2),
+                           "$\\omega_v$"=round(getOmega(env[,"dTsVscales"]),digit=2),
+                           "$\\delta$"=round(sd(env[,2]),digit=1),
+                           "$\\delta_v$"=round(sd(env[,"dTsVscales"]),digit=1),
+                           "$cor(t,t-1)$"=round(correl,digit=3),
+                           "$cor(t,t-1)_v$"=round(correl_v,digit=3)
+                           )
+                  }
+)
+knitr::kable(as.data.frame(t(summaryEnv)),digits=c(1))
+```
+
+As we can see this has no impact on the autocorrelation between time, it rescaled in a good way all environmenet in order to have $\delta$ between 2 and 3. On the other hand, impact of the slope of the noise isn't straightforward.
+
 
 ### Resolution of samples
 
@@ -200,18 +228,18 @@ Then as resolution is changing, we need to resample the datasets or to interpola
 
 To do so we can 
 
-```{r subsample,out.width="45%",fig.show="hold",fig.cap="regularize sampling frequencies"}
+```{r subsample,out.width="50%",fig.width=15,fig.show="hold",fig.cap="regularize sampling frequencies"}
 env="epica"
-dates=getDateResolution(get(env)$year)
-plot(density(dates,from=min(dates),to=max(dates),bw=1),log="x")
+#dates=getDateResolution(get(env)$year)
+#plot(density(dates,from=min(dates),to=max(dates),bw=1),log="x")
 
 i=get(env)
 freq_max=abs(min(i$year)/max(getDateResolution(i$year)))
 i$yearSample=cut(i$year,breaks=freq_max)
 plot(i$year,i$dTsVscales)
-points(applySampling(i$yearSample,i$year,getMean),applySampling(i$yearSample,i$dTsVscales,getMean),col="blue")
-points(applySampling(i$yearSample,i$year,getFirst),applySampling(i$yearSample,i$dTsVscales,getFirst),col="green")
-points(applySampling(i$yearSample,i$year,getLast),applySampling(i$yearSample,i$dTsVscales,getLast),col="red")
+points(applySampling(i$yearSample,i$year,getMean),applySampling(i$yearSample,i$dTsVscales,getMean),col="blue",type="o")
+points(applySampling(i$yearSample,i$year,getFirst),applySampling(i$yearSample,i$dTsVscales,getFirst),col="green",type="o")
+points(applySampling(i$yearSample,i$year,getLast),applySampling(i$yearSample,i$dTsVscales,getLast),col="red",type="o")
 
 ```
 
