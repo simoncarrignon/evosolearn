@@ -154,6 +154,41 @@ getDateResolution <- function(years) years[2:length(years)]-years[1:(length(year
 
 getLast <- function(x)return(x[1])
 getFirst <- function(x)return(x[length(x)])
-getMean <- function(x)mean(x)
+#getMean <- function(x)mean(x)
 
 applySampling <- function(x,y,fun)tapply(y,x,fun)
+
+#return resempled vector of date and data
+# data a vector of measure
+# year a vector of date
+# by the ne sampling rate in year
+getMean2 <- function(data,year,by){
+    newyears=rev(seq(max(year),min(year),-by))
+    newdata=sapply(1:length(newyears),function(y,data,oldyear)
+                   {
+                       if(y==1)
+                           slice= data[ oldyear <=   newyears[y] ]
+                       else
+                           slice= data[ oldyear <=  newyears[y] & oldyear >  newyears[y-1]]
+                       mean(slice)
+                   },data=data,oldyear=year)
+    newyearsmean=seq(min(newyears)+.5*by,max(newyears),by)
+    return(cbind.data.frame(data=newdata[-1],year=newyearsmean))
+}
+
+getClosest <- function(data,year,by){
+    newyears=rev(seq(max(year),min(year),-by))
+    newdata=sapply(newyears,function(y,data,oldyear)
+                   {
+                       if(length(data[oldyear == y])==1)
+                           return(data[oldyear == y])
+                       upper=min(oldyear[oldyear > y])
+                       lower=max(oldyear[oldyear < y])
+                       if(abs(upper-y)<abs(lower-y))
+                           dy=upper
+                       else
+                           dy=lower
+                       data[oldyear==dy]
+                   },data=data,oldyear=year)
+    return(cbind.data.frame(data=newdata,year=newyears))
+}
