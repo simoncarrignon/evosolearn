@@ -133,7 +133,6 @@ Dataset :
 ######
 
     #Everything above is then done by the 5 lines below
-<<<<<<< HEAD
     namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat","ngrip2")
    dataEnv=list("epica"=expression(delta*D),"lr04"=expression(delta^18*O),"ls16"=expression(delta^18*O),"vostok"=expression(delta*D),"ngrip"=expression(delta*D),"martrat"=expression(S*S*T),"ngrip"=expression(delta*D))
     namesFun=c("getMean","getLast","getFirst")
