@@ -29,6 +29,7 @@ getSpectrum <- function(x){
 	freq <- seq(0, 0.5, by = 1/M)
 	x.zp <- c(x, rep(0, M-N))
 	S.pgram <- (1/N)*abs(fft(x.zp)[1:(M/2+1)])^2
+    S.pgram
 }
 
 #return a 1/f environmen with curve = omega and sd = delta and increase rate vt
@@ -192,3 +193,15 @@ getClosest <- function(data,year,by){
                    },data=data,oldyear=year)
     return(cbind.data.frame(data=newdata,year=newyears))
 }
+
+
+multitaper  <- function(){
+    library(multitaper)
+    x <- -ngrip$year
+    y <- ngrip$dTsVscales
+    vars <- multitaperTrend(xd=y, B=0.05, deltat=50.0, t.in=x)
+    plot(x,y,type="l")
+    lines(x,vars[[1]]+vars[[2]]*vars[[3]],type="l",col="red")
+
+}
+  
