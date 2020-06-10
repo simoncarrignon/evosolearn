@@ -113,7 +113,7 @@ Dataset :
 
     #Everything above is then done by the 5 lines below
     namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat")
-   dataEnv=list("epica"=expression(delta*D),"lr04"=expression(delta[18]*O),"ls16"=expression(delta[18]*O),"vostok"=expression(delta*D),"ngrip"=expression(delta*D),"martrat"=expression(S*S*T))
+   dataEnv=list("epica"=expression(delta*D),"lr04"=expression(delta^18*O),"ls16"=expression(delta^18*O),"vostok"=expression(delta*D),"ngrip"=expression(delta*D),"martrat"=expression(S*S*T))
     namesFun=c("getMean","getLast","getFirst")
 
     combiname=expand.grid(namesRealEnv,namesFun)
@@ -134,12 +134,12 @@ Dataset :
         #if(side%%2==0)  s=2
         #else{ s=4}
         if(min(env$year)>oldest){
-            axis(s,pos=min(env$year)) #yaxis 
-            mtext(dataEnv[[i]],s,pos=min(env$year),cex=.8) #yaxis title
+            axis(s,pos=min(env$year)-10000) #yaxis 
+            text(x=min(env$year)-60000,y=mean(env[,2]),dataEnv[[i]],cex=1,srt=90) #yaxis title
         }
         else{
-            axis(s,1)
-            mtext(dataEnv[[i]],s,2,cex=.8) #yaxis title
+            axis(side=s,line=1)
+            mtext(dataEnv[[i]],s,3,cex=.7) #yaxis title
         }
         #side=side+1
     }
@@ -417,7 +417,7 @@ From this we can interpolate new points. To do so we take the linear interpolati
 u=lr04[100:101,]
 intLin=interpolate(u$dTsVscales,u$year,50)
 reald=c(1,length(intLin))
-#plot(u$year,u$dTsVscales,ylab=expression(delta[18]*O),xlab="year",pch=20)
+#plot(u$year,u$dTsVscales,ylab=expression(delta^18*O),xlab="year",pch=20)
 plot(u$year,u$dTsVscales,ylab="Scade Temperature",xlab="year",pch=20)
 datin=as.numeric(names(intLin))
 points(datin[-reald],intLin[-reald],col="green",pch=20,type="b")
@@ -425,7 +425,7 @@ legend("topright",c("real data","interpolate"),col=c(1,2),pch=20)
 
 nois=environment(length(intLin)-1,omega=omw,delta=dtw)
 plot(datin[-reald],nois[-1],ylab="unit of noise",xlab="year",pch=20,col=2,type="b")
-plot(u$year,u$dTsVscales,ylab=expression(delta[18]*O),xlab="year",pch=20,ylim=range(intLin[-1]+nois))
+plot(u$year,u$dTsVscales,ylab=expression(delta^18*O),xlab="year",pch=20,ylim=range(intLin[-1]+nois))
 points(datin[-reald],intLin[-reald],col="green",pch=20,type="b")
 points(datin,c(u$dTsVscales[1],intLin[-reald]+nois[-1],u$dTsVscales[2]),col="red",pch=20,type="b")
 points(u$year,u$dTsVscales,pch=20)
