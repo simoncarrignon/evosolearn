@@ -1,67 +1,56 @@
-# Simulations Multiple Environmens
+# Results  Simulations Multiple Environments
+
+In this section we run simulations with the different environments presented in the section \@ref(real-env) after applying the different subsampling methods or different way to interpolate missing data points.
+
+For each environment we run a set of simulation exploring different parameters. Each unique combination of parameter is run 20 times. For each combination of simulations we report mean population size, the number of extenctions and the mean genotype. We also reproduce the full trajectories as vertical colored band representing the 1/ mean genotype for the 20 simulations 2/ each simulation as a single vertical band.
+
+All data are used after being rescaled following Vostok temperature estimates.
+The resample/interpolation function used are
+
+1. `getMean2`: evenly resampling and taking the mean of all data
+2. `getClosest`: evenly resampling and taking the closest data points
+3. `Linear Interpolation`: generating missing datapoints be using a straight line between to data points
+4. `Noisy Interpolation`: generating missing datapoints be using the random noise generator using parameter calculate from NGRIP dataset.
+
+For interpolation: findal resolution: every 20years, for resampling: final resolution equal to the the lowest resolution of each dataset.
 
 
-```{r }
 
-
-    namesRealEnv=c("epica","lr04","ls16","vostok")
-    namesFun=c("getMean","getLast","getFirst")
-
-    for(env in namesRealEnv){
-        #cat(paste0("  \n\r## ",env), sep="")
-        for(fun in namesFun){
-            folderexpe=paste0(env,fun)
-            idexpe=folderexpe
-
-    ns=length(list.files(path=folderexpe,recursive=T,full.names=T,pattern="*cross*"))
-    binded=do.call("rbind",lapply(list.files(path=folderexpe,recursive=T,full.names=T,pattern="*cross*"),function(u){load(u);return(binded)}))
-    allEs=unique(binded$E)
-    allSigmas=unique(binded$sigma)
-    load(file=as.character(binded$filename[1]))
-    steps=nrow(summary)
-
-            t=c("NA","N","3Genes")
-            allsummaries=unlist(lapply(allSigmas,function(s)paste0('images/',idexpe,t,'_sigma',s,'_E.png')))
-
-            #cat(paste0("  \n\r### Last step Summary",fun), sep="")
-
-            knitr::include_graphics(as.character(allsummaries))
-
-            #cat("  \n")
-
-            #cat(paste0("  \n\r### Traj Summary ",fun), sep="") allimg=unlist(lapply(allSigmas,function(s)paste0("images/vertical_",idexpe,"_sigma",s,"_E",allEs,".png"))) knitr::include_graphics(as.character(allimg))
-            #cat("  \n")
-
-            #cat(paste0("  \n\r### Vertical Summary Indiv ",fun), sep="")
-            allimg=unlist(lapply(allSigmas,function(s)paste0("images/verticalM_",idexpe,"_sigma",s,"_E",allEs,".png")))
-            knitr::include_graphics(as.character(allimg))
-            #cat("  \n")
-        }
-            #cat("  \n")
-    }
-
+```{r}
+    namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat")
+    namesFun=c("getMean2","getClosest","interpolate_LinTRUERes20RANDOM","interpolate_LinFALSERes20RANDOM")
+    allEs=c(0.2,.6,1)
+    allSigmas=c(1,2)
 
 ```
 
 ```{r}
       #"## {{env}}",
-      #"### Function {{fun}}",
 
 a=c(
-    '```{r summary-last-{{id}}, out.width = "33%", fig.cap="Summary output for last step, from top to bottom  $\\\\sigma_s = 0.5,1$, from left to right: number of extinction, mean population size and mean genotype at the end of the simulation. Environment:{{env}}, subsampling function:{{fun}}",fig.show="hold"}',
+    "### Function {{fun}}",
+    '```{r}',
     'idexpe="{{id}}"',
     't=c("NA","N","3Genes")',
     'allsummaries=unlist(lapply(allSigmas,function(s)paste0("images/",idexpe,t,"_sigma",s,"_E.png")))',
+    '```',
+    "#### Last step summary",
+    paste0('```{r summary-last-{{id}}, out.width = "33%", fig.cap="Summary output for last step, from top to bottom  $\\\\sigma_s =',paste0(allSigmas, collapse = ","),'$, from left to right: number of extinction, mean population size and mean genotype at the end of the simulation. Environment:{{env}}, subsampling function:{{fun}}",fig.show="hold",fig.link=allsummaries}'),
     'knitr::include_graphics(as.character(allsummaries))',
     '```',
-    '```{r traj-summary-{{id}}, out.width = "33%", fig.cap="Summarized vertical trajectories (from top to bottom $\\\\sigma_s = 0.5,1$, from left to right, $E=0.2,0.6,1$)",fig.show="hold"}',
-    'idexpe="{{id}}"',
+    '```{r}',
     'allimg=unlist(lapply(allSigmas,function(s)paste0("images/vertical_",idexpe,"_sigma",s,"_E",allEs,".png")))',
+    '```',
+    "#### Vertical summary",
+    paste0('```{r traj-summary-{{id}}, out.width = "33%", fig.cap="Summarized vertical trajectories (from top to bottom $\\\\sigma_s =',paste0(allSigmas, collapse = ","),'$, from left to right, $E=',paste0(allEs, collapse = ","),'$). Environment:{{env}}, subsampling function:{{fun}}",fig.show="hold",fig.link=allimg}'),
     'knitr::include_graphics(as.character(allimg))',
     '```',
-    '```{r traj-indv-{{id}}, out.width = "33%", fig.cap="Vertical trajectories for 20 individual runs (from top to bottom $\\\\sigma_s = 0.5,1$, from left to right, $E=0.2,0.6,1$)",fig.show="hold"}',
-    'idexpe="{{id}}"',
+    '```{r}',
     'allimg=unlist(lapply(allSigmas,function(s)paste0("images/verticalM_",idexpe,"_sigma",s,"_E",allEs,".png")))',
+    '```',
+    "#### Vertical run indiv",
+    paste0('```{r traj-indv-{{id}}, out.width = "33%", fig.cap="Vertical trajectories for 20 individual runs (from top to bottom $\\\\sigma_s =',paste0(allSigmas, collapse = ","),'$, from left to right, $E=',paste0(allEs, collapse = ","),'$). Environment:{{env}}, subsampling function:{{fun}}",fig.show="hold",fig.link=allimg}'),
+    'idexpe="{{id}}"',
     'knitr::include_graphics(as.character(allimg))',
     '```'
     )
@@ -69,8 +58,24 @@ a=c(
 ```
 
 ```{r,include=FALSE,echo=T}
-src <- lapply(namesRealEnv,function(env)lapply(namesFun,function(fun)knitr::knit_expand(text=a,id=paste0(env,fun),env=env,fun=fun)))
+src <- lapply(namesRealEnv,function(env)c(knitr::knit_expand(text="## {{env}} RANDOM",env=env),lapply(namesFun,function(fun)knitr::knit_expand(text=a,id=paste0(env,fun),env=env,fun=fun))))
 
 ```
 
-`r knitr::knit(text=unlist(src))`
+`r knitr::knit_child(text=unlist(src))`
+
+
+```{r}
+    namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat")
+    namesFun=c("getMean2BEST","getClosestBEST","interpolate_LinTRUERes20BEST","interpolate_LinFALSERes20BEST")
+    allEs=c(0.2,.6,1)
+    allSigmas=c(1,2)
+
+```
+
+```{r,include=FALSE,echo=T}
+src <- lapply(namesRealEnv,function(env)c(knitr::knit_expand(text="## {{env}} BEST",env=env),lapply(namesFun,function(fun)knitr::knit_expand(text=a,id=paste0(env,fun),env=env,fun=fun))))
+
+```
+
+`r knitr::knit_child(text=unlist(src))`

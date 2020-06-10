@@ -143,7 +143,7 @@ getOmega <- function(t){
 	y=getSpectrum(t) #get spectrum of the environment generated
 	x=1:length(y)
 	fit=lm(log(y)~log(x),cbind.data.frame(x=1:length(y),y=y)) #fit a linear model to check slope
-	return(abs(fit$coefficients[2]))
+	return(abs(fit$coefficients[2])[[1]])
 
 }
 
