@@ -75,15 +75,15 @@ Dataset :
     #write.csv(file="data/ngrip.csv",ngrip,row.names=F)
     #ngrip=read.csv("data/ngrip.csv") 
 
-    ngrip2R=read.csv("data/ngrip2RAW.csv")
-    ngrip2$year=-(ngrip2R$Age)
-    ngrip2$dOice=ngrip2R$d180.NGRIP2 #delta 18 O ice from greenland
-    ngrip2=as.data.frame(ngrip2)
-    ngrip2=ngrip2[order(ngrip2$year),]
-    ngrip2=ngrip2[c(1,seq(2,nrow(ngrip2),2)),]
-    ngrip2=ngrip2[!is.nan(ngrip2$dOice),]
-    write.csv(file="data/ngrip2.csv",ngrip2,row.names=F)
-    ngrip2=read.csv("data/ngrip2.csv") 
+    #ngrip2R=read.csv("data/ngrip2RAW.csv")
+    #ngrip2$year=-(ngrip2R$Age)
+    #ngrip2$dOice=ngrip2R$d180.NGRIP2 #delta 18 O ice from greenland
+    #ngrip2=as.data.frame(ngrip2)
+    #ngrip2=ngrip2[order(ngrip2$year),]
+    #ngrip2=ngrip2[c(1,seq(2,nrow(ngrip2),2)),]
+    #ngrip2=ngrip2[!is.nan(ngrip2$dOice),]
+    #write.csv(file="data/ngrip2.csv",ngrip2,row.names=F)
+    #ngrip2=read.csv("data/ngrip2.csv") 
 
     #lr04R=read.csv("data/lr04RAW.csv")
     #lr04$year=-(lr04R$years.BP.2000*1000)
@@ -133,7 +133,7 @@ Dataset :
 ######
 
     #Everything above is then done by the 5 lines below
-    namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat")
+    namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat","ngrip2")
    dataEnv=list("epica"=expression(delta*D),"lr04"=expression(delta[18]*O),"ls16"=expression(delta[18]*O),"vostok"=expression(delta*D),"ngrip"=expression(delta*D),"martrat"=expression(S*S*T))
     namesFun=c("getMean","getLast","getFirst")
 
