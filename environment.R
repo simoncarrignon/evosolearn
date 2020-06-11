@@ -207,7 +207,9 @@ multitaper  <- function(){
   
 getSpectrumMTM <- function(data,freq,nw=2.0,k=3,...){
     require(multitaper)
-    data.ts <- ts(data=data, start=min(freq), freq=1/unique(getDateResolution(freq))) 
+res=unique(getDateResolution(freq))
+if(length(res)>1)res=mean(res)
+    data.ts <- ts(data=data, start=min(freq), freq=1/res) 
     data.spec <- spec.mtm(data.ts, nw=nw, k=k,plot=F) 
     return(data.spec)
 }
