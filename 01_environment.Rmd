@@ -553,3 +553,36 @@ summaryEnv=sapply(allRealEnv[-3],function(env){
 )
 knitr::kable(as.data.frame(t(summaryEnv)),digits=c(1))
 ```
+
+
+### Spectral Analysis
+
+In order to know at which time scale happen big changes we can do a spectral analysis of the time series. Spectral analysis of the Climate has been done since years.  
+The technique use to do the estimation of the power density spectrum (PSD), since Yiou et al, 1996 "Spectral Analisis of Climate Data" until Mitsui et al 2019 "Is the glacial climate scale invariant?" seems to be the Multi Taper Methods (MTM). Here we use the same parameters than Mitsui et al 2019: 3 taper and bandwith of 2.
+
+Mitsui et al limited their analysis to the glacial period: ie from $-12,000$ to $-106,000$.  Here I reproduce their spectrogram:
+
+
+```{r mtisui-fig2,fig.out="50%",fig.cap="redo Mitsui et al 2019 analysis"}
+mitsui=ngrip2[ ngrip2$year < -12000 & ngrip2$year> -106000,]
+par(mfrow=c(2,1))
+
+m.spec=getSpectrumMTM(mitsui$dOice,mitsui$year)
+plot(log10(m.spec$freq),log10(m.spec$spec),xlim=c(-4.5,-1.5),xaxs="i",type="l",xlab=expression(log[10]*f),ylab="P(f)")
+x=log10(m.spec$freq)
+y=log10(m.spec$spec)
+
+w=x > -3.5 & x < -2.5 #window to comput beta (omega for us)
+fitw=lm(y[w] ~ x[w])
+abline(fitw)
+text(-2.5,3,bquote(omega == .(round(fitw$coefficients[[2]],digit=2))))
+
+
+middle=seq(-4.5,max(x),.1)
+allOmegas=sapply(middle,getOmega2,x=x,y=y)
+plot(middle,allOmegas,type="b",xaxs="i",xlab=expression(log[10]*f),ylab=expression(omega))
+
+knitr::include_graphic("images/dzy01102.jpeg")
+
+```
+
