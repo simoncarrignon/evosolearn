@@ -76,11 +76,14 @@ Dataset :
     #ngrip=read.csv("data/ngrip.csv") 
 
     #ngrip2R=read.csv("data/ngrip2RAW.csv")
+    #rm(ngrip2);ngrip2=c()
+    #ngrip2$dOice=ngrip2R$d18O.NGRIP1
+    #ngrip2$dOice[ngrip2R$Age>=9820]=ngrip2R$d18O.NGRIP2[ngrip2R$Age>=9820] #switch from ngrip1 to ngrip2
     #ngrip2$year=-(ngrip2R$Age)
-    #ngrip2$dOice=ngrip2R$d180.NGRIP2 #delta 18 O ice from greenland
     #ngrip2=as.data.frame(ngrip2)
+    #ngrip2=ngrip2[seq(1,nrow(ngrip2),2),]
     #ngrip2=ngrip2[order(ngrip2$year),]
-    #ngrip2=ngrip2[c(1,seq(2,nrow(ngrip2),2)),]
+    #ngrip2=ngrip2[,c(2,1)]
     #ngrip2=ngrip2[!is.nan(ngrip2$dOice),]
     #write.csv(file="data/ngrip2.csv",ngrip2,row.names=F)
     #ngrip2=read.csv("data/ngrip2.csv") 
