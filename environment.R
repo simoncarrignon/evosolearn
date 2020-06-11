@@ -205,3 +205,18 @@ multitaper  <- function(){
 
 }
   
+getSpectrumMTM <- function(data,freq,nw=2.0,k=3,...){
+    require(multitaper)
+    data.ts <- ts(data=data, start=min(freq), freq=1/unique(getDateResolution(freq))) 
+    data.spec <- spec.mtm(data.ts, nw=nw, k=k,plot=F) 
+    return(data.spec)
+}
+
+getOmega2 <- function(x,y,u=NULL,sp=.5){
+    w=T
+    if(!is.null(u)){
+        w=x > u-sp & x < u+sp #window to comput beta (omega for us)
+    }
+    fitw=lm(y[w] ~ x[w])
+    return(abs(fitw$coefficients[[2]]))
+}
