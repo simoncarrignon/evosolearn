@@ -563,8 +563,9 @@ The technique use to do the estimation of the power density spectrum (PSD), sinc
 Mitsui et al limited their analysis to the glacial period: ie from $-12,000$ to $-106,000$.  Here I reproduce their spectrogram:
 
 
-```{r mtisui-fig2,fig.out="50%",fig.cap="redo Mitsui et al 2019 analysis"}
+```{r mtisui-fig2,out.width="35%",fig.show="hold",fig.height=10,fig.cap="redo Mitsui et al 2019 analysis"}
 mitsui=ngrip2[ ngrip2$year < -12000 & ngrip2$year> -106000,]
+knitr::include_graphics("images/dzy01102.jpeg")
 par(mfrow=c(2,1))
 
 m.spec=getSpectrumMTM(mitsui$dOice,mitsui$year)
@@ -574,15 +575,31 @@ y=log10(m.spec$spec)
 
 w=x > -3.5 & x < -2.5 #window to comput beta (omega for us)
 fitw=lm(y[w] ~ x[w])
-abline(fitw)
-text(-2.5,3,bquote(omega == .(round(fitw$coefficients[[2]],digit=2))))
+abline(fitw,col="dark blue")
+text(-2.5,3,bquote(omega == .(round(fitw$coefficients[[2]],digit=2))),col="dark blue")
 
 
 middle=seq(-4.5,max(x),.1)
 allOmegas=sapply(middle,getOmega2,x=x,y=y)
-plot(middle,allOmegas,type="b",xaxs="i",xlab=expression(log[10]*f),ylab=expression(omega))
-
-knitr::include_graphic("images/dzy01102.jpeg")
+plot(middle,allOmegas,type="b",xaxs="i",xlab=expression(log[10]*f),ylab=expression(omega),ylim=c(0,2.5))
 
 ```
 
+Now if we do the anlyse of the full spectrum, 
+
+```{r fullspec-fig2,out.width="65%",fig.show="hold",fig.height=10}
+par(mfrow=c(2,1),mar=c(5,1,1,1),oma=c(0,5,0,0))
+
+m.spec=getSpectrumMTM(ngrip2$dOice,ngrip2$year)
+plot(log10(m.spec$freq),log10(m.spec$spec),xaxs="i",type="l",xlab="",ylab="P(f)")
+
+w=x > -3.5 & x < -2.5 #window to comput beta (omega for us)
+fitw=lm(y[w] ~ x[w])
+abline(fitw,col="dark blue")
+text(-2.5,3,bquote(omega == .(round(fitw$coefficients[[2]],digit=2))),col="dark blue")
+
+middle=seq(-5,max(x),.1)
+allOmegas=sapply(middle,getOmega2,x=x,y=y)
+plot(middle,allOmegas,type="b",xaxs="i",xlab=expression(log[10]*f),ylab=expression(omega),ylim=c(0,2.5))
+
+```
