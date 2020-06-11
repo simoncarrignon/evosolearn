@@ -58,12 +58,12 @@ By tuning $\omega$ we can change the level of auto-correlation
 Dataset :
 
 * NGRIP: greenland, $\delta^{18}0$ , [Andersen et al 2004](https://www.nature.com/articles/nature02805)
+* NGRIP2: greenland, $\delta^{18}0$ , [Rasumssen et al 2014](https://www.sciencedirect.com/science/article/pii/S0277379114003485)
 * VOSTOK: Antartic, $\delta D$ (deuterium in ice) , [Petit et al 1999](https://www.nature.com/articles/nature02805)
 * LR04: wordlwid benthic drill, $\delta^{18}0$ (ratio 18/16 oxygen in sediment deposit) , [Lisiecki et al (2004)](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2004PA001071)
 * LS18: worldwide, benthic drill, $\delta^{18}0$ (ratio 18/16 oxygen in sediment deposit) , [Lisiecki et al (2016)](https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1002/2016PA003002)
 * EPICA:  Antartic, $\delta D$ (deuterium) , [Augustin et al (2004)](https://www.nature.com/articles/nature0259)
 * Martrat:  , $U_{37}^K$ alkenone , [Martrat et al (2007)](https://science.sciencemag.org/content/317/5837/502?casa_token=oYjqKMPDD3UAAAAA:qtAeeIsbioo_fQ5l5myKdbMBMPd5lgVc9IaxNOJgthW7UYqROk3_SXYIssG18PSA0bVCdocD1-zoQpc)
-* Baringo:  
 
 ```{r allenvironment,out.width="90%",fig.width=10,fig.height=8,fig.show="hold",fig.cap="preview of all datasets scaled with martrat total length (note that lr04 goes almost 10 times before martrat and is thus hidden here)",fig.link="_main_files/figure-html/allenvironment-1.png"}
 ### the following can be used to regenerate environment from their original datasets
