@@ -586,3 +586,23 @@ knitr::include_graphic("images/dzy01102.jpeg")
 
 ```
 
+```{r allScales,fig.out="50%",fig.cap="redo Mitsui et al 2019 analysis"}
+
+m.spec=getSpectrumMTM(ngrip2$dOice,ngrip2$year)
+plot(log10(m.spec$freq),log10(m.spec$spec),xlim=c(-5.5,-1.5),ylim=c(-2,6),axes=F,type="n",xlab="Cycle Length (years)",ylab=expression(log[10]*P(f)))
+
+allSpec=lapply(allRealEnv,function(env){
+rs=getClosest(env$dTsVscales,env$year,max(getDateResolution(env$year)))
+m.spec=getSpectrumMTM(env$dTsVscales,env$year)
+cbind(x=log10(m.spec$freq),y=log10(m.spec$spec))
+})
+
+allcol=rainbow(length(allSpec),alpha=.8)
+lapply(1:length(allSpec),function(u)lines(allSpec[[u]],col=allcol[u])) 
+
+legend("topright",legend=names(allSpec),col=allcol,lwd=2)
+axis(1,at=seq(-6,-2,by=1),label=round(1/10^seq(-6,-2,by=1)))
+axis(2)
+
+```
+
