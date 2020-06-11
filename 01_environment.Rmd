@@ -58,12 +58,12 @@ By tuning $\omega$ we can change the level of auto-correlation
 Dataset :
 
 * NGRIP: greenland, $\delta^{18}0$ , [Andersen et al 2004](https://www.nature.com/articles/nature02805)
+* NGRIP2: greenland, $\delta^{18}0$ , [Rasumssen et al 2014](https://www.sciencedirect.com/science/article/pii/S0277379114003485)
 * VOSTOK: Antartic, $\delta D$ (deuterium in ice) , [Petit et al 1999](https://www.nature.com/articles/nature02805)
 * LR04: wordlwid benthic drill, $\delta^{18}0$ (ratio 18/16 oxygen in sediment deposit) , [Lisiecki et al (2004)](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2004PA001071)
 * LS18: worldwide, benthic drill, $\delta^{18}0$ (ratio 18/16 oxygen in sediment deposit) , [Lisiecki et al (2016)](https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1002/2016PA003002)
 * EPICA:  Antartic, $\delta D$ (deuterium) , [Augustin et al (2004)](https://www.nature.com/articles/nature0259)
 * Martrat:  , $U_{37}^K$ alkenone , [Martrat et al (2007)](https://science.sciencemag.org/content/317/5837/502?casa_token=oYjqKMPDD3UAAAAA:qtAeeIsbioo_fQ5l5myKdbMBMPd5lgVc9IaxNOJgthW7UYqROk3_SXYIssG18PSA0bVCdocD1-zoQpc)
-* Baringo:  
 
 ```{r allenvironment,out.width="90%",fig.width=10,fig.height=8,fig.show="hold",fig.cap="preview of all datasets scaled with martrat total length (note that lr04 goes almost 10 times before martrat and is thus hidden here)",fig.link="_main_files/figure-html/allenvironment-1.png"}
 ### the following can be used to regenerate environment from their original datasets
@@ -563,8 +563,9 @@ The technique use to do the estimation of the power density spectrum (PSD), sinc
 Mitsui et al limited their analysis to the glacial period: ie from $-12,000$ to $-106,000$.  Here I reproduce their spectrogram:
 
 
-```{r mtisui-fig2,fig.out="50%",fig.cap="redo Mitsui et al 2019 analysis"}
+```{r mtisui-fig2,out.width="35%",fig.show="hold",fig.height=10,fig.cap="redo Mitsui et al 2019 analysis"}
 mitsui=ngrip2[ ngrip2$year < -12000 & ngrip2$year> -106000,]
+knitr::include_graphics("images/dzy01102.jpeg")
 par(mfrow=c(2,1))
 
 m.spec=getSpectrumMTM(mitsui$dOice,mitsui$year)
@@ -574,19 +575,37 @@ y=log10(m.spec$spec)
 
 w=x > -3.5 & x < -2.5 #window to comput beta (omega for us)
 fitw=lm(y[w] ~ x[w])
-abline(fitw)
-text(-2.5,3,bquote(omega == .(round(fitw$coefficients[[2]],digit=2))))
+abline(fitw,col="dark blue")
+text(-2.5,3,bquote(omega == .(round(fitw$coefficients[[2]],digit=2))),col="dark blue")
 
 
 middle=seq(-4.5,max(x),.1)
 allOmegas=sapply(middle,getOmega2,x=x,y=y)
-plot(middle,allOmegas,type="b",xaxs="i",xlab=expression(log[10]*f),ylab=expression(omega))
-
-knitr::include_graphic("images/dzy01102.jpeg")
+plot(middle,allOmegas,type="b",xaxs="i",xlab=expression(log[10]*f),ylab=expression(omega),ylim=c(0,2.5))
 
 ```
 
-```{r allScales,fig.out="50%",fig.cap="redo Mitsui et al 2019 analysis"}
+What does it changes if we do the anlyse of the full spectrum? 
+
+```{r fullspec-fig2,out.width="65%",fig.show="hold",fig.height=10}
+par(mfrow=c(2,1),mar=c(5,1,1,1),oma=c(0,5,0,0))
+
+m.spec=getSpectrumMTM(ngrip2$dOice,ngrip2$year)
+plot(log10(m.spec$freq),log10(m.spec$spec),xaxs="i",type="l",xlab="",ylab="P(f)")
+
+w=x > -3.5 & x < -2.5 #window to comput beta (omega for us)
+fitw=lm(y[w] ~ x[w])
+abline(fitw,col="dark blue")
+text(-2.5,3,bquote(omega == .(round(fitw$coefficients[[2]],digit=2))),col="dark blue")
+
+middle=seq(-5,max(x),.1)
+allOmegas=sapply(middle,getOmega2,x=x,y=y)
+plot(middle,allOmegas,type="b",xaxs="i",xlab=expression(log[10]*f),ylab=expression(omega),ylim=c(0,2.5))
+
+```
+
+
+```{r allScales,fig.out="50%",fig.cap="PSD usin MTM for all rescaled envrionments"}
 
 m.spec=getSpectrumMTM(ngrip2$dOice,ngrip2$year)
 plot(log10(m.spec$freq),log10(m.spec$spec),xlim=c(-5.5,-1.5),ylim=c(-2,6),axes=F,type="n",xlab="Cycle Length (years)",ylab=expression(log[10]*P(f)))
