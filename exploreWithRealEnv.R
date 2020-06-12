@@ -7,6 +7,9 @@ nsm=args[2]#second argument the number of simulation
 mainfold=args[3] #third argument = name of the folder wher to store the results
 env_i=args[4]
 fun_i=args[5]
+res=as.numeric(args[6])
+lin=args[7]
+sls=args[8]
 
 if(is.na(mainfold) | mainfold=="") mainfold=Sys.info()['nodename']
 
@@ -23,6 +26,36 @@ dir.create(fold)
 
 source("protomodels.R")
 library(parallel)
+
+print(paste("resolution should be",res))
+##Manage Environment 
+
+realdata=read.csv(paste0("data/",env_i,".csv"))
+assign("f",get(fun_i))
+if(fun_i != "interpolate"){
+    new=f(realdata$dTsVscales,realdata$year,max(getDateResolution(realdata$year)))
+    env=new$data
+} else{
+    realres=unique(getDateResolution(realdata$year)) #check if interpolation possible/usefull
+    if(length(realres) == 1 && realres <= res){
+        env=realdata$dTsVscales
+    }else{
+        if(lin){
+            env=f(realdata$dTsVscales,realdata$year,res)
+        }else{
+
+            if(env_i == "vostok"){
+                ns=getMean2(data=realdata$dTsVscales,year=realdata$year,by=max(getDateResolution(realdata$year)))
+                env=interpolate(theta=ns$data,times=ns$year,finalres=20,delta=.8,omega=1.41)
+            }
+
+            else
+                env=f(realdata$dTsVscales,realdata$year,res,omega=1.41,delta=0.9894122)
+        }
+    }
+}
+
+tstep=length(env)
 allparameters=list()
 allparameters[["mu"]]=10^(-5:-3)
 allparameters[["K"]]=c(1000)
@@ -33,9 +66,9 @@ allparameters[["sigma"]]=c(1,2)
 #allparameters[["delta"]]=2^(0:4)
 #allparameters[["vt"]]=(5^(0:4)*10^-3)[1:4]
 #allparameters[["omega"]]=2^(-1:3)
-allparameters[["outputrate"]]=1
+allparameters[["outputrate"]]=ceiling(1/500*tstep)
 allparameters[["k_z"]]=c(2,4,8)
-allparameters[["k_y"]]=c(.3,.6,,9)
+allparameters[["k_y"]]=c(.3,.6,.9)
 #allparameters[["sls"]]=c("random","best")
 parameters=as.data.frame(expand.grid(allparameters))
 repet=nsm
@@ -46,14 +79,6 @@ E=c(x=0,y=0,z=0)
 m=c(x=0,y=0,z=0)
 sigma=c(s=1,y=1,z=1)
 
-realdata=read.csv(paste0("data/",env_i,".csv"))
-#newt=interpolate(realdata$permille,realdata$years.BP.2000,finalres=.5)
-#newt=interpolate(realdata$permille,realdata$years.BP.2000,finalres=.25,omega=1.788783,delta=0.09894122)
-#env=rev(-5*newt)
-assign("f",get(fun_i))
-env=applySampling(realdata$yearSample,realdata$dTsVscales,f)
-
-tstep=length(env)
 genes=c("x","y","z")
 cl <- makeForkCluster(ns,outfile="")
 
@@ -81,7 +106,7 @@ explore=do.call("rbind.data.frame",
                               pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
                               pop[,"x"]=rnorm(n,mean(env[1]),sd(env[1:5]))
 			      sigma=c(s=parameters[v,"sigma"],y=parameters[v,"sigma"]*parameters[v,"k_y"],z=parameters[v,"sigma"]*parameters[v,"k_y"]*parameters[v,"k_z"])
-                              fullmat=simpleEvoModel(n=n,tstep=tstep,omega = 0,delta = 0 ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random",allpop=F,repro="sex",prop=T,theta=env)
+                              fullmat=simpleEvoModel(n=n,tstep=tstep,omega = 0,delta = 0 ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls=sls,allpop=F,repro="sex",prop=T,theta=env)
                               filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
                               summary=fullmat
                               save(file=filename_mat,summary)
@@ -93,6 +118,7 @@ stopCluster(cl)
 
 binded=cbind(explore,parameters)
 save(file=file.path(fold,"crossExplore.bin"),binded)
+save(file=file.path(fold,"env.bin"),env)
 new <- Sys.time() - old # calculate difference
 print(new) # print in nice format
 
