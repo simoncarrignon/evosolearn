@@ -625,3 +625,31 @@ axis(2)
 
 ```
 
+Resample Martrat and Vostok using last part of ngrip2 noise.
+
+```{r resample-vostok,fig.cap="Interpoling missing data for different environment using NGRIP2 Power Sprectral Density",out.fidth="25%"}
+ns=getMean2(data=vostok$dTsVscales,year=vostok$year,by=max(getDateResolution(vostok$year)))
+tstv=interpolate(theta=ns$data,times=ns$year,finalres=20,delta=.8,omega=1.41)
+plotSpectrum(tstv$data,tstv$year,xlim=c(-6.5,-1.5)) 
+lines(getLogSpec(ngrip2$dTsVscales,ngrip2$year),col="green")
+
+tstv=interpolate(theta=martrat$dTsVscales,times=martrat$year,finalres=20,delta=.8,omega=1.41)
+plotSpectrum(tstv$data,tstv$year,xlim=c(-6.5,-1.5)) 
+lines(getLogSpec(ngrip2$dTsVscales,ngrip2$year),col="green")
+lines(getLogSpec(martrat$dTsVscales,martrat$year),col="red")
+
+tstv=interpolate(theta=epica$dTsVscales,times=epica$year,finalres=20,delta=.8,omega=1.41)
+plotSpectrum(tstv$data,tstv$year,xlim=c(-6.5,-1.5)) 
+lines(getLogSpec(ngrip2$dTsVscales,ngrip2$year),col="green")
+lines(getLogSpec(epica$dTsVscales,epica$year),col="red")
+
+tstv=interpolate(theta=lr04$dTsVscales,times=lr04$year,finalres=20,delta=.8,omega=1.41)
+plotSpectrum(tstv$data,tstv$year,xlim=c(-6.5,-1.5)) 
+lines(getLogSpec(ngrip2$dTsVscales,ngrip2$year),col="green")
+lines(getLogSpec(lr04$dTsVscales,lr04$year),col="red")
+```
+
+
+
+Generate mutli slope noise
+
