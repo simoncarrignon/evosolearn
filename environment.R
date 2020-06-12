@@ -94,7 +94,9 @@ interpolate <- function(theta,times,finalres,delta=0,omega=0){
     }
     newtheta=c(newtheta,theta[length(theta)])
     names(newtheta)[length(newtheta)]=times[length(times)]
-    return(newtheta)
+    year=as.numeric(names(newtheta))
+    names(newtheta)=NULL
+    return(cbind.data.frame(data=newtheta,year=year))
 }
 
 fillgape <- function(){
@@ -194,7 +196,6 @@ getClosest <- function(data,year,by){
     return(cbind.data.frame(data=newdata,year=newyears))
 }
 
-
 multitaper  <- function(){
     library(multitaper)
     x <- -ngrip$year
@@ -214,6 +215,7 @@ if(length(res)>1)res=mean(res)
     return(data.spec)
 }
 
+#' Get the fit between two vector, possibility to limit the fit to a region of the data (using u and sp)
 getOmega2 <- function(x,y,u=NULL,sp=.5){
     w=T
     if(!is.null(u)){
@@ -222,3 +224,30 @@ getOmega2 <- function(x,y,u=NULL,sp=.5){
     fitw=lm(y[w] ~ x[w])
     return(abs(fitw$coefficients[[2]]))
 }
+
+plotSpectrum <- function(data,year,...){
+    logyx=getLogSpec(data,year)
+    plot(logyx,axes=F,type="l",xlab="Cycle Length (years)",ylab=expression(log[10]*P(f)),...)
+    axis(1,at=seq(-6,-2,by=1),label=round(1/10^seq(-6,-2,by=1)))
+    axis(2)
+}
+
+#' Get the log10 of the spectrum density and frequencies of a vector
+getLogSpec <- function(data,year){
+    m.spec=getSpectrumMTM(data,year)
+    x=log10(m.spec$freq)
+    y=log10(m.spec$spec)
+    return(cbind(freq=x,spec=y))
+}
+
+#' apply the function f on subsets of size w of the vector data
+getWindows<-function(data,w,f)sapply(1:(length(data)-w),function(i,w)f(data[i:(i+w)]),w=w) 
+
+#' getOmegaWrap return the slope of the spectrum of a vector
+#' @param data a vector 
+#' @return a double 
+getOmegaWrap <- function(data){
+    sp=getSpectrumMTM(data,1:length(data))
+    return(getOmega2(log10(sp$freq[2:length(sp$freq)]),log10(sp$spec[2:length(sp$freq)])))
+}
+
