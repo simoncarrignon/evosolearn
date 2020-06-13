@@ -46,7 +46,7 @@ if(fun_i != "interpolate"){
 
             if(env_i == "vostok"){
                 ns=getMean2(data=realdata$dTsVscales,year=realdata$year,by=max(getDateResolution(realdata$year)))
-                env=interpolate(theta=ns$data,times=ns$year,finalres=20,delta=.8,omega=1.41)
+                env=interpolate(theta=ns$data,times=ns$year,finalres=20,delta=.8,omega=1)
             }
 
             else
@@ -107,9 +107,9 @@ explore=do.call("rbind.data.frame",
                               pop[,"x"]=rnorm(n,mean(env[1]),sd(env[1:5]))
 			      sigma=c(s=parameters[v,"sigma"],y=parameters[v,"sigma"]*parameters[v,"k_y"],z=parameters[v,"sigma"]*parameters[v,"k_y"]*parameters[v,"k_z"])
                               fullmat=simpleEvoModel(n=n,tstep=tstep,omega = 0,delta = 0 ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls=sls,allpop=F,repro="sex",prop=T,theta=env)
-                              filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
+                              filename_mat=file.path(fold,paste0("fullmat",v,".rds"))
                               summary=fullmat
-                              save(file=filename_mat,summary)
+                              saveRDS(file=filename_mat,summary)
                               c(as.list(getSummary(summary,nstep=0,vars=c(paste0("mean_",genes),paste0("var_",genes),"N","mean_w","mean_p","theta"))),filename=filename_mat)
                           },parameters=parameters,env=env)
                 )
@@ -118,7 +118,7 @@ stopCluster(cl)
 
 binded=cbind(explore,parameters)
 save(file=file.path(fold,"crossExplore.bin"),binded)
-save(file=file.path(fold,"env.bin"),env)
+saveRDS(file=file.path(fold,"env.rds"),env)
 new <- Sys.time() - old # calculate difference
 print(new) # print in nice format
 

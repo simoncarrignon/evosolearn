@@ -102,13 +102,19 @@ getSummary <- function(fullmat,nstep,sumstat=mean,vars){
 }
 
 getTraj  <-  function(filename,var){
-    fullmat=c()
-    summary=c()
-    rm(summary)
-    rm(fullmat)
-    rm("summary")
-    rm("fullmat")
-    load(file=as.character(filename))
+    rdsmat=NULL
+    rdsmat=tryCatch(readRDS("dasds.rds"),error=function(e)NULL)
+    if(!is.null(rdsmat))
+        fullmat=rdsmat
+    else{
+        fullmat=c()
+        summary=c()
+        rm(summary)
+        rm(fullmat)
+        rm("summary")
+        rm("fullmat")
+        load(file=as.character(filename))
+    }
     if(!exists("fullmat")){
         fullmat=summary
     }
