@@ -1,4 +1,5 @@
 source("environment.R")
+source("tools.R")
 setAxis <- function(data){
     mus=sapply(unique(data$mu),function(u)as.expression(bquote(mu == .(u))))
     tm=min(5,length(mus))
@@ -11,7 +12,7 @@ setAxis <- function(data){
     axis(4,label=ms[nl],at=seq(0,1,length.out=length(nl)),las=1,cex.axis=1.1)
 
     e=sapply(unique(data$E),function(u)as.expression(bquote(E == .(u))))
-    mtext(e,side=3,line=0,at=seq(.5/length(e),1-1/length(e),length.out=length(e)),cex=.9,outer=T)
+    mtext(e,side=3,line=0,at=seq(.5/length(e),1-0.5*1/length(e),length.out=length(e)),cex=.9,outer=T)
 
     vsp=1/nlines
 
@@ -23,10 +24,10 @@ setAxis <- function(data){
     mtext(kz,side=2,line=0,at=seq(vsp-.5*vsp,length(kz)*vsp-.5*vsp,length.out=length(kz)),cex=.9,outer=T)
 }
 
-plotVertEnv <- function(realdata,scale,...){
-    plot((realdata$dTsVscales)*scale,-realdata$year,type="l",yaxs="i",axes=F,...)
+plotVertEnv <- function(realdata,scale=1,...){
+    plot((realdata$dTsVscales)*scale,-realdata$year,type="l",yaxs="i",axes=F)
     plot(c(0, 1), c(0, 1), type = "n",xlim=c(0,1),ylim=c(0,1),axes=F,xlab="",ylab="",xaxs="i",yaxs="i")
-    axis(2,label=rev(round(sort(seq(0,min(realdata$year),length.out=5)*scale))),at=seq(0,1,length.out=5),outer=T)
+    axis(2,label=rev(round(sort(seq(max(realdata$year),min(realdata$year),length.out=5)*scale))),at=seq(0,1,length.out=5),outer=T)
 }
 
 slpalette=colorRampPalette(c(rgb(1,.5,0),rgb(0,.5,1)))
@@ -37,23 +38,22 @@ pureSl=slpalette(2)[2]
 pureIl=ilpalette(2)[2]
 
 
-namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat")
-namesFun=c("getMean","getLast","getFirst")
-allexp=list(
-#list(folder="exploreRealEnvRANDOMNoisy",
-#idexpe="stackLR04InterpolLinear")
-#,
-#list(folder="exploreRealEnvRANDOMNoisyHigherRes",
-#idexpe="stackLR04InterpolNoisy")
-#,
-list(folder="epicagetLast",
-idexpe="epicagetLast")
-)
+namesRealEnv=c("ls16","lr04","epica","vostok","ngrip","martrat")
+#namesRealEnv=c("vostok")
+namesFun=c("getMean2","getClosest")
+namesFun=c("interpolate_LinTRUERes20RANDOM","interpolate_LinFALSERes20BEST")
+#namesFun=c("interpolate_LinTRUERes20SlsrandomTRIS","interpolate_LinTRUERes20SlsbestTRIS")
+#namesFun=c(
+#           "interpolate_LinTRUERes20SlsrandomBIS","interpolate_LinTRUERes20SlsbestBIS",
+#           "interpolate_LinTRUERes20SlsrandomTRIS","interpolate_LinTRUERes20SlsbestTRIS",
+#           "interpolate_LinTRUERes20SlsrandomQUIS","interpolate_LinTRUERes20SlsbestQUIS"
+#           )
 
 combiname=expand.grid(namesRealEnv,namesFun)
 allexp=apply(combiname,1,function(i)list(folder=paste0(i,collapse=""),idexpe=paste0(i,collapse=""),env=i[1],fun=i[2]))
 
 for( exp in allexp){
+    print(exp)
 
 folder=exp$folder
 idexpe=exp$idexpe
@@ -72,6 +72,7 @@ for(s in unique(binded2$sigma)){
 
     binded=binded2[binded2$sigma==s,]
 
+    printRGBpixels(data=binded,names=paste0("images/",idexpe,"3Genes_sigma",s,"_E.png"),indiv=F)
     png(paste0("images/",idexpe,"3Genes_sigma",s,"_E.png"),width=500,height=600,pointsize=16)
 
     par(mfrow=c(nlines,ncols),oma=c(6,6,2,5))
@@ -121,7 +122,8 @@ for(s in unique(binded2$sigma)){
     }
     setAxis(binded)
     par(xpd=NA)
-    top=10
+	usr=par('usr')
+    top=usr[4]+usr[4]*nlines
     points(rep(1.3,8),seq(top,top-.5,length.out=8),cex=2,pch=22,col=NA,bg=rev(survivalpallette(8)))
     text(rep(1.5,3),seq(top,top-.5,length.out=3),paste0(round(seq(max(binded$N,na.rm=T),0,length.out=3))),cex=1.2,adj=0)
     text(1.3,top+.25,expression(bar(N)[e]),cex=1.2,adj=0)
@@ -169,10 +171,13 @@ for(s in unique(binded2$sigma)){
     lm=length(unique(binded$m))
     lmu=length(unique(binded$mu))
     tsteps=nsteps
+    limit=ceiling(6113/unique(binded$outputrate))
+    limit=tsteps
+    tlim=min(tsteps,limit)
     for(e in unique(binded$E)){
-        bicpic=matrix(nrow=tsteps,ncol=lkz*lky*lm*lmu)
+        bicpic=matrix(nrow=tlim,ncol=lkz*lky*lm*lmu)
         bicpic[,]=NA
-        p=0
+        p=1
         for(ky in unique(binded$k_y)){
             for(kz in unique(binded$k_z)){
                 for(i in 1:nrow(mum)){
@@ -182,14 +187,15 @@ for(s in unique(binded2$sigma)){
                     nexpe=nrow(subb)
                     vars=c("mean_y","mean_z")
                     names(vars)=vars
-                    mat_allexp= lapply(vars,function(i)matrix(NA,nexpe,tsteps))
+                    mat_allexp= lapply(vars,function(i)matrix(NA,nexpe,tlim))
                     for(i in 1:nexpe){
                         load(as.character(subb$filename[i]))
+                        rng=(nrow(summary)-tlim+1):nrow(summary)
                         for(v  in vars){
-                            if(length(mat_allexp[[v]][i,])!=length(summary[,v]))
-                                print(i)
+                            if(length(mat_allexp[[v]][i,])!=length(summary[rng,v]))
+                                print("nnnooo")
                             else
-                                mat_allexp[[v]][i,]=summary[,v]
+                                mat_allexp[[v]][i,]=summary[rng,v]
 
                         }
                     }
@@ -209,23 +215,28 @@ for(s in unique(binded2$sigma)){
                     print(paste("col",p,"/",ncol(bicpic)))
                 }
                 scale=1 #to convert time scale in year
-                png(paste0("images/vertical_",idexpe,"_sigma",s,"_E",e,".png"),width=600)
-                par(mar=rep(0,4),oma=c(1,4,4,1))
+                png(paste0("images/vertical_",idexpe,"_sigma",s,"_E",e,".png"),width=600)#,height=800)
+                par(mar=rep(.5,4),oma=c(5,4,4,1))
                 prop=.1
                 layout(matrix(c(1,2),ncol=2,nrow=1),width=c(prop,1-prop))
                 env=exp$env
                 env=read.csv(paste0("data/",exp$env,".csv"))
+                #plotVertEnv(env[env$year > -122260,],scale)
                 plotVertEnv(env,scale)
                 rasterImage(bicpic, 0, 0, 1, 1,interpolate=F)
+                axis(1,at=seq(1/2*1/ncol(bicpic),1/ncol(bicpic)*nrow(mum)-1/2*1/ncol(bicpic),1/ncol(bicpic)),label=mum$prod,cex=.2,las=2)
                 mtext("year BP",3,2,at=0,outer=T)
-                mtext(expression(delta[18]*O),3,0,at=prop/2,outer=T)
+                mtext(expression(delta^18*O),3,0,at=prop/2,outer=T)
 
                 kyl=sapply(unique(binded$k_y),function(u)as.expression(bquote(k[y] == .(u))))
-                mtext(kyl,side=3,line=2,at=seq(0+(1/3)/2,1-(1/3)/2,length.out=length(kyl)),cex=.9)
+                mtext(kyl,side=3,line=1,at=seq(0+(1/3)/2,1-(1/3)/2,length.out=length(kyl)),cex=.9)
+                mtext(bquote(E==.(e)),side=3,line=2)
 
                 kzl=sapply(unique(binded$k_z),function(u)as.expression(bquote(k[z] == .(u))))
                 mtext(kzl,side=3,line=0,at=seq(0+(1/9)/2,3/9-(1/9)/2,length.out=length(kzl)),cex=.9)
-                mtext(bquote(E==.(e)),side=3,line=3)
+
+                #mtext(mum$prod[seq(1,nrow(mum),length.out=3)],side=1,line=0,at=seq(0,1/9,length.out=3),cex=.7)
+                mtext(bquote(mu %*% m),side=1,line=2,at=-3*1/ncol(bicpic))
                 dev.off()
             }
         }
@@ -234,7 +245,7 @@ for(s in unique(binded2$sigma)){
 }
 
 for(s in unique(binded2$sigma)){
-    subnum=20
+    subnum=10
 
     binded=binded2[binded2$sigma==s,]
     mum=as.data.frame(expand.grid(m=unique(binded$m),mu=unique(binded$mu)))
@@ -261,16 +272,14 @@ for(s in unique(binded2$sigma)){
                         load(as.character(subb$filename[f]))
                         na=which.max(is.na(summary[,1]))#find the first na ie when pop get extinct
                         if(na>1) summary=summary[1:(na-1),,drop=F]
-                        if(na==1)pxl=NA
-                        else
-                            pxl=rgb(summary[,"mean_y" ],.5,summary[,"mean_z"],alpha=1)
-                            #pxl=rgb(summary[,"mean_y" ],.5,summary[,"mean_z"],alpha=.5+1/2*min(1,summary[,"N"]/1000))
+                        pxl=rgb(summary[,"mean_y" ],.5,summary[,"mean_z"],alpha=1-min(.5,summary[,"N"]/1000))
                         bicpic[1:length(pxl),p]=pxl
                         p=p+1
+                        print(as.character(subb$filename[f]))
                         print(paste("col",p,"/",ncol(bicpic)))
                     }
                 }
-                scale=1000 #to convert time scale in year
+                scale=1 #to convert time scale in year
                 png(paste0("images/verticalM_",idexpe,"_sigma",s,"_E",e,".png"),width=1800,height=1400,pointsize=42)
                 par(mar=rep(0,4),oma=c(1,4,4,1))
                 prop=.1
@@ -279,14 +288,17 @@ for(s in unique(binded2$sigma)){
                 plotVertEnv(env,scale,lwd=4)
                 rasterImage(bicpic, 0, 0, 1, 1,interpolate=F)
                 mtext("year BP",3,2,at=0,outer=T)
-                mtext(expression(delta[18]*O),3,0,at=prop/2,outer=T)
+                mtext(expression(delta^18*O),3,0,at=prop/2,outer=T)
 
                 kyl=sapply(unique(binded$k_y),function(u)as.expression(bquote(k[y] == .(u))))
-                mtext(kyl,side=3,line=2,at=seq(0+(1/3)/2,1-(1/3)/2,length.out=length(kyl)),cex=.9)
+                mtext(kyl,side=3,line=1,at=seq(0+(1/3)/2,1-(1/3)/2,length.out=length(kyl)),cex=.9)
 
                 kzl=sapply(unique(binded$k_z),function(u)as.expression(bquote(k[z] == .(u))))
                 mtext(kzl,side=3,line=0,at=seq(0+(1/9)/2,3/9-(1/9)/2,length.out=length(kzl)),cex=.9)
-                mtext(bquote(E==.(e)),side=3,line=3)
+                mtext(bquote(E==.(e)),side=3,line=2)
+
+                mtext(mum$prod[seq(1,nrow(mum),length.out=3)],side=1,line=0,at=seq(0,1/9,length.out=3),cex=.5)
+                mtext(bquote(mu*m),side=1,line=0,at=-.1)
                 dev.off()
             }
         }
