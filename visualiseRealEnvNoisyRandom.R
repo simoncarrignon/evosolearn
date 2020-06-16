@@ -112,7 +112,7 @@ printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.wi
             }
             scale=1 #to convert time scale in year
             png(filename,width=img.width,height=img.height,pointsize=img.pointsize)
-            par(mar=rep(.5,4),oma=c(5,4,4,1))
+            par(mar=rep(.5,4),oma=c(4,4,4,1))
 
             layout(matrix(c(1,2),ncol=2,nrow=1),width=c(prop,1-prop))
 
@@ -130,20 +130,19 @@ printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.wi
 
             ## second level legend (from left to n*1/n)
             kzl=sapply(unique(data$k_z),function(u)as.expression(bquote(k[z] == .(u))))
-            nkzl=length(kzl)
-            mtext(kzl,side=3,line=0,at=seq(0+(1/(nkzl*lkyl))/2,nkzl/(nkzl*lkyl)-(1/(nkzl*lkyl))/2,length.out=nkzl),cex=.9)
+            lkzl=length(kzl)
+            mtext(kzl,side=3,line=0,at=seq(0+(1/(lkzl*lkyl))/2,lkzl/(lkzl*lkyl)-(1/(lkzl*lkyl))/2,length.out=lkzl),cex=.9)
 
             #mtext(mum$prod[seq(1,nrow(mum),length.out=3)],side=1,line=0,at=seq(0,1/9,length.out=3),cex=.7)
-            mtext(bquote(mu %*% m),side=1,line=2,at=-3*1/ncol(bicpic))
-
             #third level
             slvl3=1/ncol(bicpic) #scale of lvl3 legend
             if(ind)
                 slvl3=slvl3*subnb
             nlvl3=length(mum$prod) #number of legend
             llvl3=mum$prod         #labels of legend
-            tlvl3=seq(1/2*1/slvl3,1/slvl3*nrow(mum)-1/2*1/slvl3,length.out=nlvl3) #tick place of legend
-            axis(1,at=tlvl3,label=llvl3,cex=.2,las=2)
+            tlvl3=seq(1/2*slvl3,slvl3*nlvl3-1/2*slvl3,length.out=nlvl3) #tick place of legend
+            axis(1,at=tlvl3,label=llvl3,cex.axis=.6,las=2)
+            mtext(bquote(mu %*% m),side=1,line=2,at=-1/9)
             dev.off()
         }
     }
@@ -290,8 +289,8 @@ for(s in unique(binded2$sigma)){
     binded=binded2[binded2$sigma==s,]
     env=read.csv(paste0("data/",exp$env,".csv"))
     for(e in unique(binded$E)){
-    printRGBpixels(data=binded,filename=paste0("images/vertical_",idexpe,"_sigma",s,"_E",e,".png"),ind=F,env=env,img.width=800)
-    printRGBpixels(data=binded,filename=paste0("images/verticalM_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42)
+        printRGBpixels(data=binded,filename=paste0("images/vertical_",idexpe,"_sigma",s,"_E",e,".png"),ind=F,env=env,img.width=800)
+        printRGBpixels(data=binded,filename=paste0("images/verticalM_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42)
     }
 }
                 
