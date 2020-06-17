@@ -103,7 +103,7 @@ getSummary <- function(fullmat,nstep,sumstat=mean,vars){
 
 getTraj  <-  function(filename,var){
     rdsmat=NULL
-    rdsmat=tryCatch(readRDS("dasds.rds"),error=function(e)NULL)
+    rdsmat=tryCatch(readRDS(filename),error=function(e)NULL)
     if(!is.null(rdsmat))
         fullmat=rdsmat
     else{
@@ -344,3 +344,27 @@ plotTres <- function(u,col=1,...){
     lines(u[3,],col=col,lwd=.1)
 }
 
+
+# trying to write a solid wrapper to take care of different file load/filename for uneique dataset stoage
+getUniqueExp <- function(filename){
+    if(is.factor(filename))
+        filename=as.character(filename)
+    rdsmat=NULL
+    rdsmat=tryCatch(readRDS(filename),error=function(e)NULL)
+    if(!is.null(rdsmat))
+        summary=rdsmat
+    else{
+        fullmat=c()
+        summary=c()
+        rm(summary)
+        rm(fullmat)
+        rm("summary")
+        rm("fullmat")
+        load(file=filename)
+        if(!exists("summary")){
+            summary=fullmat
+        }
+    }
+    if(length(summary)==2)summary=summart$summary
+    return(summary)
+}
