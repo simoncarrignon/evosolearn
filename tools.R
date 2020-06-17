@@ -1,3 +1,14 @@
+line2user <- function(line, side) {
+  lh <- par('cin')[2] * par('cex') * par('lheight')
+  x_off <- diff(grconvertX(c(0, lh), 'inches', 'npc'))
+  y_off <- diff(grconvertY(c(0, lh), 'inches', 'npc'))
+  switch(side,
+         `1` = grconvertY(-line * y_off, 'npc', 'user'),
+         `2` = grconvertX(-line * x_off, 'npc', 'user'),
+         `3` = grconvertY(1 + line * y_off, 'npc', 'user'),
+         `4` = grconvertX(1 + line * x_off, 'npc', 'user'),
+         stop("Side must be 1, 2, 3, or 4", call.=FALSE))
+}
 
 i_sls <- 1:4 #a  global variable to store the indices of individidual socil laerning strategies
 names(i_sls) <- c("best","parents","average","random")
@@ -92,7 +103,7 @@ getSummary <- function(fullmat,nstep,sumstat=mean,vars){
 
 getTraj  <-  function(filename,var){
     rdsmat=NULL
-    rdsmat=tryCatch(readRDS("dasds.rds"),error=function(e)NULL)
+    rdsmat=tryCatch(readRDS(filename),error=function(e)NULL)
     if(!is.null(rdsmat))
         fullmat=rdsmat
     else{
@@ -300,26 +311,30 @@ countStrategies <- function(pop,lowerlim=.25,upperlim=.75){
 #'      for(v  in vars) mat_allexp[[v]][i,]=summary[,v]
 #'  }
 #'  sum_mat=lapply(mat_allexp,function(m)apply(m,2,quantile,probs=c(.05,.5,.95),na.rm=T))
-plotMatrixStrateAndEn <- function(sum_mat,environment){
+plotMatrixStrateAndEn <- function(sum_mat,environment,epochs=NULL){
+    nsteps=ncol(sum_mat[[1]])
+    if(is.null(epochs))epochs=0:(nsteps-1)
     pureIl=rgb(1,.5,0)
     pureSl=rgb(0,.5,1)
     mixed=rgb(1,.5,1)
     par(fig=c(0,1,.8,1),mar=rep(0,4),oma=c(2,2,1,1))
     plot(environment,col="dark green",lwd=1,type="l",axes=F)
     par(new=T)
-    plotTres(sum_mat$mean_x,ylim=range(sum_mat$mean_x,na.rm=T,finite=T))
+    plotTres(sum_mat$mean_x,ylim=range(sum_mat$mean_x,environment,na.rm=T,finite=T),xlim=c(0,nsteps))
     par(new=T)
-    plotTres(sum_mat$mean_p,ylim=range(sum_mat$mean_p,na.rm=T,finite=T),col="red")
+    plotTres(sum_mat$mean_p,ylim=range(sum_mat$mean_p,environment,na.rm=T,finite=T),xlim=c(0,nsteps),col="red")
     mtext(expression(theta),4,0,col="dark green")
-    mtext(expression(bar(x)),2,0,col="1")
-    mtext(expression(bar(p)),2,1,col="red")
+    mtext(expression(bar(x)),2,0,adj=.40,col="1")
+    mtext(expression(bar(p)),2,0,adj=.70,col="red")
     par(fig=c(0,1,0,.8),new=T)
-    plotTres(sum_mat$prop_y,col=pureIl,ylim=c(0,1))
+    plotTres(sum_mat$prop_y,col=pureIl,ylim=c(0,1),xlim=c(0,nsteps))
     par(new=T)
-    plotTres(sum_mat$prop_z,col=pureSl,ylim=c(0,1))
+    plotTres(sum_mat$prop_z,col=pureSl,ylim=c(0,1),xlim=c(0,nsteps))
     par(new=T)
-    plotTres(sum_mat$prop_yz,col=mixed,ylim=c(0,1))
-    axis(1);axis(2);box()
+    plotTres(sum_mat$prop_yz,col=mixed,ylim=c(0,1),xlim=c(0,nsteps))
+    ticsLab=seq(1,length(epochs),length.out=4)
+    tics=seq(0,nsteps-1,length.out=4)
+    axis(1,at=tics,labels=epochs[ticsLab]);axis(2);box()
 }
 
 
@@ -329,3 +344,120 @@ plotTres <- function(u,col=1,...){
     lines(u[3,],col=col,lwd=.1)
 }
 
+
+# trying to write a solid wrapper to take care of different file load/filename for uneique dataset stoage
+getUniqueExp <- function(filename){
+    if(is.factor(filename))
+        filename=as.character(filename)
+    rdsmat=NULL
+    rdsmat=tryCatch(readRDS(filename),error=function(e)NULL)
+    if(!is.null(rdsmat))
+        summary=rdsmat
+    else{
+        fullmat=c()
+        summary=c()
+        rm(summary)
+        rm(fullmat)
+        rm("summary")
+        rm("fullmat")
+        load(file=filename)
+        if(!exists("summary")){
+            summary=fullmat
+        }
+    }
+    if(length(summary)==2)summary=summart$summary
+    return(summary)
+}
+
+#' Calculate the CCFD following \emph{Vosoughi et al. (2018)}
+#'@param size : sample of sizes
+#'@return a order table with two column with first column : frequency and second column the probality of the frequency  
+ccfd <- function(size){
+    total=length(size) 
+    size=size[order(size)]
+    counts=unique(size)
+    id=unique(match(counts,size))
+    p=sapply(id,function(i)length(size[i:total])) 
+    p=p/total * 100
+    x=counts
+    y=p
+    return(cbind(x,y))
+}
+
+#' randomCascades: A slightly (almost not) modified version of the original model by Alex & Damien
+#' Original model is in tools/FNM.R
+#' @return dataframe that allow to compare easily to the result of the model of the cascade
+randomCascades <- function(Nmin=100000,Nmax=50000,t_steps=50,y_max=1,runs=1,mu=0.00001,tau = 1,alpha=0,conformity=F,beta=-2,topfive=F,TF=5,C=.1,alberto=F){
+
+    t<-seq(1,t_steps)
+    N_vec=round(Nmin*exp(alpha*t))
+
+    T <- as.integer(tau + t_steps) # total time_steps
+
+    N=as.integer(N_vec[1])#inital N value
+
+    old_pop <- seq(1,N) #inialise population
+    base = N+1
+
+    corpus <- list()
+    vocab<- list()
+    Z <-matrix(nrow=y_max,ncol=t_steps-1)
+
+    #save all the values in one popualtion
+    total_pop <- vector(mode='integer',length=N*t_steps)
+
+    #beginning of t loop 
+    for (t in 1:T){
+
+        rnd = runif(N, min = 0, max = 1)
+
+        ##### the assingment was set to pop, i've changed it to old_pop
+        select_vec<-old_pop 
+
+        pop<-old_pop # start new empty population
+
+
+        if(alberto){
+            pop=originalTopfive(pop,TF,C,rnd,mu,base)
+        }
+        else{ 
+            if(conformity){ #introduction of a simple conformity bias 
+                #freq=table(pop)
+                #rnd=rnd/(freq[as.character(pop)])
+                Bias <- conformityBias(old_pop,beta)
+                pop[rnd>=mu] <- sample(old_pop, length(pop[rnd>=mu]), replace = TRUE,prob = Bias)
+            }
+            else{
+                pop[rnd>=mu] <- sample(old_pop, length(pop[rnd>=mu]), replace = TRUE)
+            }
+            if(topfive){
+                candidates=topfive(old_pop,TF,C)[runif(length(old_pop)*C)>=mu]
+                pop[sample.int(length(old_pop),length(candidates))]= candidates
+            }
+        }
+
+
+        pop[rnd<mu] <- seq(base,base+length(pop[rnd<mu])-1)
+
+
+        base <- base + length(pop[rnd<mu]) # next trait to enter the population
+        if (t > tau){
+            N <- as.integer(N_vec[t-tau])
+            s<-t-tau-1
+            first<-(1+(s*N))
+            last<-((s*N)+N)
+            total_pop[first:last]<-pop
+        }
+
+        #rank_old <- rank_now
+        old_pop <- pop # current pop becomes old_pop
+        #end of t loop
+    }
+
+    MC <- sort(table(total_pop),decreasing = TRUE)
+    df<-data.frame(rank=rank(MC,ties.method = "first"),MC)
+
+    colnames(df)=c("rank","U","size")
+    df$U=as.numeric(df$U)
+    df
+}

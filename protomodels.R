@@ -29,7 +29,7 @@ updateOutputLine <- function(pop,statfun,statvar,getname=F,prop=T){
 }
 
 
-simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE,repro="asex"){
+simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE,repro="asex",selection=T){
 
     if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
 	if(is.null(theta)){
@@ -98,12 +98,18 @@ simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),o
 
 
         #selection
-        selected=which(runif(n)<selection(pop[,"w"],b,n,K))
+        if(selection==T)
+            selected=which(runif(n)<selection(pop[,"w"],b,n,K))
+        else
+            selected=1:n
         if(length(selected)<1)break
         if(repro=="sex" && length(selected) < 2)break #in case of sexual reproduction we need at least 2 parents
 
         #reproduction
-        nchilds=rpois(length(selected),b)
+        if(repro=="unique")
+            nchilds=rep(1,n)
+        else
+            nchilds=rpois(length(selected),b)
         if(sum(nchilds)<1)break
         childs=matrix(nrow=sum(nchilds),ncol=ncol(pop))
         colnames(childs)=colnames(pop)

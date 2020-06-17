@@ -58,7 +58,7 @@ By tuning $\omega$ we can change the level of auto-correlation
 Dataset :
 
 * NGRIP: greenland, $\delta^{18}0$ , [Andersen et al 2004](https://www.nature.com/articles/nature02805)
-* NGRIP2: greenland, $\delta^{18}0$ , [Rasumssen et al 2014](https://www.sciencedirect.com/science/article/pii/S0277379114003485)
+* NGRIP2: greenland, $\delta^{18}0$ , [Rasmussen et al 2014](https://www.sciencedirect.com/science/article/pii/S0277379114003485)
 * VOSTOK: Antartic, $\delta D$ (deuterium in ice) , [Petit et al 1999](https://www.nature.com/articles/nature02805)
 * LR04: wordlwid benthic drill, $\delta^{18}0$ (ratio 18/16 oxygen in sediment deposit) , [Lisiecki et al (2004)](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2004PA001071)
 * LS18: worldwide, benthic drill, $\delta^{18}0$ (ratio 18/16 oxygen in sediment deposit) , [Lisiecki et al (2016)](https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1002/2016PA003002)
@@ -325,7 +325,7 @@ for(e in namesRealEnv){
  # rescale all temperature differences  using vostok temperature
 mtext("year",1,2)
 ```
-We report in the following table the properties of the environment once applied the resampling. $X_v$ represent the rescaled dataset, $X_gc$ the rescaled + resampled following `getClosest` and $X_gm$ rescaled + resampled following `getMeans2` function.
+We report in the following table the properties of the environment once applied the resampling. $X_v$ represent the rescaled dataset, $X_{gc}$ the rescaled + resampled following `getClosest` and $X_{gm}$ rescaled + resampled following `getMeans2` function.
 
 ```{r}
 summaryEnv=sapply(allRealEnv,function(env)
@@ -439,11 +439,12 @@ From this we can interpolate new points. To do so we take the linear interpolati
 
 ```{r, fig.width=7,out.width = "45%",fig.cap="step for interpolating gaps",fig.show="hold"}
 u=lr04[100:101,]
-intLin=interpolate(u$dTsVscales,u$year,50)
+inter=interpolate(u$dTsVscales,u$year,50) 
+intLin=inter$data
 reald=c(1,length(intLin))
 #plot(u$year,u$dTsVscales,ylab=expression(delta^18*O),xlab="year",pch=20)
 plot(u$year,u$dTsVscales,ylab="Scade Temperature",xlab="year",pch=20)
-datin=as.numeric(names(intLin))
+datin=inter$year
 points(datin[-reald],intLin[-reald],col="green",pch=20,type="b")
 legend("topright",c("real data","interpolate"),col=c(1,2),pch=20)
 
@@ -459,11 +460,11 @@ Thus we can apply that to all gap in the dataset
 
 ```{r interpolNgripFull, fig.width=14,out.width = "100%",fig.cap="interpolation linear + noise full dataset", fig.link="_main_files/figure-html/interpolNgripFull-1.png"}
 
-    newt=interpolate(lr04$dTsVscales,lr04$year,finalres=250)
+    newt=interpolate(lr04$dTsVscales,lr04$year,finalres=250)$data
 	#linear interpolation
     newy=seq(min(lr04$year),max(lr04$year),250)
 	#linear + noise
-    newtN=interpolate(lr04$dTsVscales,lr04$year,finalres=250,omega=omw,delta=dtw)
+    newtN=interpolate(lr04$dTsVscales,lr04$year,finalres=250,omega=omw,delta=dtw)$data
     plot(lr04$year,lr04$dTsVscales,type="l",lwd=5,xlab="years",ylab="scaled delta temp")
     lines(newy,newtN,type="l",col="red",lwd=2)
     lines(newy,newt,type="l",col="green")
@@ -506,8 +507,8 @@ summaryEnv=sapply(allRealEnv[-3],function(env)
                       correl_v=cor(env[t,"dTsVscales"],env[t-1,"dTsVscales"])
                       t=2:(length(env[,2]))
                       correl=cor(env[t,2],env[t-1,2])
-                      ni=interpolate(env$dTsVscales,env$year,20,omega=1.788783,delta=0.09894122)
-                      li=interpolate(env$dTsVscales,env$year,20)
+                      ni=interpolate(env$dTsVscales,env$year,20,omega=1.788783,delta=0.09894122)$data
+                      li=interpolate(env$dTsVscales,env$year,20)$data
                       t=2:(length(ni))
                       correl_ni=cor(ni[t],ni[t-1])
                       t=2:(length(li))
@@ -542,11 +543,11 @@ summaryEnv=sapply(allRealEnv[-3],function(env){
        li=interpolate(env$dTsVscales,env$year,20)
        list(
             "res"=resolution,
-            "res_{li}"=paste(unique(getDateResolution(as.numeric(names(li))))[1],"year"),
-            "res_{ni}"=paste(unique(getDateResolution(as.numeric(names(ni))))[1],"year"),
+            "res_{li}"=paste(unique(getDateResolution(li$year))[1],"year"),
+            "res_{ni}"=paste(unique(getDateResolution(ni$year))[1],"year"),
             "#records"=length(env[,2]),
-            "#rec_{li}"=length(li),
-            "#rec_{ni}"=length(ni),
+            "#rec_{li}"=length(li$data),
+            "#rec_{ni}"=length(ni$data),
             "oldest record"=min(env$year)
             )
 }
@@ -565,7 +566,6 @@ Mitsui et al limited their analysis to the glacial period: ie from $-12,000$ to 
 
 ```{r mtisui-fig2,out.width="35%",fig.show="hold",fig.height=10,fig.cap="redo Mitsui et al 2019 analysis"}
 mitsui=ngrip2[ ngrip2$year < -12000 & ngrip2$year> -106000,]
-knitr::include_graphics("images/dzy01102.jpeg")
 par(mfrow=c(2,1))
 
 m.spec=getSpectrumMTM(mitsui$dOice,mitsui$year)
@@ -583,6 +583,11 @@ middle=seq(-4.5,max(x),.1)
 allOmegas=sapply(middle,getOmega2,x=x,y=y)
 plot(middle,allOmegas,type="b",xaxs="i",xlab=expression(log[10]*f),ylab=expression(omega),ylim=c(0,2.5))
 
+```
+
+
+```{r mtisui-fig2-orig,out.width="60%",fig.show="hold",fig.height=10,fig.cap="Fig2 Mitsui et al 2019 analysis"}
+knitr::include_graphics("images/dzy01102.jpeg")
 ```
 
 What does it changes if we do the anlyse of the full spectrum? 
@@ -605,7 +610,7 @@ plot(middle,allOmegas,type="b",xaxs="i",xlab=expression(log[10]*f),ylab=expressi
 ```
 
 
-```{r allScales,fig.out="50%",fig.cap="PSD usin MTM for all rescaled envrionments"}
+```{r allScales,fig.out="50%",fig.cap="Power Spectral Density (usin MTM) for all rescaled envrionments"}
 
 m.spec=getSpectrumMTM(ngrip2$dOice,ngrip2$year)
 plot(log10(m.spec$freq),log10(m.spec$spec),xlim=c(-5.5,-1.5),ylim=c(-2,6),axes=F,type="n",xlab="Cycle Length (years)",ylab=expression(log[10]*P(f)))
@@ -617,7 +622,7 @@ cbind(x=log10(m.spec$freq),y=log10(m.spec$spec))
 })
 
 allcol=rainbow(length(allSpec),alpha=.8)
-lapply(1:length(allSpec),function(u)lines(allSpec[[u]],col=allcol[u])) 
+na=lapply(1:length(allSpec),function(u)lines(allSpec[[u]],col=allcol[u])) 
 
 legend("topright",legend=names(allSpec),col=allcol,lwd=2)
 axis(1,at=seq(-6,-2,by=1),label=round(1/10^seq(-6,-2,by=1)))
@@ -627,7 +632,7 @@ axis(2)
 
 Resample Martrat and Vostok using last part of ngrip2 noise.
 
-```{r resample-vostok,fig.cap="Interpoling missing data for different environment using NGRIP2 Power Sprectral Density",out.fidth="25%"}
+```{r resample-vostok,fig.cap="Interpoling missing data for different environment using NGRIP2 Power Sprectral Density",out.width="25%",fig.show="hold"}
 ns=getMean2(data=vostok$dTsVscales,year=vostok$year,by=max(getDateResolution(vostok$year)))
 tstv=interpolate(theta=ns$data,times=ns$year,finalres=20,delta=.8,omega=1.41)
 plotSpectrum(tstv$data,tstv$year,xlim=c(-6.5,-1.5)) 
@@ -647,8 +652,12 @@ tstv=interpolate(theta=lr04$dTsVscales,times=lr04$year,finalres=20,delta=.8,omeg
 plotSpectrum(tstv$data,tstv$year,xlim=c(-6.5,-1.5)) 
 lines(getLogSpec(ngrip2$dTsVscales,ngrip2$year),col="green")
 lines(getLogSpec(lr04$dTsVscales,lr04$year),col="red")
+legend("topright",legend=c("original + interpolate","original","ngrip2"),lwd=1,col=c("black","red","green"))
 ```
 
+distT<-function(u,n){
+1-(abs(u-n)/(sqrt(abs(u^2-absn)^2))
+}
 
 
 Generate mutli slope noise
