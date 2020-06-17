@@ -58,7 +58,7 @@ By tuning $\omega$ we can change the level of auto-correlation
 Dataset :
 
 * NGRIP: greenland, $\delta^{18}0$ , [Andersen et al 2004](https://www.nature.com/articles/nature02805)
-* NGRIP2: greenland, $\delta^{18}0$ , [Rasumssen et al 2014](https://www.sciencedirect.com/science/article/pii/S0277379114003485)
+* NGRIP2: greenland, $\delta^{18}0$ , [Rasmussen et al 2014](https://www.sciencedirect.com/science/article/pii/S0277379114003485)
 * VOSTOK: Antartic, $\delta D$ (deuterium in ice) , [Petit et al 1999](https://www.nature.com/articles/nature02805)
 * LR04: wordlwid benthic drill, $\delta^{18}0$ (ratio 18/16 oxygen in sediment deposit) , [Lisiecki et al (2004)](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2004PA001071)
 * LS18: worldwide, benthic drill, $\delta^{18}0$ (ratio 18/16 oxygen in sediment deposit) , [Lisiecki et al (2016)](https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1002/2016PA003002)
@@ -565,7 +565,6 @@ Mitsui et al limited their analysis to the glacial period: ie from $-12,000$ to 
 
 ```{r mtisui-fig2,out.width="35%",fig.show="hold",fig.height=10,fig.cap="redo Mitsui et al 2019 analysis"}
 mitsui=ngrip2[ ngrip2$year < -12000 & ngrip2$year> -106000,]
-knitr::include_graphics("images/dzy01102.jpeg")
 par(mfrow=c(2,1))
 
 m.spec=getSpectrumMTM(mitsui$dOice,mitsui$year)
@@ -583,6 +582,11 @@ middle=seq(-4.5,max(x),.1)
 allOmegas=sapply(middle,getOmega2,x=x,y=y)
 plot(middle,allOmegas,type="b",xaxs="i",xlab=expression(log[10]*f),ylab=expression(omega),ylim=c(0,2.5))
 
+```
+
+
+```{r mtisui-fig2-orig,out.width="60%",fig.show="hold",fig.height=10,fig.cap="Fig2 Mitsui et al 2019 analysis"}
+knitr::include_graphics("images/dzy01102.jpeg")
 ```
 
 What does it changes if we do the anlyse of the full spectrum? 
@@ -605,7 +609,7 @@ plot(middle,allOmegas,type="b",xaxs="i",xlab=expression(log[10]*f),ylab=expressi
 ```
 
 
-```{r allScales,fig.out="50%",fig.cap="PSD usin MTM for all rescaled envrionments"}
+```{r allScales,fig.out="50%",fig.cap="Power Spectral Density (usin MTM) for all rescaled envrionments"}
 
 m.spec=getSpectrumMTM(ngrip2$dOice,ngrip2$year)
 plot(log10(m.spec$freq),log10(m.spec$spec),xlim=c(-5.5,-1.5),ylim=c(-2,6),axes=F,type="n",xlab="Cycle Length (years)",ylab=expression(log[10]*P(f)))
@@ -617,7 +621,7 @@ cbind(x=log10(m.spec$freq),y=log10(m.spec$spec))
 })
 
 allcol=rainbow(length(allSpec),alpha=.8)
-lapply(1:length(allSpec),function(u)lines(allSpec[[u]],col=allcol[u])) 
+na=lapply(1:length(allSpec),function(u)lines(allSpec[[u]],col=allcol[u])) 
 
 legend("topright",legend=names(allSpec),col=allcol,lwd=2)
 axis(1,at=seq(-6,-2,by=1),label=round(1/10^seq(-6,-2,by=1)))

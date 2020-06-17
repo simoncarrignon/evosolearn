@@ -1,3 +1,14 @@
+line2user <- function(line, side) {
+  lh <- par('cin')[2] * par('cex') * par('lheight')
+  x_off <- diff(grconvertX(c(0, lh), 'inches', 'npc'))
+  y_off <- diff(grconvertY(c(0, lh), 'inches', 'npc'))
+  switch(side,
+         `1` = grconvertY(-line * y_off, 'npc', 'user'),
+         `2` = grconvertX(-line * x_off, 'npc', 'user'),
+         `3` = grconvertY(1 + line * y_off, 'npc', 'user'),
+         `4` = grconvertX(1 + line * x_off, 'npc', 'user'),
+         stop("Side must be 1, 2, 3, or 4", call.=FALSE))
+}
 
 i_sls <- 1:4 #a  global variable to store the indices of individidual socil laerning strategies
 names(i_sls) <- c("best","parents","average","random")
@@ -300,26 +311,30 @@ countStrategies <- function(pop,lowerlim=.25,upperlim=.75){
 #'      for(v  in vars) mat_allexp[[v]][i,]=summary[,v]
 #'  }
 #'  sum_mat=lapply(mat_allexp,function(m)apply(m,2,quantile,probs=c(.05,.5,.95),na.rm=T))
-plotMatrixStrateAndEn <- function(sum_mat,environment){
+plotMatrixStrateAndEn <- function(sum_mat,environment,epochs=NULL){
+    nsteps=ncol(sum_mat[[1]])
+    if(is.null(epochs))epochs=0:(nsteps-1)
     pureIl=rgb(1,.5,0)
     pureSl=rgb(0,.5,1)
     mixed=rgb(1,.5,1)
     par(fig=c(0,1,.8,1),mar=rep(0,4),oma=c(2,2,1,1))
     plot(environment,col="dark green",lwd=1,type="l",axes=F)
     par(new=T)
-    plotTres(sum_mat$mean_x,ylim=range(sum_mat$mean_x,na.rm=T,finite=T))
+    plotTres(sum_mat$mean_x,ylim=range(sum_mat$mean_x,environment,na.rm=T,finite=T),xlim=c(0,nsteps))
     par(new=T)
-    plotTres(sum_mat$mean_p,ylim=range(sum_mat$mean_p,na.rm=T,finite=T),col="red")
+    plotTres(sum_mat$mean_p,ylim=range(sum_mat$mean_p,environment,na.rm=T,finite=T),xlim=c(0,nsteps),col="red")
     mtext(expression(theta),4,0,col="dark green")
-    mtext(expression(bar(x)),2,0,col="1")
-    mtext(expression(bar(p)),2,1,col="red")
+    mtext(expression(bar(x)),2,0,adj=.40,col="1")
+    mtext(expression(bar(p)),2,0,adj=.70,col="red")
     par(fig=c(0,1,0,.8),new=T)
-    plotTres(sum_mat$prop_y,col=pureIl,ylim=c(0,1))
+    plotTres(sum_mat$prop_y,col=pureIl,ylim=c(0,1),xlim=c(0,nsteps))
     par(new=T)
-    plotTres(sum_mat$prop_z,col=pureSl,ylim=c(0,1))
+    plotTres(sum_mat$prop_z,col=pureSl,ylim=c(0,1),xlim=c(0,nsteps))
     par(new=T)
-    plotTres(sum_mat$prop_yz,col=mixed,ylim=c(0,1))
-    axis(1);axis(2);box()
+    plotTres(sum_mat$prop_yz,col=mixed,ylim=c(0,1),xlim=c(0,nsteps))
+    ticsLab=seq(1,length(epochs),length.out=4)
+    tics=seq(0,nsteps-1,length.out=4)
+    axis(1,at=tics,labels=epochs[ticsLab]);axis(2);box()
 }
 
 
