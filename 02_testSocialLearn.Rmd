@@ -98,7 +98,7 @@ for(i in 1:10){
     cc=ccfd(random$size)
     lines(cc[,"x"],cc[,"y" ],col="red",lwd=2)
 }
-legend("bottomleft",lwd=2,col=c("red","green"),legend=c("model from carrignon et al 2019","model pleisto evol+growth"))
+legend("bottomleft",lwd=2,col=c("red","green"),legend=c("model from carrignon et al 2019","model pleisto evol+bestSLS"))
 dev.off()
 }
 }
@@ -111,7 +111,7 @@ allimages=lapply(c(1000,10000),function(n)lapply(c(0.01,0.001),function(mu)paste
 allimages=unlist(lapply(allimages,unlist))
 ```
 
-```{r reproNeutralDistribGrowthBEST,out.width="50%",fig.show="hold",fig.link=allimages,fig.cap="distribution of phenotype (Complementary Cumulative Density Funcion) of our model with growth and BEST SLS vs neutral model"}
+```{r reproNeutralDistribhBEST,out.width="50%",fig.show="hold",fig.link=allimages,fig.cap="distribution of phenotype (Complementary Cumulative Density Funcion) of our model with BEST SLS vs neutral model"}
 knitr::include_graphics(allimages)
 ```
 
