@@ -5,7 +5,7 @@
 To compare the model with the neutral model usually studied in cultural evolution, a few adjustement has to be made:
 In the traditional model agents are both social and "individual" learner. When they "learn" individually, they inovate at a rate $\mu$ other was they randomly copy another agent. In the current model, if social learner learn only through social learning (ie $z=1$), they can't innovate $p=p''+z(P-p'')\rightarrow p=P$ where P is the phenotype copied.  To emulate the inovation rate of the neutral model we setup a population made of a percentage of $\mu$ individual learners that generate new phenotypes at each generation (with $\mu_x=1$) while the rest of the population ($1-\mu$) are social learn ($x,y=0,z=1$). All other mutation rates are set to 0, thus we have a rate of apparition of new phenotype of $\mu$.
 
-To stay closer to original neutral model we introduce a simple reproduction scenario independant to fitness where every individual create one offspring (thus we have a static population size).
+To stay closer to original neutral model we introduce a simple reproduction scenario independant to fitness where every individual create one offspring (thus we have a static population size). Environment  doesn't matter thus environment will stay constant thoughout the simulations.
 
 ```{r,eval=F,echo=F}
 for(n in c(1000,10000)){
@@ -78,7 +78,6 @@ allimages=unlist(lapply(allimages,unlist))
 knitr::include_graphics(allimages)
 ```
 
-When Population growth is introduce the generale shape changes slightly
 
 ```{r,eval=F,echo=F}
 for(n in c(1000,10000)){
@@ -105,7 +104,8 @@ dev.off()
 }
 ```
 
-When individual can social copy the best phenotype thus as one can expect the best phenotypes is selected afeter a few generation and get reproduced all the time (ther eis no environmental changes in this setup). Thus a few phenotypes are present once or twice (the one at the initiliasiation) and another on represents the rest of the frequencies
+When individual can socially copy the best phenotype without error,  as one could expect, this best phenotype is quickly selected after few generations and get reproduced all the time. Thus a few phenotypes are repeated once or twice (the one at the initilisation and those that randomly appears through mutation) while another one (the best) is repeated all the time throughtout the simulations.
+
 ```{r}
 allimages=lapply(c(1000,10000),function(n)lapply(c(0.01,0.001),function(mu)paste0("images/ccfdPhenotypeBEST_MU",mu,"_N",n,".png")))
 allimages=unlist(lapply(allimages,unlist))
