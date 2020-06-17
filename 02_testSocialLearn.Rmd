@@ -120,8 +120,22 @@ knitr::include_graphics(allimages)
 
 We detected  the Rogers paradox in our simulation when counting the proportion of different strategies n our population, we show that, by looking at large set of simulation with different mutation rate, $k_z$ and $k_y$,  when population tends to be made of only social learner the fitness of this population drop drastically ([here](http://www.dysoc.org/~simon/report/exploring-impact-of-cost-and-selective-pressure-sexual-reproduction.html) and [here](http://www.dysoc.org/~simon/report/exploring-impact-of-cost-and-selective-pressure-asexual-reproduction.html)).
 
-Here we reproduce this effect using a different setup closer to the original Rogers publication. To do so we need a environment that changes at a rate $u=.8$
+Here we reproduce this effect using a different setup closer to the original Rogers publication with no genetic adaptation. To do so we need a environment that changes at a rate $u=.8$ in a discrete way. Then we need parameters set in a way that if behavior doesnt match the environment the fitness of individual is 0 where whn it matches the fitness of individual learner is less than the fitness of social learned. To achieve that we choose:
 
+* $\sigma_s =0.2$
+* $\sigma_y =0.8$
+* $\sigma_s =4$
+* Genotype of Individual Leaners $i$:  $y=1,z=0$
+* Genotype of Social Leaners $s$:  $y=0,z=1$
+
+Thus :
+
+* fitness of individual learner $i$ when match is: $w_i=$ `r round(fitness(1,1,0,1,0,.2,.8,4),digits=2)`
+* fitness of social learner $s$ when match is: $w_s=$ `r round(fitness(1,1,0,0,1,.2,.8,4),digits=2)`
+* fitness of $i$ when mismmatch is: $w_i=$ `r round(fitness(0,1,0,1,0,.2,.8,4),digits=2)`
+* fitness of $s$ when mismatch is: $w_s=$ `r round(fitness(0,1,0,0,1,.2,.8,4),digits=2)`
+
+First we run the simulation without evolution (no mutation, no reproduction) to check the expected fitness of the different type of individual  in our model given the parameters chosen and see if this reproduce Rogers Fig 1. 
 
 ```{r,eval=F,echo=F}
 tsteps=1000
@@ -164,11 +178,11 @@ for(i in 1:3){
 legend("bottom",legend=c("IL","SL","pop"),col=1:3,lwd=3)
 dev.off()
 ```
-```{r ,rogers1988,out.width="50%",fig.cap="Rogers (1988), Fig 1. "}
+```{r ,rogers1988,out.width="50%",fig.align="center",fig.cap="Rogers (1988), Fig 1. "}
 knitr::include_graphics("images/rogerFig1.png")
 ```
 
-```{r rogerRepro,fig.cap="Illustration of the Rogers effect"}
+```{r rogerRepro,out.width="50%",fig.align="center",fig.cap="Illustration of the Rogers effect"}
 knitr::include_graphics("images/illuRoger.png")
 ```
  
@@ -206,7 +220,7 @@ knitr::include_graphics("images/illuRogerBest.png")
 ```
 
  
-At an evolutionary level the expected outcome of Rogers paradox is that Social learning should not evolve as in the long term the mean fitness of a population made of social learner will decrease. Though our mutation process isn't exactly the same than Rogers (in his experiments phenotypes flip from social learners to individual learner randomly) this is what we observe when we add asexual reproduction to our model. When the rate of change is high enough ($u=.8$ in Rogers model), social learning is not selected no matter the proportion of social learners in the initial population, with the risks that the whole population get extinct if social learning is fixed. 
+At an evolutionary level, the expected outcome of Rogers paradox is that Social learning should not evolve when environment is changing, as in the long term the mean fitness of a population made of social learners will decrease. Though our mutation process isn't exactly the same than Rogers (in his experiments phenotypes flip from social learners to individual learner randomly), this is what we observe with mutation and asexual reproduction (cf below). When the rate of change is high enough ($u=.8$ in Rogers model), social learning is not selected no matter the proportion of social learners in the initial population, with the risks that the whole population get extinct if social learning is fixed. 
 
 ```{r,eval=F,echo=F}
 tsteps=40
