@@ -124,16 +124,16 @@ Here we reproduce this effect using a different setup closer to the original Rog
 
 * $\sigma_s =0.2$
 * $\sigma_y =0.8$
-* $\sigma_s =4$
-* Genotype of Individual Leaners $i$:  $y=1,z=0$
-* Genotype of Social Leaners $s$:  $y=0,z=1$
+* $\sigma_z =4$
+* Genotype of Individual Leaners $i$:  $y_i=1,z_i=0$
+* Genotype of Social Leaners $s$:  $y_s=0,z_s=1$
 
 Thus :
 
-* fitness of individual learner $i$ when match is: $w_i=$ `r round(fitness(1,1,0,1,0,.2,.8,4),digits=2)`
-* fitness of social learner $s$ when match is: $w_s=$ `r round(fitness(1,1,0,0,1,.2,.8,4),digits=2)`
-* fitness of $i$ when mismmatch is: $w_i=$ `r round(fitness(0,1,0,1,0,.2,.8,4),digits=2)`
-* fitness of $s$ when mismatch is: $w_s=$ `r round(fitness(0,1,0,0,1,.2,.8,4),digits=2)`
+* fitness of individual learner $i$ when match is: $w_i\approx$ `r round(fitness(1,1,0,1,0,.2,.8,4),digits=2)`
+* fitness of social learner $s$ when match is: $w_s\approx$ `r round(fitness(1,1,0,0,1,.2,.8,4),digits=2)`
+* fitness of $i$ when mismmatch is: $w_i\approx$ `r round(fitness(0,1,0,1,0,.2,.8,4),digits=2)`
+* fitness of $s$ when mismatch is: $w_s\approx$ `r round(fitness(0,1,0,0,1,.2,.8,4),digits=2)`
 
 First we run the simulation without evolution (no mutation, no reproduction) to check the expected fitness of the different type of individual  in our model given the parameters chosen and see if this reproduce Rogers Fig 1. 
 
@@ -178,14 +178,11 @@ for(i in 1:3){
 legend("bottom",legend=c("IL","SL","pop"),col=1:3,lwd=3)
 dev.off()
 ```
-```{r ,rogers1988,out.width="50%",fig.align="center",fig.cap="Rogers (1988), Fig 1. "}
-knitr::include_graphics("images/rogerFig1.png")
-```
-
-```{r rogerRepro,out.width="50%",fig.align="center",fig.cap="Illustration of the Rogers effect"}
-knitr::include_graphics("images/illuRoger.png")
+```{r ,rogers1988,out.width="50%",fig.align="center",fig.cap="Comparing Rogers (1988), Fig 1. (left) with our model (right)",fig.show="hold"}
+knitr::include_graphics(c("images/rogerFig1.png","images/illuRoger.png"))
 ```
  
+If social learner can copy the best phenotype this disappear as unless ther eis no individual learner at all, all social learner can find and copy the good phenotype. 
 ```{r,eval=F,echo=F}
 
 allfitness=lapply(freqSL,function(percentage){
@@ -215,7 +212,7 @@ for(i in 1:3){
 legend("bottom",legend=c("IL","SL","pop"),col=1:3,lwd=3)
 dev.off()
 ```
-```{r rogerBest,out.width="50%",fig.cap="When social learning is able to spot the best individual the Rogers effect disappear"}
+```{r rogerBest,out.width="50%",fig.align="center",fig.cap="When social learning is able to spot the best individual the Rogers effect disappear"}
 knitr::include_graphics("images/illuRogerBest.png")
 ```
 
@@ -259,7 +256,7 @@ legend("right",title="SL init.",legend=round(freqSL,digit=1)[seq(1,10,length.out
 dev.off()
 ```
 
-```{r rogerEvo,out.width="50%",fig.cap="Rogers paradox consequence: social learning isn't selected when environmental change is relatively high"}
+```{r rogerEvo,out.width="50%",fig.align="center",fig.cap="Rogers paradox consequence: social learning isn't selected when environmental change is relatively high"}
 knitr::include_graphics("images/illuRogerEvo.png")
 ```
 Whereas this is not the case when environmental changes is very unlikely(here proba of change $u=0.01$)
@@ -301,6 +298,6 @@ legend("right",title="SL init.",legend=round(freqSL,digit=1)[seq(1,10,length.out
 dev.off()
 ```
 
-```{r rogerEvoslow,out.width="50%",fig.cap="When environment change is slow,social learning is selected"}
+```{r rogerEvoslow,out.width="50%",fig.align="center",fig.cap="When environment change is slow,social learning is selected"}
 knitr::include_graphics("images/illuRogerEvoSlowchange.png")
 ```
