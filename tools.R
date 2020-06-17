@@ -359,3 +359,81 @@ ccfd <- function(size){
     y=p
     return(cbind(x,y))
 }
+
+#' randomCascades: A slightly (almost not) modified version of the original model by Alex & Damien
+#' Original model is in tools/FNM.R
+#' @return dataframe that allow to compare easily to the result of the model of the cascade
+randomCascades <- function(Nmin=100000,Nmax=50000,t_steps=50,y_max=1,runs=1,mu=0.00001,tau = 1,alpha=0,conformity=F,beta=-2,topfive=F,TF=5,C=.1,alberto=F){
+
+    t<-seq(1,t_steps)
+    N_vec=round(Nmin*exp(alpha*t))
+
+    T <- as.integer(tau + t_steps) # total time_steps
+
+    N=as.integer(N_vec[1])#inital N value
+
+    old_pop <- seq(1,N) #inialise population
+    base = N+1
+
+    corpus <- list()
+    vocab<- list()
+    Z <-matrix(nrow=y_max,ncol=t_steps-1)
+
+    #save all the values in one popualtion
+    total_pop <- vector(mode='integer',length=N*t_steps)
+
+    #beginning of t loop 
+    for (t in 1:T){
+
+        rnd = runif(N, min = 0, max = 1)
+
+        ##### the assingment was set to pop, i've changed it to old_pop
+        select_vec<-old_pop 
+
+        pop<-old_pop # start new empty population
+
+
+        if(alberto){
+            pop=originalTopfive(pop,TF,C,rnd,mu,base)
+        }
+        else{ 
+            if(conformity){ #introduction of a simple conformity bias 
+                #freq=table(pop)
+                #rnd=rnd/(freq[as.character(pop)])
+                Bias <- conformityBias(old_pop,beta)
+                pop[rnd>=mu] <- sample(old_pop, length(pop[rnd>=mu]), replace = TRUE,prob = Bias)
+            }
+            else{
+                pop[rnd>=mu] <- sample(old_pop, length(pop[rnd>=mu]), replace = TRUE)
+            }
+            if(topfive){
+                candidates=topfive(old_pop,TF,C)[runif(length(old_pop)*C)>=mu]
+                pop[sample.int(length(old_pop),length(candidates))]= candidates
+            }
+        }
+
+
+        pop[rnd<mu] <- seq(base,base+length(pop[rnd<mu])-1)
+
+
+        base <- base + length(pop[rnd<mu]) # next trait to enter the population
+        if (t > tau){
+            N <- as.integer(N_vec[t-tau])
+            s<-t-tau-1
+            first<-(1+(s*N))
+            last<-((s*N)+N)
+            total_pop[first:last]<-pop
+        }
+
+        #rank_old <- rank_now
+        old_pop <- pop # current pop becomes old_pop
+        #end of t loop
+    }
+
+    MC <- sort(table(total_pop),decreasing = TRUE)
+    df<-data.frame(rank=rank(MC,ties.method = "first"),MC)
+
+    colnames(df)=c("rank","U","size")
+    df$U=as.numeric(df$U)
+    df
+}
