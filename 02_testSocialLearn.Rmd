@@ -3,7 +3,7 @@
 ## Compare with Bentley Neutral Model
 
 To compare the model with the neutral model usually studied in cultural evolution, a few adjustement has to be made:
-In the traditional model agents are both social and "individual" learner. When they "learn" individually, they inovate at a rate $\mu$ other was they randomly copy another agent. In the current model, if social learner learn only through social learning (ie $z=1), they can't innovate $p=p''+z(P-p'')\rightarrow p=P$ where P is the phenotype copied.  To emulate the inovation rate of the neutral model we setup a population made of a percentage of $\mu$ individual learners that generate new phenotypes at each generation (with $\mu_x=1$) while the rest of the population ($1-\mu$) are social learn ($x,y=0,z=1$). All other mutation rates are set to 0, thus we have a rate of apparition of new phenotype of $\mu$.
+In the traditional model agents are both social and "individual" learner. When they "learn" individually, they inovate at a rate $\mu$ other was they randomly copy another agent. In the current model, if social learner learn only through social learning (ie $z=1$), they can't innovate $p=p''+z(P-p'')\rightarrow p=P$ where P is the phenotype copied.  To emulate the inovation rate of the neutral model we setup a population made of a percentage of $\mu$ individual learners that generate new phenotypes at each generation (with $\mu_x=1$) while the rest of the population ($1-\mu$) are social learn ($x,y=0,z=1$). All other mutation rates are set to 0, thus we have a rate of apparition of new phenotype of $\mu$.
 
 To stay closer to original neutral model we introduce a simple reproduction scenario independant to fitness where every individual create one offspring (thus we have a static population size).
 
@@ -34,15 +34,15 @@ dev.off()
 
 ```{r}
 allimages=lapply(c(1000,10000),function(n)lapply(c(0.01,0.001),function(mu)paste0("images/ccfdPhenotype_MU",mu,"_N",n,".png")))
-allimages=lapply(allimage,unlist)
+allimages=unlist(lapply(allimages,unlist))
 ```
 
 ```{r reproNeutralDistrib,out.width="50%",fig.show="hold",fig.link=allimages,fig.cap="distribution of phenotype (Complementary Cumulative Density Funcion) of a simpler version of our model without growth vs neutral model"}
-knitr::include_graphics(allimages")
+knitr::include_graphics(allimages)
 ```
 
 
-When Population growth is introduce the generale shape changes slightly
+When population growth is introduced the general shape changes slightly
 
 ```{r,eval=F,echo=F}
 for(n in c(1000,10000)){
@@ -71,11 +71,11 @@ dev.off()
 
 ```{r}
 allimages=lapply(c(1000,10000),function(n)lapply(c(0.01,0.001),function(mu)paste0("images/ccfdPhenotypeGrowth_MU",mu,"_N",n,".png")))
-allimages=lapply(allimage,unlist)
+allimages=unlist(lapply(allimages,unlist))
 ```
 
-```{r reproNeutralDistrib,out.width="50%",fig.show="hold",fig.link=allimages,fig.cap="distribution of phenotype (Complementary Cumulative Density Funcion) of a simpler version of our model without growth vs neutral model"}
-knitr::include_graphics(allimages")
+```{r reproNeutralDistribGrowth,out.width="50%",fig.show="hold",fig.link=allimages,fig.cap="distribution of phenotype (Complementary Cumulative Density Funcion) of our model with growth vs neutral model"}
+knitr::include_graphics(allimages)
 ```
 
 When Population growth is introduce the generale shape changes slightly
@@ -105,13 +105,14 @@ dev.off()
 }
 ```
 
+When individual can social copy the best phenotype thus as one can expect the best phenotypes is selected afeter a few generation and get reproduced all the time (ther eis no environmental changes in this setup). Thus a few phenotypes are present once or twice (the one at the initiliasiation) and another on represents the rest of the frequencies
 ```{r}
-allimages=lapply(c(1000,10000),function(n)lapply(c(0.01,0.001),function(mu)paste0("images/ccfdPhenotypeGrowth_MU",mu,"_N",n,".png")))
-allimages=lapply(allimage,unlist)
+allimages=lapply(c(1000,10000),function(n)lapply(c(0.01,0.001),function(mu)paste0("images/ccfdPhenotypeBEST_MU",mu,"_N",n,".png")))
+allimages=unlist(lapply(allimages,unlist))
 ```
 
-```{r reproNeutralDistrib,out.width="50%",fig.show="hold",fig.link=allimages,fig.cap="distribution of phenotype (Complementary Cumulative Density Funcion) of a simpler version of our model without growth vs neutral model"}
-knitr::include_graphics(allimages")
+```{r reproNeutralDistribGrowthBEST,out.width="50%",fig.show="hold",fig.link=allimages,fig.cap="distribution of phenotype (Complementary Cumulative Density Funcion) of our model with growth and BEST SLS vs neutral model"}
+knitr::include_graphics(allimages)
 ```
 
 
@@ -163,7 +164,7 @@ for(i in 1:3){
 legend("bottom",legend=c("IL","SL","pop"),col=1:3,lwd=3)
 dev.off()
 ```
-```{r ,rogers1988,fig.cap="Rogers (1988), Fig 1. "}
+```{r ,rogers1988,out.width="50%",fig.cap="Rogers (1988), Fig 1. "}
 knitr::include_graphics("images/rogerFig1.png")
 ```
 
@@ -200,7 +201,7 @@ for(i in 1:3){
 legend("bottom",legend=c("IL","SL","pop"),col=1:3,lwd=3)
 dev.off()
 ```
-```{r rogerBest,fig.cap="When social learning is able to spot the best individual the Rogers effect disappear"}
+```{r rogerBest,out.width="50%",fig.cap="When social learning is able to spot the best individual the Rogers effect disappear"}
 knitr::include_graphics("images/illuRogerBest.png")
 ```
 
@@ -244,12 +245,12 @@ legend("right",title="SL init.",legend=round(freqSL,digit=1)[seq(1,10,length.out
 dev.off()
 ```
 
-```{r rogerEvo,fig.cap="Rogers paradox consequence: social learning isn't selected when environmental change is relatively high"}
+```{r rogerEvo,out.width="50%",fig.cap="Rogers paradox consequence: social learning isn't selected when environmental change is relatively high"}
 knitr::include_graphics("images/illuRogerEvo.png")
 ```
 Whereas this is not the case when environmental changes is very unlikely(here proba of change $u=0.01$)
 
-```{r}
+```{r,eval=F,echo=F}
 tsteps=40
 env=rep(1,tsteps)
 for(i in 2:length(env)){
@@ -286,6 +287,6 @@ legend("right",title="SL init.",legend=round(freqSL,digit=1)[seq(1,10,length.out
 dev.off()
 ```
 
-```{r rogerEvoslow,fig.cap="When environment change is slow,social learning is selected"}
+```{r rogerEvoslow,out.width="50%",fig.cap="When environment change is slow,social learning is selected"}
 knitr::include_graphics("images/illuRogerEvoSlowchange.png")
 ```
