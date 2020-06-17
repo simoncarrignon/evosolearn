@@ -655,6 +655,9 @@ lines(getLogSpec(lr04$dTsVscales,lr04$year),col="red")
 legend("topright",legend=c("original + interpolate","original","ngrip2"),lwd=1,col=c("black","red","green"))
 ```
 
+distT<-function(u,n){
+1-(abs(u-n)/(sqrt(abs(u^2-absn)^2))
+}
 
 
 Generate mutli slope noise

@@ -1,0 +1,291 @@
+# Check Social Learning Strategies
+
+## Compare with Bentley Neutral Model
+
+To compare the model with the neutral model usually studied in cultural evolution, a few adjustement has to be made:
+In the traditional model agents are both social and "individual" learner. When they "learn" individually, they inovate at a rate $\mu$ other was they randomly copy another agent. In the current model, if social learner learn only through social learning (ie $z=1), they can't innovate $p=p''+z(P-p'')\rightarrow p=P$ where P is the phenotype copied.  To emulate the inovation rate of the neutral model we setup a population made of a percentage of $\mu$ individual learners that generate new phenotypes at each generation (with $\mu_x=1$) while the rest of the population ($1-\mu$) are social learn ($x,y=0,z=1$). All other mutation rates are set to 0, thus we have a rate of apparition of new phenotype of $\mu$.
+
+To stay closer to original neutral model we introduce a simple reproduction scenario independant to fitness where every individual create one offspring (thus we have a static population size).
+
+```{r,eval=F,echo=F}
+for(n in c(1000,10000)){
+for(mu in c(0.01,0.001)){
+m=100
+pop=generatePop(n,distrib=list(x=c(runif(n,-1,1)),y=rep(0,n),z=c(rep(1,n*(1-mu)),rep(0,n*mu))),df=F)
+pop[,"p"]=pop[,"x"]
+
+png(paste0("ccfdPhenotype_MU",mu,"_N",n,".png")) 
+plot(1,1,log="xy",xlab="phenotype frequencies",ylab="ccfd (%)",xlim=c(1,10000),ylim=c(0.01,100),type="n")
+for(i in 1:10){
+    soci=simpleEvoModel(pop = pop, tstep = 50,log=T,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="random") 
+    u=unlist(sapply(soci$allpop,function(s)s[,"p"]))
+    freqt=table(u)
+    cc=ccfd(freqt)
+    lines(cc[,"x"],cc[,"y" ],col="green",lwd=2)
+    random=randomCascades(Nmax=n,Nmin=n,mu=mu,t_steps = 50)
+    cc=ccfd(random$size)
+    lines(cc[,"x"],cc[,"y" ],col="red",lwd=2)
+}
+legend("bottomleft",lwd=2,col=c("red","green"),legend=c("model from carrignon et al 2019","model pleisto evol"))
+dev.off()
+}
+}
+```
+
+```{r}
+allimages=lapply(c(1000,10000),function(n)lapply(c(0.01,0.001),function(mu)paste0("images/ccfdPhenotype_MU",mu,"_N",n,".png")))
+allimages=lapply(allimage,unlist)
+```
+
+```{r reproNeutralDistrib,out.width="50%",fig.show="hold",fig.link=allimages,fig.cap="distribution of phenotype (Complementary Cumulative Density Funcion) of a simpler version of our model without growth vs neutral model"}
+knitr::include_graphics(allimages")
+```
+
+
+When Population growth is introduce the generale shape changes slightly
+
+```{r,eval=F,echo=F}
+for(n in c(1000,10000)){
+for(mu in c(0.01,0.001)){
+m=100
+pop=generatePop(n,distrib=list(x=c(runif(n,-1,1)),y=rep(0,n),z=c(rep(1,n*(1-mu)),rep(0,n*mu))),df=F)
+pop[,"p"]=pop[,"x"]
+
+png(paste0("images/ccfdPhenotypeGrowth_MU",mu,"_N",n,".png")) 
+plot(1,1,log="xy",xlab="phenotype frequencies",ylab="ccfd (%)",xlim=c(1,10000),ylim=c(0.01,100),type="n")
+for(i in 1:10){
+    soci=simpleEvoModel(pop = pop, tstep = 50,log=T,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="asex",selection=T,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="random") 
+    u=unlist(sapply(soci$allpop,function(s)s[,"p"]))
+    freqt=table(u)
+    cc=ccfd(freqt)
+    lines(cc[,"x"],cc[,"y" ],col="green",lwd=2)
+    random=randomCascades(Nmax=n,Nmin=n,mu=mu,t_steps = 50)
+    cc=ccfd(random$size)
+    lines(cc[,"x"],cc[,"y" ],col="red",lwd=2)
+}
+legend("bottomleft",lwd=2,col=c("red","green"),legend=c("model from carrignon et al 2019","model pleisto evol+growth"))
+dev.off()
+}
+}
+```
+
+```{r}
+allimages=lapply(c(1000,10000),function(n)lapply(c(0.01,0.001),function(mu)paste0("images/ccfdPhenotypeGrowth_MU",mu,"_N",n,".png")))
+allimages=lapply(allimage,unlist)
+```
+
+```{r reproNeutralDistrib,out.width="50%",fig.show="hold",fig.link=allimages,fig.cap="distribution of phenotype (Complementary Cumulative Density Funcion) of a simpler version of our model without growth vs neutral model"}
+knitr::include_graphics(allimages")
+```
+
+When Population growth is introduce the generale shape changes slightly
+
+```{r,eval=F,echo=F}
+for(n in c(1000,10000)){
+for(mu in c(0.01,0.001)){
+m=100
+pop=generatePop(n,distrib=list(x=c(runif(n,-1,1)),y=rep(0,n),z=c(rep(1,n*(1-mu)),rep(0,n*mu))),df=F)
+pop[,"p"]=pop[,"x"]
+
+png(paste0("images/ccfdPhenotypeBEST_MU",mu,"_N",n,".png")) 
+plot(1,1,log="xy",xlab="phenotype frequencies",ylab="ccfd (%)",xlim=c(1,100000),ylim=c(0.1,100),type="n")
+for(i in 1:10){
+    soci=simpleEvoModel(pop = pop, tstep = 50,log=T,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="asex",selection=T,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="best") 
+    u=unlist(sapply(soci$allpop,function(s)s[,"p"]))
+    freqt=table(u)
+    cc=ccfd(freqt)
+    lines(cc[,"x"],cc[,"y" ],col="green",lwd=2)
+    random=randomCascades(Nmax=n,Nmin=n,mu=mu,t_steps = 50)
+    cc=ccfd(random$size)
+    lines(cc[,"x"],cc[,"y" ],col="red",lwd=2)
+}
+legend("bottomleft",lwd=2,col=c("red","green"),legend=c("model from carrignon et al 2019","model pleisto evol+growth"))
+dev.off()
+}
+}
+```
+
+```{r}
+allimages=lapply(c(1000,10000),function(n)lapply(c(0.01,0.001),function(mu)paste0("images/ccfdPhenotypeGrowth_MU",mu,"_N",n,".png")))
+allimages=lapply(allimage,unlist)
+```
+
+```{r reproNeutralDistrib,out.width="50%",fig.show="hold",fig.link=allimages,fig.cap="distribution of phenotype (Complementary Cumulative Density Funcion) of a simpler version of our model without growth vs neutral model"}
+knitr::include_graphics(allimages")
+```
+
+
+## Reproduce Rogers paradox
+
+We detected  the Rogers paradox in our simulation when counting the proportion of different strategies n our population, we show that, by looking at large set of simulation with different mutation rate, $k_z$ and $k_y$,  when population tends to be made of only social learner the fitness of this population drop drastically ([here](http://www.dysoc.org/~simon/report/exploring-impact-of-cost-and-selective-pressure-sexual-reproduction.html) and [here](http://www.dysoc.org/~simon/report/exploring-impact-of-cost-and-selective-pressure-asexual-reproduction.html)).
+
+Here we reproduce this effect using a different setup closer to the original Rogers publication. To do so we need a environment that changes at a rate $u=.8$
+
+
+```{r,eval=F,echo=F}
+tsteps=1000
+env=rep(1,tsteps)
+for(i in 2:length(env)){
+    if(runif(1)<.8){
+        if(runif(1)<.5)
+            env[i]=env[i-1]+1
+        else
+            env[i]=env[i-1]
+    }
+    else env[i]=env[i-1]
+}
+
+freqSL=seq(.001,.999,length.out=10)
+allfitness=lapply(freqSL,function(percentage){
+                  n=1000
+                  pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)))
+                  pop[,"p"]=!env[1]
+                  sl=1:(n*percentage)
+                  il=(n*percentage+1):n
+                  pop[sl,"z"]=1
+                  pop[il,"y"]=1
+
+                  soci=simpleEvoModel(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="random")
+                  soci
+
+})
+meanAll=sapply(allfitness,function(soci){
+                  cbind(y=mean(sapply(soci$allpop,function(i){mean(i[i[,"y"]==1,"w"])}),na.rm=T),
+                        z=mean(sapply(soci$allpop,function(i){mean(i[i[,"z"]==1,"w"])}),na.rm=T),
+                        pop=mean(sapply(soci$allpop,function(i){mean(i[,"w"])}),na.rm=T))
+})
+
+png("images/illuRoger.png")
+plot(1,1,type="n",ylim=c(0,1),xlim=c(0,1),xlab="% social learner",ylab="fitness")
+for(i in 1:3){
+   lines(freqSL,meanAll[i,],col=i,lwd=3)
+}
+legend("bottom",legend=c("IL","SL","pop"),col=1:3,lwd=3)
+dev.off()
+```
+```{r ,rogers1988,fig.cap="Rogers (1988), Fig 1. "}
+knitr::include_graphics("images/rogerFig1.png")
+```
+
+```{r rogerRepro,fig.cap="Illustration of the Rogers effect"}
+knitr::include_graphics("images/illuRoger.png")
+```
+ 
+```{r,eval=F,echo=F}
+
+allfitness=lapply(freqSL,function(percentage){
+                  n=1000
+                  pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)))
+                  pop[,"p"]=env[1]
+                  sl=1:(n*percentage)
+                  il=(n*percentage+1):n
+                  pop[sl,"z"]=1
+                  pop[il,"y"]=1
+
+                  soci=simpleEvoModel(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="best")
+                  soci
+
+})
+meanAll=sapply(allfitness,function(soci){
+                  cbind(y=mean(sapply(soci$allpop,function(i){mean(i[i[,"y"]==1,"w"])}),na.rm=T),
+                        z=mean(sapply(soci$allpop,function(i){mean(i[i[,"z"]==1,"w"])}),na.rm=T),
+                        pop=mean(sapply(soci$allpop,function(i){mean(i[,"w"])}),na.rm=T))
+})
+
+png("images/illuRogerBest.png")
+plot(1,1,type="n",ylim=c(0,1),xlim=c(0,1),xlab="% social learner",ylab="fitness")
+for(i in 1:3){
+   lines(freqSL,meanAll[i,],col=i,lwd=3)
+}
+legend("bottom",legend=c("IL","SL","pop"),col=1:3,lwd=3)
+dev.off()
+```
+```{r rogerBest,fig.cap="When social learning is able to spot the best individual the Rogers effect disappear"}
+knitr::include_graphics("images/illuRogerBest.png")
+```
+
+ 
+At an evolutionary level the expected outcome of Rogers paradox is that Social learning should not evolve as in the long term the mean fitness of a population made of social learner will decrease. Though our mutation process isn't exactly the same than Rogers (in his experiments phenotypes flip from social learners to individual learner randomly) this is what we observe when we add asexual reproduction to our model. When the rate of change is high enough ($u=.8$ in Rogers model), social learning is not selected no matter the proportion of social learners in the initial population, with the risks that the whole population get extinct if social learning is fixed. 
+
+```{r,eval=F,echo=F}
+tsteps=40
+env=rep(1,tsteps)
+for(i in 2:length(env)){
+    if(runif(1)<.8){
+        if(runif(1)<.5)
+            env[i]=!env[i-1]
+        else
+            env[i]=env[i-1]
+    }
+    else env[i]=env[i-1]
+}
+
+freqSL=seq(.001,.999,length.out=10)
+allfitness=lapply(freqSL,function(percentage){
+                  n=1000
+                  pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)))
+                  pop[,"p"]=env[1]
+                  sl=1:(n*percentage)
+                  il=(n*percentage+1):n
+                  pop[sl,"z"]=1
+                  pop[il,"y"]=1
+
+                  soci=simpleEvoModel(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=1,z=1),mu=c(x=0,y=.01,z=.01),allpops=T,repro="asex",selection=T,statvar=c("p","y","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="best")
+                  soci
+
+})
+png("images/illuRogerEvo.png")
+plot(1,1,type="n",ylim=c(0,1),xlim=c(0,tsteps),ylab="mean value of z",xlab="time")
+cols=heat.colors(length(freqSL))
+for(i in 1:length(freqSL)){
+   lines(allfitness[[i]]$summary[,"mean_z"],col=cols[i],lwd=3)
+}
+legend("right",title="SL init.",legend=round(freqSL,digit=1)[seq(1,10,length.out=5)],col=cols[seq(1,10,length.out=5)],lwd=3)
+dev.off()
+```
+
+```{r rogerEvo,fig.cap="Rogers paradox consequence: social learning isn't selected when environmental change is relatively high"}
+knitr::include_graphics("images/illuRogerEvo.png")
+```
+Whereas this is not the case when environmental changes is very unlikely(here proba of change $u=0.01$)
+
+```{r}
+tsteps=40
+env=rep(1,tsteps)
+for(i in 2:length(env)){
+    if(runif(1)<.01){
+        if(runif(1)<.5)
+            env[i]=!env[i-1]
+        else
+            env[i]=env[i-1]
+    }
+    else env[i]=env[i-1]
+}
+
+freqSL=seq(.001,.999,length.out=10)
+allfitness=lapply(freqSL,function(percentage){
+                  n=1000
+                  pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)))
+                  pop[,"p"]=env[1]
+                  sl=1:(n*percentage)
+                  il=(n*percentage+1):n
+                  pop[sl,"z"]=1
+                  pop[il,"y"]=1
+
+                  soci=simpleEvoModel(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=1,z=1),mu=c(x=0,y=.01,z=.01),allpops=T,repro="asex",selection=T,statvar=c("p","y","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="best")
+                  soci
+
+})
+png("images/illuRogerEvoSlowchange.png")
+plot(1,1,type="n",ylim=c(0,1),xlim=c(0,tsteps),ylab="mean value of z",xlab="time")
+cols=heat.colors(length(freqSL))
+for(i in 1:length(freqSL)){
+   lines(allfitness[[i]]$summary[,"mean_z"],col=cols[i],lwd=3)
+}
+legend("right",title="SL init.",legend=round(freqSL,digit=1)[seq(1,10,length.out=5)],col=cols[seq(1,10,length.out=5)],lwd=3)
+dev.off()
+```
+
+```{r rogerEvoslow,fig.cap="When environment change is slow,social learning is selected"}
+knitr::include_graphics("images/illuRogerEvoSlowchange.png")
+```
