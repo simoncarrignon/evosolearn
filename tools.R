@@ -344,3 +344,18 @@ plotTres <- function(u,col=1,...){
     lines(u[3,],col=col,lwd=.1)
 }
 
+
+#' Calculate the CCFD following \emph{Vosoughi et al. (2018)}
+#'@param size : sample of sizes
+#'@return a order table with two column with first column : frequency and second column the probality of the frequency  
+ccfd <- function(size){
+    total=length(size) 
+    size=size[order(size)]
+    counts=unique(size)
+    id=unique(match(counts,size))
+    p=sapply(id,function(i)length(size[i:total])) 
+    p=p/total * 100
+    x=counts
+    y=p
+    return(cbind(x,y))
+}
