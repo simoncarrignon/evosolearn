@@ -45,14 +45,8 @@ if(fun_i != "interpolate"){
         if(lin){
             env=f(realdata$dTsVscales,realdata$year,res)$data
         }else{
-
-            if(env_i == "vostok"){
-                subss=getMean2(data=realdata$dTsVscales,year=realdata$year,by=max(getDateResolution(realdata$year)))
-                env=interpolate(theta=subss$data,times=subss$year,finalres=20,delta=.8,omega=0.41)$data
-            }
-
-            else
-                env=f(realdata$dTsVscales,realdata$year,res,omega=1.41,delta=0.8)$data
+            env=interpolate(theta=realdata$dTsVscales,times=realdata$year,finalres=20,delta=.8,omega=0.41)$data
+            env=getClosest(data=env$data,year=env$year,by=20)
         }
     }
 }
