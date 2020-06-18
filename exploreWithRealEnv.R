@@ -48,7 +48,7 @@ if(fun_i != "interpolate"){
 
             if(env_i == "vostok"){
                 subss=getMean2(data=realdata$dTsVscales,year=realdata$year,by=max(getDateResolution(realdata$year)))
-                env=interpolate(theta=subss$data,times=ns$year,finalres=20,delta=.8,omega=0.41)$data
+                env=interpolate(theta=subss$data,times=subss$year,finalres=20,delta=.8,omega=0.41)$data
             }
 
             else
