@@ -1,6 +1,8 @@
 old <- Sys.time() 
 
+
 args=commandArgs(trailingOnly = TRUE) #pass number of slave by comand line, should be #node - 1 as one node is used by the master 
+
 
 ns=args[1]#first argument is the number of slave
 nsm=args[2]#second argument the number of simulation 
@@ -41,16 +43,16 @@ if(fun_i != "interpolate"){
         env=realdata$dTsVscales
     }else{
         if(lin){
-            env=f(realdata$dTsVscales,realdata$year,res)
+            env=f(realdata$dTsVscales,realdata$year,res)$data
         }else{
 
             if(env_i == "vostok"){
-                ns=getMean2(data=realdata$dTsVscales,year=realdata$year,by=max(getDateResolution(realdata$year)))
-                env=interpolate(theta=ns$data,times=ns$year,finalres=20,delta=.8,omega=1)
+                subss=getMean2(data=realdata$dTsVscales,year=realdata$year,by=max(getDateResolution(realdata$year)))
+                env=interpolate(theta=subss$data,times=ns$year,finalres=20,delta=.8,omega=0.41)$data
             }
 
             else
-                env=f(realdata$dTsVscales,realdata$year,res,omega=1.41,delta=0.9894122)
+                env=f(realdata$dTsVscales,realdata$year,res,omega=1.41,delta=0.8)$data
         }
     }
 }
