@@ -83,12 +83,27 @@ exploreEnvironmentsProperties <- function(){
 interpolate <- function(theta,times,finalres,delta=0,omega=0){
     newtheta=c()
     for(i in 1:(length(times)-1)){
-        rangesyears=seq(times[i],(times[i+1]),by=finalres)
-        newt=seq(theta[i],theta[i+1],length.out=length(rangesyears))
-        names(newt)=rangesyears
-        if(omega > 0 && delta >0){ #add generated noise between unknown data points
-            noise=environment(length(newt),omega=omega,delta=delta) # we generate noise between the two datapoints, including them
-            newt[2:(length(newt-1))]=newt[2:(length(newt-1))]+noise #we add the generated noise only to the new datapoints
+        if(5*finalres < abs(times[i]-(times[i+1]))){
+            rangesyears=seq(times[i],(times[i+1]),by=finalres)
+            newt=seq(theta[i],theta[i+1],length.out=length(rangesyears))
+            names(newt)=rangesyears
+            if(omega > 0 && delta >0){ #add generated noise between unknown data points
+                n=0
+                if(length(newt) %%2 != 0 ) n =1
+                noise=environment(length(newt)+n,omega=omega,delta=delta) # we generate twice the noise needed between the two datapoints, including them
+                newt[2:(length(newt-1))]=newt[2:(length(newt-1))]+noise[2:(length(newt-1))] #we add the generated noise only to the new datapoints
+            }
+        }
+        else if( abs(times[i]-(times[i+1]))> finalres){
+            rangesyears=seq(times[i],(times[i+1]),by=finalres)
+            newt=seq(theta[i],theta[i+1],length.out=length(rangesyears))
+            names(newt)=rangesyears
+            noise=rnorm(length(newt),0,delta)
+            newt[2:(length(newt-1))]=newt[2:(length(newt-1))]+noise[2:(length(newt-1))] #we add the generated noise only to the new datapoints
+        }
+        else{
+            newt=theta[i:(i+1)]
+            names(newt)=times[i:(i+1)]
         }
         newtheta=c(newtheta,newt[-length(newt)])
     }
@@ -225,11 +240,15 @@ getOmega2 <- function(x,y,u=NULL,sp=.5){
     return(abs(fitw$coefficients[[2]]))
 }
 
-plotSpectrum <- function(data,year,...){
+plotSpectrum <- function(data,year,add=F,...){
     logyx=getLogSpec(data,year)
-    plot(logyx,axes=F,type="l",xlab="Cycle Length (years)",ylab=expression(log[10]*P(f)),...)
-    axis(1,at=seq(-6,-2,by=1),label=round(1/10^seq(-6,-2,by=1)))
-    axis(2)
+    if(add)
+        lines(logyx,...)
+    else{ 
+        plot(logyx,axes=F,type="l",xlab="Cycle Length (years)",ylab=expression(log[10]*P(f)),...)
+        axis(1,at=seq(-6,-2,by=1),label=round(1/10^seq(-6,-2,by=1)))
+        axis(2)
+    }
 }
 
 #' Get the log10 of the spectrum density and frequencies of a vector
