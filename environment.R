@@ -32,7 +32,7 @@ getSpectrum <- function(x){
     S.pgram
 }
 
-#return a 1/f environment of N steps with curve = omega and sd = delta and increase rate vt
+#return a 1/f environment of N steps with sd = delta and the slope of it's spectrum decompoistion = -omega + possibility to increase the mean of the environment at a rate vt (in wich case the slop may not be -omega)
 environment <- function(N,omega,delta,vt=NULL){
     ts=TK95(N,omega)
     ts=delta*ts/sd(ts)
