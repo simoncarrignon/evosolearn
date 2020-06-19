@@ -2,7 +2,7 @@
 #Function from tuneR package
 #Based on Timmer and Koening 1995: https://ui.adsabs.harvard.edu/abs/1995A%26A...300..707T/abstract
 #' @param alpha: the slope of the power distribution (called omega in whitehead)
-#' @param N: the length of the timeseri to 
+#' @param N: the length of the timeserie to generate
 TK95 <- function(N, alpha = 1){ 
     f <- seq(from=0, to=pi, length.out=(N/2+1))[-c(1,(N/2+1))] # Fourier frequencies
     f_ <- 1 / f^alpha # Power law
@@ -32,7 +32,7 @@ getSpectrum <- function(x){
     S.pgram
 }
 
-#return a 1/f environmen with curve = omega and sd = delta and increase rate vt
+#return a 1/f environment of N steps with curve = omega and sd = delta and increase rate vt
 environment <- function(N,omega,delta,vt=NULL){
     ts=TK95(N,omega)
     ts=delta*ts/sd(ts)
