@@ -40,34 +40,9 @@ environment <- function(N,omega,delta,vt=NULL){
     return(ts)
 }
 
-
+# white noise
 gauss <- function(N,mean,delta,v){
     sapply(1:N,function(t)rnorm(1,mean*v,delta))
-}
-
-
-exploreEnvironmentsProperties <- function(){
-
-    #get mean correlation
-    mean(replicate(10,{
-                   t=environment(10000,2,1)
-                   vtm=t[1:(length(t)-1)]
-                   vt=t[2:length(t)]
-                   cov(vt,vtm)}))
-
-
-    pdf("env_corel.pdf",width=8,height=4.5)
-    par(mfrow=c(1,3))
-
-    for(omega in 0:2){
-        t=environment(50000,omega,.1)
-        vtm=t[1:(length(t)-1)]
-        vt=t[2:length(t)]
-        print(cov(vt,vtm))
-        cv=round(cov(vt,vtm),digit=3)
-        plot((1:50000)[seq(1,50000,100)],t[seq(1,50000,100)],main=bquote(omega == .(omega)~","~delta==.1~", cov("*theta[t]*","*theta[t-1]*")" == .(cv)),ylab=bquote(theta[t]),,xlab="t",type="l",lwd=1)
-    }
-    dev.off()
 }
 
 
@@ -80,7 +55,7 @@ exploreEnvironmentsProperties <- function(){
 #' @param omega: autocorrelation of the noise use to generate interpolate datapoints
 #' @param delta: variance of the noise used for bigger gap
 #' @param delta2: variance of the noise used for smaller gaps
-#' @return two vectors of dimension: seq(1,length(times),by=finalres), one with the years and other with associated theta
+#' @return a two columns data frame. Each column is a of dimension: seq(1,length(times),by=finalres), one with the years and other with associated theta
 interpolate <- function(theta,times,finalres,delta=0,omega=0,delta2=NULL){
     if(is.null(delta2))delta2=delta
     newtheta=c()
@@ -116,47 +91,6 @@ interpolate <- function(theta,times,finalres,delta=0,omega=0,delta2=NULL){
     return(cbind.data.frame(data=newtheta,year=year))
 }
 
-fillgape <- function(){
-
-    realdata=read.csv("data/theta_real.csv")
-    theta=realdata$permille
-	### calculate mean for smaller time windows
-	#the order and signe of the timeseries dosent matter: omega(a) == omega(-rev(a))
-
-	delta_w=sapply(1:(length(theta)-w),function(i)sd(theta[i:(i+w)]))
-	plot(delta,xlab="time",main=paste0("windows size=",w*500," years (",w,"x 500yr)"),ylab=expression(delta),type="l")
-
-
-	omega_w=sapply(1:(length(theta)-w),function(i)
-				   {
-					   y=getSpectrum(theta[i:(i+w)]) #get spectrum of the environment generated
-					   x=1:length(y)
-					   fit=lm(log(y)~log(x),cbind.data.frame(x=1:length(y),y=y)) #fit a linear model to check slope
-					   return(abs(fit$coefficients[2]))
-				   }
-	)
-
-    newt=interpolate(-realdata$permille,-realdata$years.BP.2000,finalres=-.25)
-	#linear interpolation
-    newy=seq(min(-realdata$years.BP.2000),max(-realdata$years.BP.2000),.25)
-	#linear + noise
-    newtN=interpolate(-realdata$permille,-realdata$years.BP.2000,finalres=-.25,omega=omw,delta=dtw)
-    plot(-realdata$years.BP.2000[1:100],realdata$permille[1:100],type="l",lwd=10)
-    plot(-realdata$years.BP.2000,-realdata$permille,type="l")
-    plot(newy,newt,type="l",lwd=2,col="red")
-    par(mfrow=c(1,2))
-    plot(realdata$years.BP.2000,realdata$permille,type="l")
-    sub=seq(1,length(newy),length.out=length(newy)/5)
-
-    plot(-realdata$years.BP.2000,-realdata$permille,type="l",lwd=10,xlim=c(-300,0))
-    lines(rev(newy),newtN,type="l",col="red",lwd=3)
-    lines(rev(newy),newt,type="l",col="green")
-
-	w=10
-
-	omega_w=sapply(1:(length(theta)-w),function(i)getOmega(theta[i:(i+w)]) )
-
-}
 
 #return the coefficient of a linear fit to the spectrum decomposition of a time serie t
 getOmega <- function(t){
@@ -183,6 +117,7 @@ applySampling <- function(x,y,fun)tapply(y,x,fun)
 # data a vector of measure
 # year a vector of date
 # by the ne sampling rate in year
+#' @return a two columns data frame. Each column is of dimension: seq(min(year),max(year),by=by), one with the years and other with associated theta
 getMean2 <- function(data,year,by){
     newyears=rev(seq(max(year),min(year),-by))
     newdata=sapply(1:length(newyears),function(y,data,oldyear)
@@ -197,6 +132,11 @@ getMean2 <- function(data,year,by){
     return(cbind.data.frame(data=newdata[-1],year=newyearsmean))
 }
 
+#' create an evenly spaced vector of date and associate to it the closest datapoint from the original dataset 
+#' @param data a vector of measure
+#' @param year a vector of date
+#' @param by the ne sampling rate in year
+#' @return a two columns data frame. Each column is of dimension: seq(min(year),max(year),by=by), one with the years and other with associated theta
 getClosest <- function(data,year,by){
     newyears=rev(seq(max(year),min(year),-by))
     newdata=sapply(newyears,function(y,data,oldyear)
@@ -224,10 +164,11 @@ multitaper  <- function(){
 
 }
   
+##wrapper to calculate the spectrum decomposition of a timeserie using Multitaper Methods
 getSpectrumMTM <- function(data,freq,nw=2.0,k=3,...){
     require(multitaper)
-res=unique(getDateResolution(freq))
-if(length(res)>1)res=mean(res)
+    res=unique(getDateResolution(freq))
+    if(length(res)>1)res=mean(res)
     data.ts <- ts(data=data, start=min(freq), freq=1/res) 
     data.spec <- spec.mtm(data.ts, nw=nw, k=k,plot=F) 
     return(data.spec)
