@@ -78,8 +78,9 @@ exploreEnvironmentsProperties <- function(){
 #' @param times: the time associated to the thetas
 #' @param finalres: the resolution, in the unit used in the vector times, at which new data had to be generate. if times is in year and finalres is 1, the vector thetat will correspond to data ofr each eyar, if time is in thousand of years (as in LR04 stack) and finalres is 0.5 thus the output will correspond to one point every 500 years.
 #' @param omega: autocorrelation of the noise use to generate interpolate datapoints
-#' @param delta: variance of the noise use to generate interpolate datapoints
-#' @return a vector of dimension: seq(1,length(times),by=finalres)
+#' @param delta: variance of the noise used for bigger gap
+#' @param delta2: variance of the noise used for smaller gaps
+#' @return two vectors of dimension: seq(1,length(times),by=finalres), one with the years and other with associated theta
 interpolate <- function(theta,times,finalres,delta=0,omega=0,delta2=NULL){
     if(is.null(delta2))delta2=delta
     newtheta=c()
@@ -157,6 +158,7 @@ fillgape <- function(){
 
 }
 
+#return the coefficient of a linear fit to the spectrum decomposition of a time serie t
 getOmega <- function(t){
 	y=getSpectrum(t) #get spectrum of the environment generated
 	x=1:length(y)
@@ -231,7 +233,7 @@ if(length(res)>1)res=mean(res)
     return(data.spec)
 }
 
-#' Get the fit between two vector, possibility to limit the fit to a region of the data (using u and sp)
+#' Get the absolute slope of a linear fit between two vectors, possibility to limit the fit to a region of the data (using u and sp)
 getOmega2 <- function(x,y,u=NULL,sp=.5){
     w=T
     if(!is.null(u)){
@@ -263,7 +265,7 @@ getLogSpec <- function(data,year){
 #' apply the function f on subsets of size w of the vector data
 getWindows<-function(data,w,f)sapply(1:(length(data)-w),function(i,w)f(data[i:(i+w)]),w=w) 
 
-#' getOmegaWrap return the slope of the spectrum of a vector
+#' getOmegaWrap return the slope of the spectrum decomposition of a vector
 #' @param data a vector 
 #' @return a double 
 getOmegaWrap <- function(data){
