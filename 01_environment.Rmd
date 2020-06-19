@@ -485,19 +485,6 @@ Let see when we zoom on the first and last 30,000 years
 
 Let see know how the parameter of our  interpolation impact the properties of our environments: 
 
-```{r}
-
-
-#explore=lapply(1:5,function(d)
-#       {
-#           lapply(1:5,function(o)
-#           {
-#               interpolate(ls16$dTsVscales,ls16$year,20,omega=o,delta=d)
-#           })
-#       })
-#
-```
-
 
 
 ```{r}
@@ -592,16 +579,15 @@ knitr::include_graphics("images/dzy01102.jpeg")
 
 What does it changes if we do the anlyse of the full spectrum? 
 
-```{r fullspec-fig2,out.width="65%",fig.show="hold",fig.height=10}
-par(mfrow=c(2,1),mar=c(5,1,1,1),oma=c(0,5,0,0))
+```{r fullspec-fig2,out.width="50%",fig.show="hold",fig.cap="Mitsui et al but with the full NGRIP2 dataset",fig.show="hold"}
 
 m.spec=getSpectrumMTM(ngrip2$dOice,ngrip2$year)
-plot(log10(m.spec$freq),log10(m.spec$spec),xaxs="i",type="l",xlab="",ylab="P(f)")
+plot(log10(m.spec$freq),log10(m.spec$spec),xaxs="i",type="l",xlab=expression(log[10]*f),ylab=expression(log[10]*P(f)))
 
 w=x > -3.5 & x < -2.5 #window to comput beta (omega for us)
 fitw=lm(y[w] ~ x[w])
 abline(fitw,col="dark blue")
-text(-2.5,3,bquote(omega == .(round(fitw$coefficients[[2]],digit=2))),col="dark blue")
+text(-2.5,3,bquote(omega == .(-round(fitw$coefficients[[2]],digit=2))),col="dark blue")
 
 middle=seq(-5,max(x),.1)
 allOmegas=sapply(middle,getOmega2,x=x,y=y)
@@ -609,8 +595,9 @@ plot(middle,allOmegas,type="b",xaxs="i",xlab=expression(log[10]*f),ylab=expressi
 
 ```
 
+Comparison of all rescaled and subsampled spectrum: 
 
-```{r allScales,fig.out="50%",fig.cap="Power Spectral Density (usin MTM) for all rescaled envrionments"}
+```{r allScales,out.width="80%",fig.cap="Power Spectral Density (usin MTM) for all rescaled envrionments"}
 
 m.spec=getSpectrumMTM(ngrip2$dOice,ngrip2$year)
 plot(log10(m.spec$freq),log10(m.spec$spec),xlim=c(-5.5,-1.5),ylim=c(-2,6),axes=F,type="n",xlab="Cycle Length (years)",ylab=expression(log[10]*P(f)))
@@ -630,35 +617,78 @@ axis(2)
 
 ```
 
-Resample Martrat and Vostok using last part of ngrip2 noise.
+## Combine Real and simulated noise
 
-```{r resample-vostok,fig.cap="Interpoling missing data for different environment using NGRIP2 Power Sprectral Density",out.width="25%",fig.show="hold"}
-ns=getMean2(data=vostok$dTsVscales,year=vostok$year,by=max(getDateResolution(vostok$year)))
-tstv=interpolate(theta=ns$data,times=ns$year,finalres=20,delta=.8,omega=1.41)
-plotSpectrum(tstv$data,tstv$year,xlim=c(-6.5,-1.5)) 
-lines(getLogSpec(ngrip2$dTsVscales,ngrip2$year),col="green")
+As we have seen every dataset gives us proxy for the climate at different resolutions, whcih means that using the environment as is in our simulation will creat generation spanning uneven time. We need to interpolate new datapoint to fill the gaps. 
 
-tstv=interpolate(theta=martrat$dTsVscales,times=martrat$year,finalres=20,delta=.8,omega=1.41)
-plotSpectrum(tstv$data,tstv$year,xlim=c(-6.5,-1.5)) 
-lines(getLogSpec(ngrip2$dTsVscales,ngrip2$year),col="green")
-lines(getLogSpec(martrat$dTsVscales,martrat$year),col="red")
+The biggest gap are in the LR04 stack and epica,, the ones describing the largest time scale and are respectively of `r max(getDateResolution(lr04$year))` years. But the length of those gap varying infrom each dataset, here is the distribution
 
-tstv=interpolate(theta=epica$dTsVscales,times=epica$year,finalres=20,delta=.8,omega=1.41)
-plotSpectrum(tstv$data,tstv$year,xlim=c(-6.5,-1.5)) 
-lines(getLogSpec(ngrip2$dTsVscales,ngrip2$year),col="green")
-lines(getLogSpec(epica$dTsVscales,epica$year),col="red")
-
-tstv=interpolate(theta=lr04$dTsVscales,times=lr04$year,finalres=20,delta=.8,omega=1.41)
-plotSpectrum(tstv$data,tstv$year,xlim=c(-6.5,-1.5)) 
-lines(getLogSpec(ngrip2$dTsVscales,ngrip2$year),col="green")
-lines(getLogSpec(lr04$dTsVscales,lr04$year),col="red")
-legend("topright",legend=c("original + interpolate","original","ngrip2"),lwd=1,col=c("black","red","green"))
+```{r gapDistrib,fig.cap="Distribution of gap lenght in year for all environments"}
+plot(density(unlist(sapply(allRealEnv,function(e)getDateResolution(e$year)))),xlab="gap size (years)",ylab="density",log="x",main="distribution of gap sizes")
 ```
 
-distT<-function(u,n){
-1-(abs(u-n)/(sqrt(abs(u^2-absn)^2))
+We can see that most of the gaps last betwen 20 to 50 years, and some of them last mor than 200 years.
+
+Mitsui et al 2019 have shown that for cycles betweeen $10^{2.5}$  to $10^{3.5}$ the amplitude of cycles of decreasing length is approximate by a log-log linear fit of slope -1.41 wherease the ampltitude of shorter cycle ($<100$) is closer to white noise. 
+
+To generate new datapoints we use our function to generate noise of a certain slope when the gap are bigger than 100 years and for gap smaller than 100 years we generate a white noise. Both type of noise are then added to the straight line between the points around the gap.
+
+To know the amplitude (ie the variation) of the noise we add to the line, we compute  the variation of sliding windows of the size of the gap.
+
+
+```{r deltaW,out.width="33%",fig.show="hold",fig.cap="variation of the standard deviation for different windows size. The red line represent the mode of the distribution."}
+for(w in c(100,500,1000)){
+    dw=getWindows(ngrip2$dTsVscales,w,sd)
+    #mdw=hdr(dw)[["mode"]]
+    #saveRDS(file=paste0("data/dt",w,".bin"),mdw)
+    plot(density(dw),ylab="proba",xlab=expression(delta),main=paste("w=",w))
+    mdw=readRDS(file=paste0("data/dt",w,".bin"))
+    abline(v=mdw,col="red")
 }
+```
 
+In the figure below we apply this method to generate missing data for a few dataset. The red curve represent the dataset subsampled at is lowest resolution. The black line represent the dataset plus the 
+new data points while the green line represent the spectrum for the ngrip2 dataset.
 
-Generate mutli slope noise
+```{r resample-vostok,fig.cap="Interpoling missing data for different environment using NGRIP2 Power Sprectral Density",out.width="50%",fig.show="hold"}
+#tstv=interpolate(theta=vostok$dTsVscales,times=vostok$year,finalres=20,delta=1.2,omega=1.41,delta2=0.38)
+#tstv=getClosest(tstv$data,tstv$year,by=20)
+#saveRDS(file="data/vostokInterpol.rds",tstv)
+#tstv=interpolate(theta=martrat$dTsVscales,times=martrat$year,finalres=20,delta=1.2,omega=1.41,delta2=0.38)
+#tstv=getClosest(tstv$data,tstv$year,by=20)
+#saveRDS(file="data/martratInterpol.rds",tstv)
+#tstv=interpolate(theta=epica$dTsVscales,times=epica$year,finalres=20,delta=1.2,omega=1.41,delta2=0.38)
+#tstv=getClosest(tstv$data,tstv$year,by=20)
+#saveRDS(file="data/epicaInterpol.rds",tstv)
+#tstv=interpolate(theta=lr04$dTsVscales,times=lr04$year,finalres=20,delta=1.2,omega=1.41,delta2=0.38)
+#tstv=getClosest(tstv$data,tstv$year,by=20)
+#saveRDS(file="data/lr04Interpol.rds",tstv)
+for(env in c("vostok","martrat","epica","lr04")){
+    tstv=readRDS(file=paste0("data/",env,"Interpol.rds"))
+    i=get(env)
+    rs=getClosest(i$dTsVscales,i$year,max(getDateResolution(i$year)))
+    plotSpectrum(tstv$data,tstv$year,xlim=c(-6.5,-1.5),main=env) 
+    plotSpectrum(rs$data,rs$year,col="red",add=T)
+    plotSpectrum(ngrip2$dTsVscales,ngrip2$year,add=T,col="green")
+legend("topright",legend=c(paste(env,"+ interpolate"),env,"ngrip2"),lwd=1,col=c("black","red","green"))
+}
+```
+
+<!--It should be noted that most of the gaps will be of length between 20 to 500 years, which means they will include only cycles of high frequencies. If we look at the spectrogram of NGRIP (Fig \@ref(fullspec-fig2) the cycles at those frequencies are the one with very low "power", thus  corresponding to very small changes in degree, the biggest changes are brought by large, very low frequency cycles.-->
+
+Comparison of different noise interpolation
+
+```{r}
+listimage=c(
+"images/verticalMz_vostokinterpolate_LinFALSERes20SlsrandomLOW_sigma2_E0.6.png",
+"images/verticalMz_vostokinterpolate_LinFALSERes20SlsrandomBIS2_sigma2_E0.6.png",
+"images/verticalMz_vostokinterpolate_LinTRUERes20SlsrandomBIS_sigma2_E0.6.png",
+"images/verticalMz_vostokinterpolate_LinTRUERes20SlsrandomTRIS_sigma2_E0.6.png",
+"images/verticalMz_vostokinterpolate_LinTRUERes20SlsrandomQUIS_sigma2_E0.6.png"
+)
+```
+
+```{r out.width="33%",fig.show="hold",fig.cap="vostok with inperpolation computed with different $\\omega$ (from left to right: $\\omega$ = 1,1.41,1.81)",fig.link=listimage}
+    knitr::include_graphics(listimage)
+```
 
