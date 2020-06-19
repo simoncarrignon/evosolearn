@@ -107,16 +107,16 @@ convertEpstein <- function(d) return(16.5-4.5*d+.14*d^2)
 #get the lowest resolution of the
 getDateResolution <- function(years) years[2:length(years)]-years[1:(length(years)-1)]
 
+##wrapers to functionalise simple subsetting call
 getLast <- function(x)return(x[1])
 getFirst <- function(x)return(x[length(x)])
-#getMean <- function(x)mean(x)
-
 applySampling <- function(x,y,fun)tapply(y,x,fun)
+###
 
-#return resempled vector of date and data
-# data a vector of measure
-# year a vector of date
-# by the ne sampling rate in year
+#' create an evenly spaced vector of date and associate to it the mean of the datapoints falling within the new intervals from the original dataset 
+#' @param data a vector of measure
+#' @param year a vector of date
+#' @param by the ne sampling rate in year
 #' @return a two columns data frame. Each column is of dimension: seq(min(year),max(year),by=by), one with the years and other with associated theta
 getMean2 <- function(data,year,by){
     newyears=rev(seq(max(year),min(year),-by))
@@ -154,16 +154,6 @@ getClosest <- function(data,year,by){
     return(cbind.data.frame(data=newdata,year=newyears))
 }
 
-multitaper  <- function(){
-    library(multitaper)
-    x <- -ngrip$year
-    y <- ngrip$dTsVscales
-    vars <- multitaperTrend(xd=y, B=0.05, deltat=50.0, t.in=x)
-    plot(x,y,type="l")
-    lines(x,vars[[1]]+vars[[2]]*vars[[3]],type="l",col="red")
-
-}
-  
 ##wrapper to calculate the spectrum decomposition of a timeserie using Multitaper Methods
 getSpectrumMTM <- function(data,freq,nw=2.0,k=3,...){
     require(multitaper)
