@@ -80,7 +80,8 @@ exploreEnvironmentsProperties <- function(){
 #' @param omega: autocorrelation of the noise use to generate interpolate datapoints
 #' @param delta: variance of the noise use to generate interpolate datapoints
 #' @return a vector of dimension: seq(1,length(times),by=finalres)
-interpolate <- function(theta,times,finalres,delta=0,omega=0){
+interpolate <- function(theta,times,finalres,delta=0,omega=0,delta2=NULL){
+    if(is.null(delta2))delta2=delta
     newtheta=c()
     for(i in 1:(length(times)-1)){
         if(5*finalres < abs(times[i]-(times[i+1]))){
@@ -98,7 +99,7 @@ interpolate <- function(theta,times,finalres,delta=0,omega=0){
             rangesyears=seq(times[i],(times[i+1]),by=finalres)
             newt=seq(theta[i],theta[i+1],length.out=length(rangesyears))
             names(newt)=rangesyears
-            noise=rnorm(length(newt),0,delta)
+            noise=rnorm(length(newt),0,delta2)
             newt[2:(length(newt-1))]=newt[2:(length(newt-1))]+noise[2:(length(newt-1))] #we add the generated noise only to the new datapoints
         }
         else{
