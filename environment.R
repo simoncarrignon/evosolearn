@@ -60,27 +60,25 @@ interpolate <- function(theta,times,finalres,delta=0,omega=0,delta2=NULL){
     if(is.null(delta2))delta2=delta
     newtheta=c()
     for(i in 1:(length(times)-1)){
-        if(5*finalres < abs(times[i]-(times[i+1]))){
+        if(abs(times[i]-(times[i+1])) > finalres){ #new points needed
             rangesyears=seq(times[i],(times[i+1]),by=finalres) #generate new time points between the two original ones given our new resolution
             newt=seq(theta[i],theta[i+1],length.out=length(rangesyears)) #generate new , regularly spaced ( ie linear) data points between the original one
             names(newt)=rangesyears
-            n=0
-            if(length(newt) %%2 != 0 ) n =1
-            noise=environment(length(newt)+n,omega=omega,delta=delta) # we generate the noise needed between the two datapoints included + 1 if the length is uneven
-            newt[2:(length(newt-1))]=newt[2:(length(newt-1))]+noise[2:(length(newt-1))] #we add the generated noise only to the new datapoints, excluding the original one
+            if(5*finalres < abs(times[i]-(times[i+1]))){#original resolution above threshold: 1/f noise
+                n=0
+                if(length(newt) %%2 != 0 ) n =1
+                noise=environment(length(newt)+n,omega=omega,delta=delta) # we generate the noise needed between the two datapoints included + 1 if the length is uneven
+            }
+            else{ #original resolution below threshold: white noise
+                noise=rnorm(length(newt),0,delta2)
+            }
+            newt[2:(length(newt-1))]=newt[2:(length(newt-1))]+noise[2:(length(newt-1))] #we add the generated noise only to the new datapoints, excluding the original ones
         }
-        else if( abs(times[i]-(times[i+1]))> finalres){
-            rangesyears=seq(times[i],(times[i+1]),by=finalres)
-            newt=seq(theta[i],theta[i+1],length.out=length(rangesyears))
-            names(newt)=rangesyears
-            noise=rnorm(length(newt),0,delta2)
-            newt[2:(length(newt-1))]=newt[2:(length(newt-1))]+noise[2:(length(newt-1))] 
-        }
-        else{ #resolution of the original dataset is hight enough so we keep original datapoints
+        else{ #original resolution high enough, we keep original datapoints
             newt=theta[i:(i+1)]
             names(newt)=times[i:(i+1)]
         }
-        newtheta=c(newtheta,newt[-length(newt)]) #include the first original point
+        newtheta=c(newtheta,newt[-length(newt)]) #exluce the last original point (will be include next step)
     }
     newtheta=c(newtheta,theta[length(theta)]) #include the last original point
     names(newtheta)[length(newtheta)]=times[length(times)]
