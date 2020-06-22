@@ -67,7 +67,17 @@ printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.wi
                 subb=droplevels(data[data$mu ==mu &data$m ==m &data$E ==e & data$k_z ==kz & data$k_y ==ky,])
                 nexpe=nrow(subb)
                 if(ind){
-                    for(f in sample.int(nexpe,subnb)){
+                    subselect=sample.int(nexpe,subnb)
+                    if(is.null(ordered))ordered="n"
+                    if(ordered=="z"){
+                    reorder=sapply(subselect,function(f)sum(getUniqueExp(subb$filename[f])[,"mean_z"],na.rm=T))
+                    subselect=subselect[order(reorder)]
+                    }
+                    if(ordered=="y"){
+                    reorder=sapply(subselect,function(f)sum(getUniqueExp(subb$filename[f])[,"mean_y"],na.rm=T))
+                    subselect=subselect[order(reorder)]
+                    }
+                    for(f in subselect){
                         pxl=c()
                         summary=getUniqueExp(subb$filename[f])
                         na=which.max(is.na(summary[,1]))#find the first na ie when pop get extinct
@@ -84,7 +94,7 @@ printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.wi
                     names(vars)=vars
                     mat_allexp= lapply(vars,function(i)matrix(NA,nexpe,tlim))
                     for(i in 1:nexpe){
-                        load(as.character(subb$filename[i]))
+                        summary=getUniqueExp(subb$filename[i])
                         rng=(nrow(summary)-tlim+1):nrow(summary)
                         for(v  in vars){
                             if(length(mat_allexp[[v]][i,])!=length(summary[rng,v]))
@@ -112,7 +122,7 @@ printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.wi
             }
             scale=1 #to convert time scale in year
             png(filename,width=img.width,height=img.height,pointsize=img.pointsize)
-            par(mar=rep(.5,4),oma=c(4,4,4,1))
+            par(mar=rep(.5,4),oma=c(3,4,4,1))
 
             layout(matrix(c(1,2),ncol=2,nrow=1),width=c(prop,1-prop))
 
@@ -284,16 +294,34 @@ for(s in unique(binded2$sigma)){
 
 }
 
-for(s in unique(binded2$sigma)){
 
-    binded=binded2[binded2$sigma==s,]
-    env=read.csv(paste0("data/",exp$env,".csv"))
-    for(e in unique(binded$E)){
-        printRGBpixels(data=binded,filename=paste0("images/vertical_",idexpe,"_sigma",s,"_E",e,".png"),ind=F,env=env,img.width=800)
-        printRGBpixels(data=binded,filename=paste0("images/verticalM_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42)
+for( exp in allexp){
+    folder=exp$folder
+    idexpe=exp$idexpe
+    try({
+    binded=do.call("rbind",lapply(list.files(path=folder,recursive=T,full.names=T,pattern="*cross*"),function(u){print(u);load(u);return(binded)}))
+    summary=getUniqueExp(binded$filename[1])
+    nsteps=nrow(summary)
+
+    nlines=length(unique(binded$k_z))*length(unique(binded$k_y))
+    ncols=length(unique(binded$E))
+
+    binded2=binded
+    for(s in unique(binded2$sigma)){
+
+        binded=binded2[binded2$sigma==s,]
+        env=read.csv(paste0("data/",exp$env,".csv"))
+        for(e in unique(binded$E)){
+            printRGBpixels(data=binded,filename=paste0("images/vertical_",idexpe,"_sigma",s,"_E",e,".png"),ind=F,env=env,img.width=800)
+            printRGBpixels(data=binded,filename=paste0("images/verticalM_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42)
+            printRGBpixels(data=binded,filename=paste0("images/verticalMy_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42,ordered="y")
+            printRGBpixels(data=binded,filename=paste0("images/verticalMz_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42,ordered="z")
+        }
     }
+    })
+    print(exp$idexpe)
+
 }
-                
                     
 
 
