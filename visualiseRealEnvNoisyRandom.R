@@ -31,7 +31,9 @@ setAxis <- function(data){
 #' @param subnb if ind is TRUE, number of uindividual run to plot by experiments
 #' @param limit number of step (ie generation) to visualise 
 #' @param prop realtive width of the environment plot wrt the rgb matrix
-printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.width=600,img.height=800,img.pointsize=14,env=NULL,prop=.1)
+#' @param varcol withc variable use forthe color
+#' @param palette the color palette to use
+printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.width=600,img.height=800,img.pointsize=14,env=NULL,prop=.1,ordered=NULL,varcol="rgb",palette=)
 {
 
     mum=as.data.frame(expand.grid(m=unique(data$m),mu=unique(data$mu)))
@@ -82,15 +84,22 @@ printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.wi
                         summary=getUniqueExp(subb$filename[f])
                         na=which.max(is.na(summary[,1]))#find the first na ie when pop get extinct
                         if(na>1) summary=summary[1:(na-1),,drop=F]
-                        alphalvl=sapply(summary[,"N"]/1000,function(i)min(i,1))
-                        pxl=rgb(summary[,"mean_y" ],.5,summary[,"mean_z"],alphalvl)
+                        if(varcol=="rgb"){
+                            alphalvl=sapply(summary[,"N"]/1000,function(i)min(i,1))
+                            pxl=rgb(summary[,"mean_y" ],.5,summary[,"mean_z"],alphalvl)
+                        }
+                        else{
+                            pxl=palette[summary[,rgb]]
+                        }
+
                         bicpic[1:length(pxl),p]=pxl
                         p=p+1
                         print(paste("individual run",p,"/",ncol(bicpic)))
                     }
                 }
                 else{ 
-                    vars=c("mean_y","mean_z")
+                    if(varcol=="rgb") vars=c("mean_y","mean_z")
+                    else vars=varcol
                     names(vars)=vars
                     mat_allexp= lapply(vars,function(i)matrix(NA,nexpe,tlim))
                     for(i in 1:nexpe){
@@ -110,9 +119,13 @@ printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.wi
                     if(length(sum_mat$mean_y)>1){
                         if(is.na(sum_mat$na[1]))
                             pxl=NA
-                        else
+                        else{
                             #pxl=rgb(sum_mat$mean_y,.5,sum_mat$mean_z,alpha=1)
+                        if(varcol=="rgb")    
                             pxl=rgb(sum_mat$mean_y,.5,sum_mat$mean_z,alpha=1-sum_mat$na/nexpe)
+                        else    
+                            pxl=alpha(palette[sum_mat[[varcol]]],alpha=1-sum_mat$na/nexpe)
+                        }
                         bicpic[1:length(pxl),p]=pxl
                     }
 
