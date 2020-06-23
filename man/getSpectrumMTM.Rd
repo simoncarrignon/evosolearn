@@ -9,7 +9,7 @@ getSpectrumMTM(data, freq, nw = 2, k = 3, ...)
 \arguments{
 \item{data}{a vector of measure}
 
-\item{freq}{a vector of time at which each measure of \emph{data} has been done}
+\item{freq}{a vector of time at which each measure of data has been done}
 }
 \description{
 wrapper to calculate the spectrum decomposition of a timeserie using Multitaper Methods
