@@ -189,22 +189,24 @@ pureSl=slpalette(2)[2]
 pureIl=ilpalette(2)[2]
 
 
-namesRealEnv=c("ls16","lr04","epica","vostok","ngrip","martrat")
-#namesRealEnv=c("vostok")
-namesFun=c("getMean2","getClosest")
-namesFun=c("interpolate_LinTRUERes20RANDOM","interpolate_LinFALSERes20BEST")
+namesRealEnv=c("lr04","epica","vostok","ngrip","martrat")
+namesRealEnv=c("vostok", "lr04")
+namesFun=c("interpolate_LinTRUERes20RANDOM","interpolate_LinFALSERes20RANDOM","interpolate_LinTRUERes20BEST","interpolate_LinFALSERes20BEST","interpolate_LinTRUERes20SlsrandomBIS","interpolate_LinTRUERes20SlsbestBIS")
+
 #namesFun=c("interpolate_LinTRUERes20SlsrandomTRIS","interpolate_LinTRUERes20SlsbestTRIS")
-#namesFun=c(
-#           "interpolate_LinTRUERes20SlsrandomBIS","interpolate_LinTRUERes20SlsbestBIS",
-#           "interpolate_LinTRUERes20SlsrandomTRIS","interpolate_LinTRUERes20SlsbestTRIS",
-#           "interpolate_LinTRUERes20SlsrandomQUIS","interpolate_LinTRUERes20SlsbestQUIS"
-#           )
+namesFun=c(
+           #"interpolate_LinTRUERes20SlsrandomBIS","interpolate_LinTRUERes20SlsbestBIS",
+           "interpolate_SlsrandomNEW"#,"interpolate_LinTRUERes20SlsbestTRIS",
+           #"interpolate_LinFALSERes20SlsrandomLOW",
+           #"interpolate_LinFALSERes20SlsrandomBIS2"
+           )
 
 combiname=expand.grid(namesRealEnv,namesFun)
 allexp=apply(combiname,1,function(i)list(folder=paste0(i,collapse=""),idexpe=paste0(i,collapse=""),env=i[1],fun=i[2]))
 
 for( exp in allexp){
     print(exp)
+}
 
 folder=exp$folder
 idexpe=exp$idexpe
@@ -328,10 +330,14 @@ for( exp in allexp){
         binded=binded2[binded2$sigma==s,]
         env=read.csv(paste0("data/",exp$env,".csv"))
         for(e in unique(binded$E)){
-            printRGBpixels(data=binded,filename=paste0("images/vertical_",idexpe,"_sigma",s,"_E",e,".png"),ind=F,env=env,img.width=800)
-            printRGBpixels(data=binded,filename=paste0("images/verticalM_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42)
-            printRGBpixels(data=binded,filename=paste0("images/verticalMy_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42,ordered="y")
-            printRGBpixels(data=binded,filename=paste0("images/verticalMz_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42,ordered="z")
+            #printRGBpixels(data=binded,filename=paste0("images/vertical_",idexpe,"_sigma",s,"_E",e,".png"),ind=F,env=env,img.width=800)
+            #printRGBpixels(data=binded,filename=paste0("images/verticalM_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42)
+            #printRGBpixels(data=binded,filename=paste0("images/verticalMy_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42,ordered="y")
+            #printRGBpixels(data=binded,filename=paste0("images/vertical_N_Mz_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42,ordered="z")
+            printRGBpixels(data=binded,filename=paste0("images/vertical_N_",idexpe,"_sigma",s,"_E",e,".png"),ind=F,env=env,img.width=800,varcol="N")
+            printRGBpixels(data=binded,filename=paste0("images/vertical_N_M_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42,varcol="N")
+            printRGBpixels(data=binded,filename=paste0("images/vertical_N_My_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42,ordered="y",varcol="N")
+            printRGBpixels(data=binded,filename=paste0("images/vertical_N_Mz_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42,ordered="z",varcol="N")
         }
     }
     })
