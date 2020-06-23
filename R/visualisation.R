@@ -7,7 +7,10 @@
 #' @param results the output of evosolearn()
 #' @export
 getRgbScale <- function(results){
-    return(rgb(results[,"mean_y"],.5,results[,"mean_z"]))
+    res=rep(NA,nrow(results))
+    nas=is.na(results[,"mean_y"])
+    res[!nas]=rgb(results[!nas,"mean_y"],.5,results[!nas,"mean_z"])
+return(res)
 }
 
 
@@ -73,7 +76,7 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
         }
         if(addrgb){
             cls=matrix(nrow=1,ncol=nrow(results))
-            cls[1,]=rgb(results[,"mean_y"],.5,results[,"mean_z"])
+            cls[1,]=getRgbScale(results)
             plot.new()
             rasterImage(cls, 0, 0.2, 1, .8,interpolate=F,ylim=c(0,1))
             mtext("rgb(y,z)",2,1,cex=.8)
