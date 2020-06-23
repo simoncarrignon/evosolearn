@@ -1,4 +1,5 @@
 
+#' Selection function
 #' @param w:vector with fitness
 #' @param b:numeric value for the rate of birth
 #' @param n:numeric value for the size of the pop (redundant/should be equal to length(w))
@@ -7,6 +8,7 @@
 selection <- function(w,b,n,K) 1/(1+(b-1)*(n/(K*w)))
 
 
+#' updateOutputLine 
 #' @param ouptut a current output to be update or initialized if NULL
 #' @param pop the current population upon wihch statistics have to be calculated
 #' @param statfun a vector with the different function we apply on the population
