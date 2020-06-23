@@ -49,7 +49,7 @@ NULL
 #'
 #' @docType data
 #' @keywords datasets
-#' @name martrat 
-#' @usage data(martrat)
+#' @name ngrip2 
+#' @usage data(ngrip2)
 #' @format A data frame with 6113 rows and 3 variables
 NULL
