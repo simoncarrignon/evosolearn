@@ -19,10 +19,10 @@ library(scales)
 knitr::opts_chunk$set(collapse=TRUE)
 knitr::opts_chunk$set(echo=FALSE)
 knitr::opts_chunk$set(warning=FALSE,message=FALSE,out.width='60%',fig.align="center")
-source("tools.R")
-source("corefunctionss.R")
-source("toolsSummariesAndTraj.R")
-source("environment.R")
+source("../R/tools.R")
+source("../R/corefunctionss.R")
+source("../R/toolsSummariesAndTraj.R")
+source("../R/environment.R")
 ```
 
 ```{r write-bib, include=FALSE}
