@@ -1,17 +1,18 @@
-slpalette=colorRampPalette(c(rgb(1,.5,0),rgb(0,.5,1)))
-ilpalette=colorRampPalette(c(rgb(0,.5,0),rgb(1,.5,0)))
-survivalpallette=colorRampPalette(c("grey","yellow","dark green"))
-extinctpalette=colorRampPalette(c("chartreuse4","white"))
-pureSl=rgb(0,.5,1)
-pureIl=rgb(1,.5,0)
-pureGl=rgb(0,.5,0)
+### Set some global variable
+slpalette <- colorRampPalette(c(rgb(1,.5,0),rgb(0,.5,1)))
+ilpalette <- colorRampPalette(c(rgb(0,.5,0),rgb(1,.5,0)))
+survivalpallette <- colorRampPalette(c("grey","yellow","dark green"))
+extinctpalette <- colorRampPalette(c("chartreuse4","white"))
+pureSl <- rgb(0,.5,1)
+pureIl <- rgb(1,.5,0)
+pureGl <- rgb(0,.5,0)
+###
 
-#' Plot all
+#' Plot single run
 #' 
 #' Function that plot mean and standard for all values
 #' 
 #' @param restults the output of evosolearn()
-#' @return 
 #' @export
 plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y","z"),multi=F,N=T,theta=T,addrgb=T){
     allpop=F
@@ -77,7 +78,6 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
 #' Function that plot mean phenotype a standard deviation
 #' 
 #' @param restults the output of evosolearn()
-#' @return 
 #' @export
 plotThetaPhenotypes <- function(results,...){
     allpop=F
@@ -114,7 +114,6 @@ plotThetaPhenotypes <- function(results,...){
 #' Function that plot mean a standard deviation
 #' 
 #' @param restults the output of evosolearn()
-#' @return 
 #' @export
 plotDistThetaNW <- function(results,...){
     allpop=F
