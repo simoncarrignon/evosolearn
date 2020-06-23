@@ -8,7 +8,7 @@ plotResults(results, statfun = c("mean", "sd"), statvar = c("w", "p",
   "x", "y", "z"), multi = F, N = T, theta = T, addrgb = T)
 }
 \arguments{
-\item{restults}{the output of evosolearn()}
+\item{results}{the output of evosolearn()}
 }
 \description{
 Function that plot mean and standard for all values

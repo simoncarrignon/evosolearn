@@ -1,3 +1,16 @@
+#' Plot single run
+#' 
+#' RGB Scale
+#'
+#' Function that gives the rgb scale of a results
+#' 
+#' @param results the output of evosolearn()
+#' @export
+getRgbScale <- function(results){
+    return(rgb(results[,"mean_y"],.5,results[,"mean_z"]))
+}
+
+
 ### Set some global variable
 slpalette <- colorRampPalette(c(rgb(1,.5,0),rgb(0,.5,1)))
 ilpalette <- colorRampPalette(c(rgb(0,.5,0),rgb(1,.5,0)))
@@ -12,7 +25,7 @@ pureGl <- rgb(0,.5,0)
 #' 
 #' Function that plot mean and standard for all values
 #' 
-#' @param restults the output of evosolearn()
+#' @param results the output of evosolearn()
 #' @export
 plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y","z"),multi=F,N=T,theta=T,addrgb=T){
 	defpar=par()
