@@ -36,7 +36,15 @@ getSpectrum <- function(x){
     S.pgram
 }
 
-#return a 1/f environment of N steps with sd = delta and the slope of it's spectrum decompoistion = -omega + possibility to increase the mean of the environment at a rate vt (in wich case the slop may not be -omega)
+#' Environment generator
+#'
+#' return a list of opitmum as a "1/f-noise" of N steps with sd = delta and the slope of it's spectrum decompoistion = -omega + possibility to increase the mean of the environment at a rate vt (in wich case the slop may not be -omega)
+#'
+#' @param omega the slope of the power distribution (called omega in whitehead)
+#' @param delta the standard deviation of the global environmental fluctuation 
+#' @param N the length of the timeserie to generate
+#' @param vt if not NULL, the  mean of the optimum increase at a rate vt  
+#' @return a list of N optima theta
 #' @export
 environment <- function(N,omega,delta,vt=NULL){
     ts=TK95(N,omega)
