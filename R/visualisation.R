@@ -25,9 +25,15 @@ pureGl <- rgb(0,.5,0)
 #' 
 #' Function that plot mean and standard for all values
 #' 
+#' @param statvar a vector with the different variable to plot 
+#' @param multi if true, add some comparison at the end
+#' @param N if true, add effective pop size
+#' @param addrgb if true, add rgb scale
+#' @param theta if true, add the optimum list
+#' @param year if not null label theta axis using the range of years
 #' @param results the output of evosolearn()
 #' @export
-plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y","z"),multi=F,N=T,theta=T,addrgb=T){
+plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y","z"),multi=F,N=T,theta=T,addrgb=T,year=NULL){
 	defpar=par()
     allpop=F
     nlines=length(statvar)
@@ -58,7 +64,7 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
             meanvar=results[,paste0("mean_",var)]
             if(var %in% c("y","z","w"))yrange=c(0,1)
             else yrange=range(meanvar-sdvar,meanvar+sdvar,na.rm=T)
-            plot(meanvar,type="l",ylim=yrange,ylab="",main="",bty="n",xlab="t",axes=F,col=vcol[var])
+            plot(meanvar,type="l",ylim=yrange,ylab="",main="",bty="n",xlab="t",axes=F,col=vcol[var],xaxs="i")
             axis(2,xaxs="i")
             mtext(parse(text=paste0("bar(",var,")")),2,3,cex=.9)
             lines(meanvar+sdvar,lty=3,col=vcol[var])
@@ -73,7 +79,10 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
             mtext("rgb(y,z)",2,0,cex=.8)
         }
         if(theta){
-            plot(results[,"theta"],type="l",ylab="",main="",bty="n",xlab="t",axes=F,col="black")
+            x=seq_along(results[,"theta"])
+            if(!is.null(year))
+                x=seq(min(year),max(year),length.out=length(x))
+            plot(x,results[,"theta"],type="l",ylab="",main="",bty="n",xlab="t",axes=F,col="black")
             axis(2,xaxs="i")
             mtext(expression(theta),2,3)
         }
@@ -220,7 +229,7 @@ plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,t=NULL,...){
     i=axis(1,labels=NA,col=NA)
     if(!is.null(t))axis(1,at=i,labels=t[seq(1,length(t),length.out=length(i))])
     par(new=T)
-    plot(theta,xlab="",type="l",col="red",yaxt="n",xaxt="n",bty="n",ylab="")
+    plot(x,theta,xlab="",type="l",col="red",yaxt="n",xaxt="n",bty="n",xlab="y",ylab="")
     axis(4,col="red",col.axis="red")
     mtext(expression(theta),4,2,col="red")
 }
