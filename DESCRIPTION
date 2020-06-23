@@ -1,14 +1,23 @@
 Package: evosolearn
-Title: What the Package Does (One Line, Title Case)
+Title: Evolution of Social Learning in hominid species
 Version: 0.0.0.9000
-Authors@R: 
-    person(given = "First",
-           family = "Last",
+Authors@R: c(
+    person(given = "Simon",
+           family = "Carrignon",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: What license it uses
+           email = "scarrign@utk.org",
+           comment = c(ORCID = "YOUR-ORCID-ID")),
+    person(given = "Sergey",
+           family = "Gavrilets",
+           role = c("aut"),
+           email = "gavrila@utk.org").
+    person(given = "Peter",
+           family = "Richerson",
+           role = c("aut""),
+           email = "gavrila@utk.org").
+    )
+Description: simulate genetic evolution of social learning
+License: GPLv3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
