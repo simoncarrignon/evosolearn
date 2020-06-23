@@ -1,6 +1,5 @@
 source("toolsSummariesAndTraj.R")
-
-
+source("tools.R")
 
 
 nullOmeg=getAlllSummaries(c("growingDelta","unifPop50k"))
@@ -28,9 +27,13 @@ omega=updateScale(omega)
 omega2=getAlllSummaries(c("omega2growingDelta"))
 omega2=updateScale(omega2)
 
-plotAllTrajVar(omega,obs="N",m=.05,E=0)
+gt=getAlllSummaries(c("growingThetat/"))
+gt=updateScale(gt)
+plotAllVariableSummaries(gt,E=0,estimate=eq2833b)
+plotAllTrajVar(gt,obs="N",m=.05,E=0)
 
-pdf("allvarianceOmega1.pdf",width=11,height=12)
+
+pdf("allvarianceOmega2.pdf",width=11,height=12)
 plotAllVariableSummaries(omega,E=0,estimate=eq2833b)
 dev.off()
 pdf("allvarianceOmega2.pdf",width=11,height=12)
@@ -43,6 +46,10 @@ dev.off()
 
 pdf("traj_distoptimumOmega1.pdf",width=11,height=12)
 plotAllTrajVar(omega,obs="dist",m=.05,E=0)
+dev.off()
+
+pdf("traj_var_xOmega1.pdf",width=11,height=12)
+plotAllTrajVar(omega,obs="var_x",m=.05,E=0,ylim=c(0,.01))
 dev.off()
 
 plotAllTrajVar(omega2,obs="dist",m=.05,E=0)
@@ -67,12 +74,5 @@ scale=list(var_x=list("0.1"=c(0,0.004),"0.2"=c(0,0.002),"0.4"=c(0,0.005),"10000"
            mean_w=c(.2,1)
            )
 side=list(var_x="topleft",N="bottomright",mean_w="bottomright")
-
-mean(replicate(10,{
-t=environment(10000,2,1)
-vtm=t[1:(length(t)-1)]
-vt=t[2:length(t)]
-cov(vt,vtm)
-           }))
 
 
