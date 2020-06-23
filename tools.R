@@ -461,3 +461,36 @@ randomCascades <- function(Nmin=100000,Nmax=50000,t_steps=50,y_max=1,runs=1,mu=0
     df$U=as.numeric(df$U)
     df
 }
+
+
+## Function to compute distances of all simulations  to an optimal distance
+distFivePercent <- function(data,clm){
+    allexp=as.character(getUniqeSet(data,clm)$filename)
+
+    y=sapply(allexp,function(f)readRDS(file=f)[,"mean_y"])
+    z=sapply(allexp,function(f)readRDS(file=f)[,"mean_z"])
+    x=sapply(allexp,function(f)readRDS(file=f)[,"mean_x"])
+
+    nz=mean(apply(z,1,function(l)sum(l > .85,na.rm=T ))/ncol(z))
+    s=0
+    s=distT(nz,0.05)
+    if(is.nan(s))s=1
+    vary=sd(apply(y,1,var,na.rm=T))
+    s=s+vary
+    varx=sd(apply(x,1,var,na.rm=T))
+    s=s+varx
+    return(s)
+}
+
+distT<-function(u,n) 1-(abs(u-n)/(sqrt(abs(u^2-n^2))))
+
+distU<-function(u,n) 1-(1/abs(u^2-n^2))
+
+
+getUniqeSet <- function(data,vect,out){
+    sub=rep(TRUE,nrow(data))
+    for(cn in names(vect)){
+       sub=sub & (data[,cn] == vect[[cn]])
+    }
+    data[sub,]
+}
