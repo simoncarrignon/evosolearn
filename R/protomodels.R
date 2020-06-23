@@ -1,6 +1,3 @@
-source("environment.R")
-source("tools.R")
-
 
 #' @param w:vector with fitness
 #' @param b:numeric value for the rate of birth
