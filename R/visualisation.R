@@ -15,6 +15,7 @@ pureGl <- rgb(0,.5,0)
 #' @param restults the output of evosolearn()
 #' @export
 plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y","z"),multi=F,N=T,theta=T,addrgb=T){
+	defpar=par()
     allpop=F
     nlines=length(statvar)
     if(N)nlines=nlines+1
@@ -71,6 +72,7 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
     axis(1)
     mtext(expression(theta),2,3)
     mtext("Single run summary",3,0,outer=T)
+    par(mfrow=defpar$mfrow,mar=defpar$mar,oma=defpar$oma)
 }
 
 
@@ -103,7 +105,7 @@ plotThetaPhenotypes <- function(results,...){
         lines(meanr+sdr,lty=3)
         lines(meanr-sdr,lty=3)
         par(new=T)
-        plot(results[,"theta"],type="l",col="blue",yaxt="n",xaxt="n",ylim=range(meanr-sdr,meanr+sdr,na.rm=T),ylab="",bty="n",axes=F,xlab="")
+        plot(results[,"theta"],type="l",col="blue",yaxt="n",xaxt="n",ylab="",bty="n",axes=F,xlab="")
         axis(4,col="blue",col.axis="blue")
         mtext(expression(theta),4,2,col="blue")
     }
