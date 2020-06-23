@@ -76,7 +76,7 @@ cl <- makeForkCluster(ns,outfile="")
                                   E[genes]=parameters[v,"E"]
                                   sigma=c(s=parameters[v,"sigma"],y=parameters[v,"sigma"]*parameters[v,"k_y"],z=parameters[v,"sigma"]*parameters[v,"k_y"]*parameters[v,"k_z"])
 								  pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1)),df=F)
-                                  fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random",allpop=T,repro="asex",prop=T)
+                                  fullmat=evosolearn(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random",allpop=T,repro="asex",prop=T)
                                   filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
                                   summary=fullmat$summary
                                   save(file=filename_mat,summary)

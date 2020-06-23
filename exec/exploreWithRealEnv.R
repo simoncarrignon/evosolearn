@@ -102,7 +102,7 @@ explore=do.call("rbind.data.frame",
                               pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
                               pop[,"x"]=rnorm(n,mean(env[1]),sd(env[1:5]))
                               sigma=c(s=parameters[v,"sigma"],y=parameters[v,"sigma"]*parameters[v,"k_y"],z=parameters[v,"sigma"]*parameters[v,"k_y"]*parameters[v,"k_z"])
-                              fullmat=simpleEvoModel(n=n,tstep=tstep,omega = 0,delta = 0 ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls=sls,allpop=F,repro="sex",prop=T,theta=env)
+                              fullmat=evosolearn(n=n,tstep=tstep,omega = 0,delta = 0 ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls=sls,allpop=F,repro="sex",prop=T,theta=env)
                               filename_mat=file.path(fold,paste0("fullmat",v,".rds"))
                               summary=fullmat
                               saveRDS(file=filename_mat,summary)

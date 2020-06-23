@@ -68,7 +68,7 @@ allresults=lapply(1:7,function(d)
                                            {
                                                print(i);
                                                p=unlist(u[sample(nrow(u),1),])
-                                               result=getFirst(simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=K,mu=c(x=0,y=0,z=0),m=c(x=0,y=0,z=0),E=c(x=unname(p["sigma"]),y=unname(p["sigma"]),z=unname(p["sigma"])),sigma=c(s=exp(1),y=exp(unname(p["C_i"])),z=exp(unname(p["C_v"]))),log=F,sls="mixed",pop=pop,outputrate=1,allpops=T,theta=env))
+                                               result=getFirst(evosolearn(n,tstep,omega = 0,delta = 0 ,b=2,K=K,mu=c(x=0,y=0,z=0),m=c(x=0,y=0,z=0),E=c(x=unname(p["sigma"]),y=unname(p["sigma"]),z=unname(p["sigma"])),sigma=c(s=exp(1),y=exp(unname(p["C_i"])),z=exp(unname(p["C_v"]))),log=F,sls="mixed",pop=pop,outputrate=1,allpops=T,theta=env))
                                                return(result)
                                            }
                                  )

@@ -73,7 +73,7 @@ length(socialLearning(childs,parents,sls="random"))-nrow(childs) #should be equa
 ##Running test
 E=c(x=1,y=1,z=1)
 sigma=c(s=1,y=1,z=1)
-test=simpleEvoModel(100,500,omega = 2,delta = 4 ,b=2,K=200,mu=0.001,E=E,sigma=sigma)
+test=evosolearn(100,500,omega = 2,delta = 4 ,b=2,K=200,mu=0.001,E=E,sigma=sigma)
 
 genes=c("x","y","z")
 
@@ -117,7 +117,7 @@ dev.off()
 
 
 omegas=seq(0,3,.5)
-allos_best=sapply(omegas,function(o)replicate(100,mean(simpleEvoModel(100,300,omega = o,delta = 2 ,b=2,K=200,mu=0.001,E=E,sigma=sigma,log=T)$pop$z)))
+allos_best=sapply(omegas,function(o)replicate(100,mean(evosolearn(100,300,omega = o,delta = 2 ,b=2,K=200,mu=0.001,E=E,sigma=sigma,log=T)$pop$z)))
 png("omegas_vs_z.png")
 boxplot(allos_best,ylab="mean value of z",xlab=expression(omega),axes=F) 
 axis(2)
@@ -125,7 +125,7 @@ axis(1,1:length(omegas),label = omegas)
 box()
 dev.off()
 
-allos_rand=sapply(omegas,function(o)replicate(100,mean(simpleEvoModel(100,300,omega = o,delta = 2 ,b=2,K=200,mu=0.001,E=E,sigma=sigma,type="random",log=T)$pop$z)))
+allos_rand=sapply(omegas,function(o)replicate(100,mean(evosolearn(100,300,omega = o,delta = 2 ,b=2,K=200,mu=0.001,E=E,sigma=sigma,type="random",log=T)$pop$z)))
 png("omegas_vs_z_random.png")
 boxplot(allos_rand,ylab="mean value of z",xlab=expression(omega),axes=F) 
 axis(2)
@@ -144,16 +144,16 @@ names(omegas)=omegas
 names(deltas)=deltas
 
 cl <- makeForkCluster(7,outfile="")
-osnds_s=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));mean(replicate(50,mean(simpleEvoModel(100,10,omega = o,delta = d ,b=2,K=100,mu=0.001,E=E,sigma=sigma,log=F)$pop$z,na.rm=T)),na.rm=T)}))
-osnds_rand=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));mean(replicate(50,mean(simpleEvoModel(200,1000,type="random",omega = o,delta = d ,b=2,K=200,mu=0.001,E=E,sigma=sigma,log=F)$pop$z,na.rm=T)),na.rm=T)}))
+osnds_s=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));mean(replicate(50,mean(evosolearn(100,10,omega = o,delta = d ,b=2,K=100,mu=0.001,E=E,sigma=sigma,log=F)$pop$z,na.rm=T)),na.rm=T)}))
+osnds_rand=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(o,d));mean(replicate(50,mean(evosolearn(200,1000,type="random",omega = o,delta = d ,b=2,K=200,mu=0.001,E=E,sigma=sigma,log=F)$pop$z,na.rm=T)),na.rm=T)}))
 stopCluster(cl)
 
 
 combined=expand.grid(omegas,deltas)
 cl <- makeForkCluster(49,outfile="")
 
-bigosnds_popsize=parApply(cl,combined,1,function(i){o=i[1];d=i[2];print(paste(o,d));mean(replicate(100,nrow(simpleEvoModel(1000,2000,omega = o,delta = d ,b=2,K=1000,mu=0.0001,E=E,sigma=sigma,log=F,type="best")$pop)),na.rm=T)})
-bigosnds_rand_popsize=parApply(cl,combined,1,function(i){o=i[1];d=i[2];print(paste(o,d));mean(replicate(100,nrow(simpleEvoModel(1000,2000,omega = o,delta = d ,b=2,K=1000,mu=0.0001,E=E,sigma=sigma,log=F,type="random")$pop)),na.rm=T)})
+bigosnds_popsize=parApply(cl,combined,1,function(i){o=i[1];d=i[2];print(paste(o,d));mean(replicate(100,nrow(evosolearn(1000,2000,omega = o,delta = d ,b=2,K=1000,mu=0.0001,E=E,sigma=sigma,log=F,type="best")$pop)),na.rm=T)})
+bigosnds_rand_popsize=parApply(cl,combined,1,function(i){o=i[1];d=i[2];print(paste(o,d));mean(replicate(100,nrow(evosolearn(1000,2000,omega = o,delta = d ,b=2,K=1000,mu=0.0001,E=E,sigma=sigma,log=F,type="random")$pop)),na.rm=T)})
 
 tomat_rand_popsize=matrix(bigosnds_rand_popsize,nrow=7,ncol=7)
 tomat_popsize=matrix(bigosnds_popsize,nrow=7,ncol=7)
@@ -219,7 +219,7 @@ dev.off()
 n=100
 tstep=200
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)))
-t=simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=200,mu=c(x=0.01,y=0,z=0),E=c(x=.01,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,type="best",pop=pop)
+t=evosolearn(n,tstep,omega = 0,delta = 0 ,b=2,K=200,mu=c(x=0.01,y=0,z=0),E=c(x=.01,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,type="best",pop=pop)
 
 
 statfun=c("mean","sd")
@@ -254,7 +254,7 @@ replicateNTime(10,n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E
 n=100
 tstep=200
 pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)))
-t=simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=200,mu=c(x=0.01,y=0,z=0),E=c(x=.01,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,type="best",pop=pop,allpops=T)
+t=evosolearn(n,tstep,omega = 0,delta = 0 ,b=2,K=200,mu=c(x=0.01,y=0,z=0),E=c(x=.01,y=0,z=0),sigma=c(s=1,y=1,z=1),log=T,type="best",pop=pop,allpops=T)
 
 #all following test should be true
 testknockout <- function(res){
