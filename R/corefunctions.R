@@ -168,7 +168,7 @@ fitness <- function(p,theta,x,y,z,sigma_s,sigma_y,sigma_z){
 
 #' @param newpop: a dataframe with fitness and agents ID
 #' @param reference: a dataframe with phenotype and agents ID
-#' @param sls: a string define the sls of copy to be done: \in {"parents","best","average","randon"}
+#' @param sls: a string define the sls of copy to be done: in "parents","best","average","randon"
 #' @return: a unique numeric value or a vector of size nrow(newpop) with phenotypes to be copied 
 socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
 
