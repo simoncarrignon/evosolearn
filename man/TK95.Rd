@@ -2,8 +2,7 @@
 % Please edit documentation in R/environment.R
 \name{TK95}
 \alias{TK95}
-\title{From tuneR package
-Based on Timmer and Koening 1995: https://ui.adsabs.harvard.edu/abs/1995A%26A...300..707T/abstract}
+\title{From tuneR package}
 \usage{
 TK95(N, alpha = 1)
 }
@@ -13,6 +12,5 @@ TK95(N, alpha = 1)
 \item{N:}{the length of the timeserie to generate}
 }
 \description{
-From tuneR package
-Based on Timmer and Koening 1995: https://ui.adsabs.harvard.edu/abs/1995A%26A...300..707T/abstract
+Based on Timmer and Koening 1995: https://ui.adsabs.harvard.edu/abs/1995A\%26A...300..707T/abstract
 }

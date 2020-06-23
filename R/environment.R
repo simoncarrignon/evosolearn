@@ -1,6 +1,8 @@
 
 #' From tuneR package
-#' Based on Timmer and Koening 1995: https://ui.adsabs.harvard.edu/abs/1995A%26A...300..707T/abstract
+#'
+#' Based on Timmer and Koening 1995: https://ui.adsabs.harvard.edu/abs/1995A\%26A...300..707T/abstract
+#'
 #' @param alpha: the slope of the power distribution (called omega in whitehead)
 #' @param N: the length of the timeserie to generate
 #' @export
@@ -176,7 +178,7 @@ getClosest <- function(data,year,by){
 #' wrapper to calculate the spectrum decomposition of a timeserie using Multitaper Methods
 #' 
 #' @param data a vector of measure
-#' @param freq a vector of time at which each measure of data has been done
+#' @param freq a vector of time at which each measure of \emph{data} has been done
 #' @export
 getSpectrumMTM <- function(data,freq,nw=2.0,k=3,...){
     require(multitaper)
