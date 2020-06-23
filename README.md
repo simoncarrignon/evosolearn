@@ -74,14 +74,14 @@ I also like to plot the full distribution using High Density region in order to 
 plotAllVariable(test,hdr=T)
 ```
 
-<img src="images/all.png" width="400" >
+<img src="report/images/all.png" width="400" >
 
-<img src="images/all_hdr.png" width="400" >
+<img src="report/images/all_hdr.png" width="400" >
 
 
 Now we compare theta (environment), p (mature phenotype) and w (fitness):
 
-![comparing different variable](images/comparisons.png)
+![comparing different variable](report/images/comparisons.png)
 
 The code to do this :
 
@@ -128,7 +128,7 @@ for(alpha in 0:2){ #alpha as used in YK95 is our $\omega$
 }
 ```
 
-![environment check](images/exploreEnv.png)
+![environment check](report/images/exploreEnv.png)
 
 
 ## Further exploration of the model
@@ -149,7 +149,7 @@ axis(2)
 axis(1,1:length(omegas),label = omegas)
 box()
 ```
-![follow the link if image not shown](images/omegas_vs_z.png)
+![follow the link if image not shown](report/images/omegas_vs_z.png)
 
 By default `simpleEvoModel` use the best mechanism to copy, we can compare this when using random by simply doing:
 
@@ -160,7 +160,7 @@ axis(2)
 axis(1,1:length(omegas),label = omegas)
 box()
 ```
-![follow the link if image not shown](images/omegas_vs_z_random.png)
+![follow the link if image not shown](report/images/omegas_vs_z_random.png)
 
 Similarly we can explore the impact of omega and delta at the same time:
 ```R
@@ -169,10 +169,10 @@ osnds_rand=parSapply(cl,omegas,function(o)sapply(deltas,function(d){print(paste(
 ```
 
 ### Select best individual
-![nonrand](images/bignonrand.png)
+![nonrand](report/images/bignonrand.png)
 
 ### Select random individual
-![rand](images/bigrand.png)
+![rand](report/images/bigrand.png)
 
 ####
 
