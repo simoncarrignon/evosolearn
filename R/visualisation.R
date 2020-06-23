@@ -76,7 +76,7 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
             cls[1,]=rgb(results[,"mean_y"],.5,results[,"mean_z"])
             plot.new()
             rasterImage(cls, 0, 0.2, 1, .8,interpolate=F,ylim=c(0,1))
-            mtext("rgb(y,z)",2,0,cex=.8)
+            mtext("rgb(y,z)",2,1,cex=.8)
         }
         if(theta){
             x=seq_along(results[,"theta"])
