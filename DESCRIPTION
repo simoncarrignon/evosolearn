@@ -13,8 +13,8 @@ Authors@R: c(
            email = "gavrila@utk.org"),
     person(given = "Peter",
            family = "Richerson",
-           role = c("aut""),
-           email = "gavrila@utk.org")
+           role = c("aut"),
+           email = "pjricherson@ucdavis.edu")
     )
 Description: simulate genetic evolution of social learning
 License: GPLv3
