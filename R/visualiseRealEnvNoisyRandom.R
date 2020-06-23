@@ -33,7 +33,7 @@ setAxis <- function(data){
 #' @param prop realtive width of the environment plot wrt the rgb matrix
 #' @param varcol withc variable use forthe color
 #' @param palette the color palette to use
-printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.width=600,img.height=800,img.pointsize=14,env=NULL,prop=.1,ordered=NULL,varcol="rgb",palette=)
+printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.width=600,img.height=800,img.pointsize=14,env=NULL,prop=.1,ordered=NULL,varcol="rgb",palette=colorRampPalette(c("grey","yellow","dark green"))(1200))
 {
 
     mum=as.data.frame(expand.grid(m=unique(data$m),mu=unique(data$mu)))
@@ -89,7 +89,7 @@ printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.wi
                             pxl=rgb(summary[,"mean_y" ],.5,summary[,"mean_z"],alphalvl)
                         }
                         else{
-                            pxl=palette[summary[,rgb]]
+                            pxl=palette[summary[,varcol]]
                         }
 
                         bicpic[1:length(pxl),p]=pxl
@@ -114,7 +114,10 @@ printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.wi
                         }
                     }
                     sum_mat=lapply(mat_allexp,function(m)apply(m,2,mean,na.rm=T))
-                    sum_mat$na=apply(mat_allexp$mean_y,2,function(i)sum(is.na(i)))
+                    if(varcol=="rgb")
+                        sum_mat$na=apply(mat_allexp$mean_y,2,function(i)sum(is.na(i)))
+                    else
+                        sum_mat$na=apply(mat_allexp[[varcol]],2,function(i)sum(is.na(i)))
                     sum_mat=lapply(sum_mat,function(m)m[!is.na(m)])
                     if(length(sum_mat$mean_y)>1){
                         if(is.na(sum_mat$na[1]))
@@ -209,7 +212,7 @@ idexpe=exp$idexpe
 ns=length(list.files(path=folder,recursive=T,full.names=T,pattern="*cross*"))
 
 binded=do.call("rbind",lapply(list.files(path=folder,recursive=T,full.names=T,pattern="*cross*"),function(u){print(u);load(u);return(binded)}))
-load(file=as.character(binded$filename[1]))
+summary=getUniqueExp(binded$filename[1])
 nsteps=nrow(summary)
 
 nlines=length(unique(binded$k_z))*length(unique(binded$k_y))
