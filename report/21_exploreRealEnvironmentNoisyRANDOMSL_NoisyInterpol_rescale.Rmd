@@ -1,0 +1,97 @@
+# Real Environment, Noisy Interpolation, Rescaled
+
+
+## Dataset 
+
+```{r echo=FALSE, message=FALSE}
+folderexpe="exploreRealEnvRANDOMNoisyHigherResHighSigma"
+idexpe="stackLR04InterpolNoisyRescale"
+
+ns=length(list.files(path=folderexpe,recursive=T,full.names=T,pattern="*cross*"))
+
+realdata=read.csv("data/theta_real.csv")
+newt=interpolate(realdata$permille,realdata$years.BP.2000,finalres=.25)
+epoch=min(-realdata$years.BP.2000):max(-realdata$years.BP.2000)
+epoch=epoch*1000
+
+binded=do.call("rbind",lapply(list.files(path=folderexpe,recursive=T,full.names=T,pattern="*cross*"),function(u){load(u);return(binded)}))
+allEs=unique(binded$E)
+allSigmas=unique(binded$sigma)
+
+load(file=as.character(binded$filename[1]))
+nsteps=nrow(summary)
+
+
+
+```
+
+For this experiment we rescale the LR04 by simply mutliply by -5. See section envrionment for more reflection on rescaling.
+
+```{r realdataLR04rescale,echo=FALSE, message=FALSE,fig.cap="Rescaled data from Stack LR04 Lisiecki et. al 2004"}
+plot(realdata$years,-5*realdata$permille,ylab="rescaled delta 18",,xlab="Age (kyear BP)",type="l")
+```
+
+## General properties at the end of the simulation
+
+```{r outputEndNIRS, out.width = "30%", fig.cap="Summary output at the end of the simulation (from top to bottom $\\sigma_s = 1,2$)",fig.show="hold"}
+t=c("NA","N","3Genes")
+allsummaries=unlist(lapply(allSigmas,function(s)paste0('images/',idexpe,t,'_sigma',s,'_E.png')))
+knitr::include_graphics(as.character(allsummaries))
+```
+
+
+## Observe Strategies Distributions full trajectories 
+
+```{r,echo=F,fig.width=3,fig.height=3, out.width = "32%", results='asis'}
+
+binded=binded[binded$sigma==1,]
+binded=binded[binded$E==.2,]
+```
+
+In the next section we explore the proportion of different strategies with different $\mu$ and $m$, but keeping only the results for $\sigma_s=$ `r paste0(unique(binded$sigma))` and $E=$ `r paste0(unique(binded$E))` :
+
+* $\mu$ decrease from top to bottom following those values:
+$\mu=$ `r paste0(rev(unique(binded$mu))) `
+
+* $m$ increase from left to right following those values:
+$m=$ `r paste0(unique(binded$m)) `
+
+The orange, blue and  purple hard lines represent the median of the proportion of the three strategies within the population for `r ns` repetitions. The lighter lines represents the 5 and 95% percentiles (as we may be interested in situations where social learning, or mixed strategies, emerges, though not often).
+
+```{r,echo=F,fig.width=3,fig.height=3, out.width = "32%", results='asis'}
+
+for(s in unique(binded$sigma)){
+    for(kz in unique(binded$k_z)){
+        for(ky in unique(binded$k_y)){
+            cat(paste0("### $\\sigma$ = ",s,", $k_z$ = ",kz,", $k_y$ = ",ky,"\n\r"), sep="")
+            for(mu in rev(unique(binded$mu))){
+                for(m in unique(binded$m)){
+                    subb=droplevels(binded[binded$mu ==mu &binded$m ==m &binded$sigma ==s & binded$k_z ==kz & binded$k_y ==ky,])
+                    nexpe=nrow(subb)
+                    vars=c("prop_y","prop_z","prop_yz","mean_x","N","mean_p")
+                    names(vars)=vars
+                    mat_allexp= lapply(vars,function(i)matrix(NA,nexpe,nsteps))
+
+                    for(i in 1:nexpe){
+                        load(as.character(subb$filename[i]))
+                        for(v  in vars) mat_allexp[[v]][i,]=summary[,v]
+                    }
+                    sum_mat=lapply(mat_allexp,function(m)apply(m,2,quantile,probs=c(.05,.5,.95),na.rm=T))
+                    fname=paste0("traj_s",s,"_m",m,"_mu",mu,"_ky",ky,"_kz",kz,".png")
+                    plotMatrixStrateAndEn(sum_mat,rev(5*newtN),epoch)
+                    mtext(bquote(sigma[s] == .(s) ~ mu == .(mu) ~ m == .(m) ),3,0,outer=T)
+                }
+            }
+            cat(paste0("\n\r---\n\r", sep=""))
+        }
+    }
+}
+
+```
+
+## Strategies Distribution Through Time Compact visualisation
+ 
+```{r compactNoisyRandomNIRS, out.width = "24%", fig.cap="Compact vertical trajectories (from top to bottom $\\sigma_s = 1,2$, from left to right, $E=0,0.2,0.6,1$)",fig.show="hold"}
+allimg=unlist(lapply(allSigmas,function(s)paste0("images/vertical_",idexpe,"_sigma",s,"_E",allEs,".png")))
+knitr::include_graphics(as.character(allimg))
+```

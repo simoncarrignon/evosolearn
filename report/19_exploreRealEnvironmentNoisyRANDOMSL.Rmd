@@ -1,0 +1,205 @@
+# Real Environment, Errors and Random Selection
+
+Quick note on the data: 
+SST vs d18O? 
+
+https://science.sciencemag.org/content/328/5985/1530?casa_token=LHdg3UOZl8YAAAAA:7FYL_48phFVvNoOjnpGHKvQbwpBzuTI4o5FNfKNZaSajjLuGs1RL3EtNdyt_m9O2PbGhl4u1uiF7-MA
+
+vs
+
+https://lorraine-lisiecki.com/stack.html
+
+## Dataset 
+
+```{r echo=FALSE, message=FALSE}
+folderexpe="exploreRealEnvRANDOMNoisy"
+idexpe="stackLR04InterpolLinear"
+ns=length(list.files(path=folderexpe,recursive=T,full.names=T,pattern="*cross*"))
+
+realdata=read.csv("data/theta_real.csv")
+newt=interpolate(realdata$permille,realdata$years.BP.2000,finalres=.5)
+#theta_noint=realdata$permille,realdata$years.BP.2000,finalres=.5)
+epoch=min(-realdata$years.BP.2000):max(-realdata$years.BP.2000)
+epoch=epoch*1000
+#sub=seq(1,length(newt),length.out=length(newt)/5)
+#theta=rev(-newt[sub])
+theta=rev(-newt)
+
+environment=theta
+binded=do.call("rbind",lapply(list.files(path=folderexpe,recursive=T,full.names=T,pattern="*cross*"),function(u){load(u);return(binded)}))
+allEs=unique(binded$E)
+allSigmas=unique(binded$sigma)
+
+binded=binded[binded$sigma==0.5,]
+binded=binded[binded$E==.2,]
+
+```
+
+```
+
+For this experiment we test the data from the stack LR04
+
+Stack LR04 is made of `r nrow(realdata)` records, describing between 1000 and 2500 years, for a total of mor than 5M years, shown in Figure \@ref(fig:realdataLR04).
+
+```{r realdataLR04,echo=FALSE, message=FALSE,fig.cap="Real Data from Stacl LR04 et. al 2004"}
+plot(realdata$years,-realdata$permille,ylab=expression(delta[18]*O),xlab="Age (kyear BP)",type="l")
+```
+
+To harmonize all period size we interpolated inexistant points by drawing straight line between two real points and selecting points on this line at regular intervals. More details are available in the section \@ref(interpol) on interpolation, where we add some noise to this naive and simple interpolation. We choose an interval of 500years, which increase the dataset size to reach a total of `r length(theta)` data points. As with the previous dataset we need to revert its order as date are ranked from zero (year 2000) to minus 50My.
+
+```{r echo=FALSE, message=FALSE,out.width=500,fig.width=6,fig.align="center"}
+plot(theta,xlab="time units (500y)",ylab=expression(delta[18]*O),type="l")
+    y=getSpectrum(theta) #get spectrum of the environment generated
+    x=1:length(y)
+    fit=lm(log(y)~log(x),cbind.data.frame(x=1:length(y),y=y)) #fit a linear model to check slope
+
+```
+
+From these data we compute  $\delta$ = `r round(sd(theta),digit=2)` and $\omega$ = `r abs(round(fit$coefficients[2],2))`. 
+
+
+```{r sloperealbis, echo=FALSE, message=FALSE,fig.width=5,out.width=400,fig.align="center"}
+    plot(log(x),log(y))
+    abline(fit,col="red") #visualise the fit and coefficient computed
+    text(1,max(log(y)),bquote(omega == .(abs(round(fit$coefficients[2],2)))),col="red")
+```
+
+
+As before, we can calculate $\omega$ and  $\delta$ for the whole dataset, but we can also look at how they change through time  using  sliding time windows of varying size.
+
+```{r deltareal,echo=FALSE, message=FALSE,fig.height=7,fig.cap="delta sliding windows"}
+par(mfrow=c(2,2))
+
+for(w in c(10,50,250,1250)){
+delta=sapply(1:(length(theta)-w),function(i)sd(theta[i:(i+w)]))
+plot(delta,xlab="time",main=paste0("windows size=",w*500," years (",w,"x 500yr)"),ylab=expression(delta),type="l")
+}
+
+```
+
+```{r omegareal,echo=FALSE, message=FALSE,fig.height=7,fig.cap="omega sliding windows",fig.align="center"}
+par(mfrow=c(2,2))
+
+for(w in c(10,50,250,1250)){
+omega=sapply(1:(length(theta)-w),function(i)
+       {
+       y=getSpectrum(theta[i:(i+w)]) #get spectrum of the environment generated
+       x=1:length(y)
+       fit=lm(log(y)~log(x),cbind.data.frame(x=1:length(y),y=y)) #fit a linear model to check slope
+       return(abs(fit$coefficients[2]))
+}
+)
+plot(omega,xlab="time",main=paste0("windows size=",w*500," years (",w,"x 500yr)"),ylab=expression(omega),type="l")
+}
+
+```
+
+
+Parameters for this section are the same than the previous, except for the social learning: in this experiment agents randomly pic up a behavior from the previous generation.
+
+In this section we add random errors at all stage of maturation.  To represent this random error we introduce three terms ($e',e'',e'''$)  that represents the error randomly generate at the three maturation stage: genetic, individual learning, social learning.  
+
+To represent this error, we use three parameters $E_x,E_y,E_z$ which are the standard deviation of a normal distribution used to  generate this random noise. In this experiment we simplify this by using $E_x=E_y=E_z$. Thus in the following simulations: $e' \sim e'' \sim e''' \sim {\cal N}(0,E)$ :
+
+
+## Parameters
+
+All parameters are the same than for previous experiments, plus the normally distributed random error added to all stages of maturation.
+Parameters with regard to genetic mutation and cost are:
+
+*  $\mu_z=\mu_y=\mu_x$ the rate of mutation: $\mu_x \in \{0.001,0.005,0.025,0.125,0.625\}$
+*  $m_z=m_y=m_x$ the variance of the mutation: $m_x \in \{.2,.4,.6,.8,1\}$
+
+As described above, the random errors $e',e'',e'''$ are generate using the same parameter E, the standard deviation of a normally distributed random variable : $ e' \sim e'' \sim e''' \sim {\cal N}(0,E)$:
+
+*  $E_x=E_y=E_z$ The noise added when behavior is expressed: $E \in \{0,.2,.6,1\}$
+
+
+  When social learning is used at time $t$, agents copy random behavior among individuals of the previous generation (the one that minimise $|p-\theta_{t-1}|$).   
+
+The cost of $z$, $\sigma_z$, is defined relatively to the cost of $y$, $\sigma_y$, while $\sigma_y$ is defined relatively to the selective pressure $\sigma_s$:
+
+* $\sigma_z = k_z\times\sigma_y$ 
+* $\sigma_y = k_y\times\sigma_s$ 
+* $k_z \in \{1,2,4\}$
+* $k_y \in \{0.5,1,2\}$
+
+To limit the size of the output we run simulations with only $\sigma_s =$ `r unique(binded$sigma)`
+
+We repeat `r ns` times each unique set of parameters and monitor the change in population properties for all time steps of all simulations. 
+
+## General properties at the end of the simulation
+
+Following the studies done in the section \@ref(interactiongenenv)  we look at the final outcome of the simulations for different parameters. In the figure below we show, from left to right:
+
+1. the number of extinctions among the `r ns` simulations
+2. the mean population size 
+3. a RGB representation of the combined mean genetic value 
+
+In this experiment columns represent increase level of noise.
+
+<!---
+<a href="images/exploringRealEnv4MshortRANDOM_E.png"><img src="images/exploringRealEnv4MshortRANDOM_E.png" alt="exemple4" width="30%"/></a>
+<a href="images/exploringRealEnv4MshortNRANDOM_E.png"><img src="images/exploringRealEnv4MshortNRANDOM_E.png" alt="exemple4" width="30%"/></a>
+<a href="images/exploringRealEnv4Mshort3GenesRANDOM_E.png"><img src="images/exploringRealEnv4Mshort3GenesRANDOM_E.png" alt="exemple4" width="30%"/></a>
+-->
+
+```{r outputEnd, out.width = "30%", fig.cap="Summary output at the end of the simulation (from top to bottom $\\sigma_s = 0.1,0.5,1$)",fig.show="hold"}
+t=c("NA","N","3Genes")
+allsummaries=unlist(lapply(allSigmas,function(s)paste0('images/',idexpe,t,'_sigma',s,'_E.png')))
+
+knitr::include_graphics(as.character(allsummaries))
+```
+
+
+## Observe Strategies Distributions full trajectories 
+
+To keep the visualisation of full trajectories manageable we select only simulations with the random error's standard deviation set as $E=0.2$.
+
+
+In the next section we explore the proportion of different strategies with different $\mu$ and $m$, but keeping only the results for $\sigma_s=$ `r paste0(unique(binded$sigma))` and $E=$ `r paste0(unique(binded$E))` :
+
+* $\mu$ decrease from top to bottom following those values:
+$\mu=$ `r paste0(rev(unique(binded$mu))) `
+
+* $m$ increase from left to right following those values:
+$m=$ `r paste0(unique(binded$m)) `
+
+The orange, blue and  purple hard lines represent the median of the proportion of the three strategies within the population for `r ns` repetitions. The lighter lines represents the 5 and 95% percentiles (as we may be interested in situations where social learning, or mixed strategies, emerges, though not often).
+
+```{r,echo=F,fig.width=3,fig.height=3, out.width = "24%", results='asis'}
+for(s in unique(binded$sigma)){
+    for(kz in unique(binded$k_z)){
+        for(ky in unique(binded$k_y)){
+            cat(paste0("### $\\sigma$ = ",s,", $k_z$ = ",kz,", $k_y$ = ",ky,"\n\r"), sep="")
+            for(mu in rev(unique(binded$mu))){
+                for(m in unique(binded$m)){
+                    subb=droplevels(binded[binded$mu ==mu &binded$m ==m &binded$sigma ==s & binded$k_z ==kz & binded$k_y ==ky,])
+                    nexpe=nrow(subb)
+                    vars=c("prop_y","prop_z","prop_yz","mean_x","N","mean_p")
+                    names(vars)=vars
+                    mat_allexp= lapply(vars,function(i)matrix(NA,nexpe,532))
+
+                    for(i in 1:nexpe){
+                        load(as.character(subb$filename[i]))
+                        for(v  in vars) mat_allexp[[v]][i,]=summary[,v]
+                    }
+                    sum_mat=lapply(mat_allexp,function(m)apply(m,2,quantile,probs=c(.05,.5,.95),na.rm=T))
+                    fname=paste0("traj_s",s,"_m",m,"_mu",mu,"_ky",ky,"_kz",kz,".png")
+                    plotMatrixStrateAndEn(sum_mat,theta,epoch)
+                    mtext(bquote(sigma[s] == .(s) ~ mu == .(mu) ~ m == .(m) ),3,0,outer=T)
+                }
+            }
+            cat(paste0("\n\r---\n\r", sep=""))
+        }
+    }
+}
+
+```
+
+## Strategies Distribution Through Time Compact visualisation
+ 
+```{r compactNoisyRandom, out.width = "24%", fig.cap="Compact vertical trajectories (from top to bottom $\\sigma_s = 0.1,0.5,1$, from left to right, $E=0,0.2,0.6,1$)",fig.show="hold"}
+allimg=unlist(lapply(allSigmas,function(s)paste0("images/vertical_",idexpe,"_sigma",s,"_E",allEs,".png")))
+knitr::include_graphics(as.character(allimg))
+```
