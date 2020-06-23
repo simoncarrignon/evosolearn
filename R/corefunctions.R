@@ -171,9 +171,14 @@ fitness <- function(p,theta,x,y,z,sigma_s,sigma_y,sigma_z){
 }
 
 
-#' @param newpop: a dataframe with fitness and agents ID
-#' @param reference: a dataframe with phenotype and agents ID
-#' @param sls: a string define the sls of copy to be done: in "parents","best","average","randon"
+#' Social Learning
+#' 
+#' Function that select a new phenotype within a given reference group and a certain strategy
+#' 
+#' @param newpop a dataframe with fitness and agents ID
+#' @param reference a dataframe with phenotype and agents ID
+#' @param sls a string define the sls of copy to be done: in "parents","best","average","randon"
+#' @param theta the value of the optimum
 #' @return: a unique numeric value or a vector of size nrow(newpop) with phenotypes to be copied 
 #' @export
 socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
@@ -231,7 +236,13 @@ socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
 }
 
 
+#' Generate population
+#' 
+#' Function that generates a population
+#' 
+#' @param n number of agents in the population
 #' @param distrib should be a list with 3 elements x yz)
+#' @param df if TRUE return a data.frame (easier to handle but much much slower, default is FALSE)
 #' @export
 generatePop <- function(n,distrib,df=F){
     if(length(distrib)!=3)stop("please give distribution for the 3 genes")
@@ -247,6 +258,10 @@ generatePop <- function(n,distrib,df=F){
 
 
 
+#' Update output
+#' 
+#' Function that updates the matrix stored that willbe returned at the end of the simulation. 
+#' 
 #' @param ouptut a current output to be update or initialized if NULL
 #' @param pop the current population upon wihch statistics have to be calculated
 #' @param statfun a vector with the different function we apply on the population
@@ -264,6 +279,10 @@ updateOutput <- function(output=NULL,pop,statfun,statvar){
 }
 
 
+#' Reproduction process
+#' 
+#' Function that generate a new population given a list of selected individuals
+#' 
 #' @param pop the current population with characteristics of all individual
 #' @param selected a vector with the id of the selected individuals
 #' @param nchilds a vector with the number of children for each individual 

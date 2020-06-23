@@ -51,8 +51,10 @@ gauss <- function(N,mean,delta,v){
 
 
 
-#Function interpolate
-#To add intermediate value between two theta (using straight linear interpolation)
+#' Function interpolate
+#' 
+#' A function to add intermediate values between two optimums theta 
+#' 
 #' @param theta: the original theta vector to complete
 #' @param times: the time associated to the thetas
 #' @param finalres: the resolution, in the unit used in the vector times, at which new data had to be generate. if times is in year and finalres is 1, the vector thetat will correspond to data ofr each eyar, if time is in thousand of years (as in LR04 stack) and finalres is 0.5 thus the output will correspond to one point every 500 years.
@@ -144,7 +146,9 @@ getMean2 <- function(data,year,by){
 }
 
 #' Resample using closest data
+#' 
 #' create an evenly spaced vector of date and associate to it the closest datapoint from the original dataset 
+#' 
 #' @param data a vector of measure
 #' @param year a vector of date
 #' @param by the ne sampling rate in year
@@ -167,7 +171,10 @@ getClosest <- function(data,year,by){
     return(cbind.data.frame(data=newdata,year=newyears))
 }
 
+#' Get spectrum decomposition
+#' 
 #' wrapper to calculate the spectrum decomposition of a timeserie using Multitaper Methods
+#' 
 #' @param data a vector of measure
 #' @param freq a vector of time at which each measure of \emph{data} has been done
 #' @export
