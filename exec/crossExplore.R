@@ -76,7 +76,7 @@ for(gene in genes){
 								  pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)),df=F)
                                   if(gene == "x") pop[,gene]=runif(n,-1,1)
                                   else pop[,gene]=runif(n,0,1)
-                                  fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random")
+                                  fullmat=evosolearn(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random")
                                   filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
                                   save(file=filename_mat,fullmat)
                                   c(as.list(getSummary(fullmat,nstep=10,vars=c(paste0("var_",gene),"N","mean_w"))),filename=filename_mat)

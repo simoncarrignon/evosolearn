@@ -70,7 +70,7 @@ explore=do.call("rbind.data.frame",
 			      #sls=parameters[v,"sls"]
                               pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n),z=runif(n)),df=F)
 			      sigma=c(s=parameters[v,"sigma"],y=parameters[v,"sigma"]*parameters[v,"k_y"],z=parameters[v,"sigma"]*parameters[v,"k_y"]*parameters[v,"k_z"])
-                              fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random",allpop=F,repro="sex",prop=F)
+                              fullmat=evosolearn(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random",allpop=F,repro="sex",prop=F)
                               filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
                               summary=fullmat
                               #save(file=filename_mat,summary)

@@ -42,7 +42,7 @@ allstr=lapply( strategies,function(strat)
 								 {
 									 print(k)
 									 microbenchmark(
-													simpleEvoModel(
+													evosolearn(
 																   n=n,
 																   tstep=tstep,
 																   omega = o,
@@ -89,7 +89,7 @@ allstr_tstep=lapply( strategies,function(strat)
               {
                   timings=lapply(tsteps,function(tstep)
                                  microbenchmark(
-                                                simpleEvoModel(
+                                                evosolearn(
                                                                n=n,
                                                                tstep=tstep,
                                                                omega = o,
@@ -135,7 +135,7 @@ par(mfrow=c(2,1))
 for(strat in strategies){
 df <- "test.log"
 Rprof(df, memory.profiling = TRUE)
-evodf=simpleEvoModel(n,tstep,omega = 0,delta = 0 ,b=2,K=1000,m=,mu=mu,E=E,sigma=sigma,log=F,sls=strat,theta=theta,pop=pop)
+evodf=evosolearn(n,tstep,omega = 0,delta = 0 ,b=2,K=1000,m=,mu=mu,E=E,sigma=sigma,log=F,sls=strat,theta=theta,pop=pop)
 plot(evodf[,"mean_x"],type="l",ylab="mean_x",main=paste("strategie:",strat))
 plot(evodf[,"mean_y"],type="l",col="green",ylim=c(0,1))
 lines(evodf[,"mean_z"],type="l",col="orange")

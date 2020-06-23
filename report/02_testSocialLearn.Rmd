@@ -17,7 +17,7 @@ pop[,"p"]=pop[,"x"]
 png(paste0("images/ccfdPhenotype_MU",mu,"_N",n,".png")) 
 plot(1,1,log="xy",xlab="phenotype frequencies",ylab="ccfd (%)",xlim=c(1,10000),ylim=c(0.01,100),type="n",main=bquote(mu == .(mu) ~ N == .(n)))
 for(i in 1:10){
-    soci=simpleEvoModel(pop = pop, tstep = 50,log=T,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="random") 
+    soci=evosolearn(pop = pop, tstep = 50,log=T,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="random") 
     u=unlist(sapply(soci$allpop,function(s)s[,"p"]))
     freqt=table(u)
     cc=ccfd(freqt)
@@ -54,7 +54,7 @@ pop[,"p"]=pop[,"x"]
 png(paste0("images/ccfdPhenotypeGrowth_MU",mu,"_N",n,".png")) 
 plot(1,1,log="xy",xlab="phenotype frequencies",ylab="ccfd (%)",xlim=c(1,10000),ylim=c(0.01,100),type="n",main=bquote(mu == .(mu) ~ N == .(n)))
 for(i in 1:10){
-    soci=simpleEvoModel(pop = pop, tstep = 50,log=T,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=n,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="asex",selection=T,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="random") 
+    soci=evosolearn(pop = pop, tstep = 50,log=T,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=n,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="asex",selection=T,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="random") 
     u=unlist(sapply(soci$allpop,function(s)s[,"p"]))
     freqt=table(u)
     cc=ccfd(freqt)
@@ -89,7 +89,7 @@ pop[,"p"]=pop[,"x"]
 png(paste0("images/ccfdPhenotypeBEST_MU",mu,"_N",n,".png")) 
 plot(1,1,log="xy",xlab="phenotype frequencies",ylab="ccfd (%)",xlim=c(1,100000),ylim=c(0.1,100),type="n",main=bquote(mu == .(mu) ~ N == .(n)))
 for(i in 1:10){
-    soci=simpleEvoModel(pop = pop, tstep = 50,log=T,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="asex",selection=T,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="best") 
+    soci=evosolearn(pop = pop, tstep = 50,log=T,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="asex",selection=T,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="best") 
     u=unlist(sapply(soci$allpop,function(s)s[,"p"]))
     freqt=table(u)
     cc=ccfd(freqt)
@@ -160,7 +160,7 @@ allfitness=lapply(freqSL,function(percentage){
                   pop[sl,"z"]=1
                   pop[il,"y"]=1
 
-                  soci=simpleEvoModel(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="random")
+                  soci=evosolearn(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="random")
                   soci
 
 })
@@ -194,7 +194,7 @@ allfitness=lapply(freqSL,function(percentage){
                   pop[sl,"z"]=1
                   pop[il,"y"]=1
 
-                  soci=simpleEvoModel(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="best")
+                  soci=evosolearn(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="best")
                   soci
 
 })
@@ -242,7 +242,7 @@ allfitness=lapply(freqSL,function(percentage){
                   pop[sl,"z"]=1
                   pop[il,"y"]=1
 
-                  soci=simpleEvoModel(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=1,z=1),mu=c(x=0,y=.01,z=.01),allpops=T,repro="asex",selection=T,statvar=c("p","y","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="best")
+                  soci=evosolearn(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=1,z=1),mu=c(x=0,y=.01,z=.01),allpops=T,repro="asex",selection=T,statvar=c("p","y","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="best")
                   soci
 
 })
@@ -284,7 +284,7 @@ allfitness=lapply(freqSL,function(percentage){
                   pop[sl,"z"]=1
                   pop[il,"y"]=1
 
-                  soci=simpleEvoModel(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=1,z=1),mu=c(x=0,y=.01,z=.01),allpops=T,repro="asex",selection=T,statvar=c("p","y","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="best")
+                  soci=evosolearn(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=1,z=1),mu=c(x=0,y=.01,z=.01),allpops=T,repro="asex",selection=T,statvar=c("p","y","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="best")
                   soci
 
 })

@@ -1,4 +1,5 @@
 
+#' Selection function
 #' @param w:vector with fitness
 #' @param b:numeric value for the rate of birth
 #' @param n:numeric value for the size of the pop (redundant/should be equal to length(w))
@@ -7,6 +8,7 @@
 selection <- function(w,b,n,K) 1/(1+(b-1)*(n/(K*w)))
 
 
+#' updateOutputLine 
 #' @param ouptut a current output to be update or initialized if NULL
 #' @param pop the current population upon wihch statistics have to be calculated
 #' @param statfun a vector with the different function we apply on the population
@@ -26,7 +28,13 @@ updateOutputLine <- function(pop,statfun,statvar,getname=F,prop=T){
 }
 
 
-simpleEvoModel <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE,repro="asex",selection=T){
+#' Main function
+#' @param ouptut a current output to be update or initialized if NULL
+#' @param pop the current population upon wihch statistics have to be calculated
+#' @param statfun a vector with the different function we apply on the population
+#' @param statvar a vector with the different varaible we measure in the population
+#' @param prop if the proporition of different strategies should be ouptut
+evosolearn <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE,repro="asex",selection=T){
 
     if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
 	if(is.null(theta)){

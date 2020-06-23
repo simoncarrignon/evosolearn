@@ -31,8 +31,9 @@ allparameters[["delta"]]=2^(0:4)
 allparameters[["vt"]]=(5^(0:4)*10^-3)[1:4]
 allparameters[["omega"]]=2^(-1:3)
 allparameters[["outputrate"]]=1000
+allparameters[["k_z"]]=c(1,2,4)
 allparameters[["k_y"]]=c(.5,1,2)
-#allparameters[["k_z"]]=c(1,2,4)
+#allparameters[["sls"]]=c("random","best")
 parameters=as.data.frame(expand.grid(allparameters))
 repet=nsm
 parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
@@ -66,8 +67,10 @@ explore=do.call("rbind.data.frame",
                               m[genes]=parameters[v,"m"]
                               E[genes]=parameters[v,"E"]
                               sigma["s"]=parameters[v,"sigma"]
-                              pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
-                              fullmat=simpleEvoModel(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="random",allpop=F,repro="sex",prop=F)
+			      #sls=parameters[v,"sls"]
+                              pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n),z=runif(n)),df=F)
+			      sigma=c(s=parameters[v,"sigma"],y=parameters[v,"sigma"]*parameters[v,"k_y"],z=parameters[v,"sigma"]*parameters[v,"k_y"]*parameters[v,"k_z"])
+                              fullmat=evosolearn(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls="best",allpop=F,repro="sex",prop=F)
                               filename_mat=file.path(fold,paste0("fullmat",v,".bin"))
                               summary=fullmat
                               #save(file=filename_mat,summary)
