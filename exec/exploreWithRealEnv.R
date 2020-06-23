@@ -26,7 +26,7 @@ print(paste0("Abc will be stored in folder: ",fold))
 dir.create(fold)
 
 
-source("corefunctionss.R")
+source("corefunctions.R")
 library(parallel)
 
 print(paste("resolution should be",res))

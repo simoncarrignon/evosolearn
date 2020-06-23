@@ -1,4 +1,4 @@
-source("corefunctionss.R")
+source("corefunctions.R")
 
 
 n=200

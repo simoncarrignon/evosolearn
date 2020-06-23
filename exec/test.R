@@ -1,4 +1,4 @@
-source("corefunctionss.R")
+source("corefunctions.R")
 realdata=read.csv("data/theta_real.csv")
 plot(realdata$years,realdata$permille,ylab=expression(delta[18]*O),xlab="Age (year BP)",type="l")
 theta=rev(tapply(realdata$permille,realdata$years.BP.2000,mean))
