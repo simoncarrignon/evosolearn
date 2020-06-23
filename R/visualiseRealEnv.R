@@ -201,7 +201,7 @@ for(s in unique(binded$sigma)){
 				p=p+1
 				print(paste("col",p,"/",ncol(bicpic)))
 			}
-			png(paste0("~/public_html/report/images/vertical_sigma",s,".png"),width=600)
+			png(paste0("images/vertical_sigma",s,".png"),width=600,height=800)
 			par(mar=rep(0,4),oma=c(1,4,4,1))
 			prop=.1
 			layout(matrix(c(1,2),ncol=2,nrow=1),width=c(prop,1-prop))
@@ -213,10 +213,11 @@ for(s in unique(binded$sigma)){
 			mtext(expression(delta[18]*O),3,0,at=prop/2,outer=T)
 
 			kyl=sapply(unique(binded$k_y),function(u)as.expression(bquote(k[y] == .(u))))
-			mtext(kyl,side=3,line=2,at=seq(0+(1/3)/2,1-(1/3)/2,length.out=length(kyl)),cex=.9)
+			mtext(kyl,side=3,line=1,at=seq(0+(1/3)/2,1-(1/3)/2,length.out=length(kyl)),cex=.9)
 
 			kzl=sapply(unique(binded$k_z),function(u)as.expression(bquote(k[z] == .(u))))
 			mtext(kzl,side=3,line=0,at=seq(0+(1/9)/2,3/9-(1/9)/2,length.out=length(kzl)),cex=.9)
+			mtext(bquote(sigma[s]==.(s)),side=3,line=3)
 			dev.off()
 		}
 	}
