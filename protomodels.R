@@ -186,6 +186,10 @@ socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
         selected=sample(reference[,"id"],nrow(newpop),replace=T) #we radomly assign a teacher for each individual of the new newpop
         return(unname(reference[,"p"][match(selected,reference[,"id"])]))
     }
+    if(sls=="fitprop"){
+        selected=sample(reference[,"id"],nrow(newpop),replace=T) #we radomly assign a teacher for each individual of the new newpop
+        return(unname(reference[,"p"][match(selected,reference[,"id"])]))
+    }
     if(sls=="mixed"){
         #parents Vertical
         selected_p = newpop[,"p"]
@@ -212,7 +216,7 @@ socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
         return(unname(selected_p))
 
     }
-    stop("a sls should be chosen among parents,best,average,randon,mmixed")
+    stop("a sls should be chosen among parents,best,average,randon,mixed,fitprop")
 }
 
 
