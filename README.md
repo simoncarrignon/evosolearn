@@ -1,5 +1,16 @@
 # Evolution, social Learning and climate fluctuation
 
+## Install as a package
+
+```{r}
+library(devtools)
+devtools::install_github("simoncarrignon/evosolearn")
+```
+--- 
+
+Below's indication should'nt be used anymore
+
+
 ## Clone and run the model:
 
 To clone this folder: 
