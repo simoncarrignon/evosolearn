@@ -49,6 +49,7 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
             mtext(parse(text=paste0("bar(",var,")")),2,3,cex=.9)
             lines(meanvar+sdvar,lty=3,col=vcol[var])
             lines(meanvar-sdvar,lty=3,col=vcol[var])
+			box()
         }
         if(addrgb){
             cls=matrix(nrow=1,ncol=nrow(results))
