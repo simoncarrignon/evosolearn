@@ -4,13 +4,14 @@
 \alias{evosolearn}
 \title{Main function}
 \usage{
-evosolearn(n, tstep, E = c(x = 0.01, y = 0.01, z = 0.01), sigma = c(s =
-  1, y = 1, z = 1), omega = 0, delta = 0, b, K, mu = c(x = 0.3, y =
-  0.3, z = 0.3), genes = c("x", "y", "z"), m = c(x = 0.3, y = 0.3, z =
-  0.3), sls = "best", log = F, pop = NULL, allpops = F,
-  statfun = c("mean", "var"), statvar = c("x", "y", "z", "gp", "ilp",
-  "p", "w"), outputrate = 1, vt = NULL, theta = NULL, prop = TRUE,
-  repro = "asex", selection = T)
+evosolearn(n = 1000, tstep = 100, E = c(x = 0.01, y = 0.01, z =
+  0.01), sigma = c(s = 1, y = 1, z = 1), omega = 0, delta = 0, b, K,
+  mu = c(x = 0.3, y = 0.3, z = 0.3), genes = c("x", "y", "z"),
+  m = c(x = 0.3, y = 0.3, z = 0.3), sls = "best", log = F,
+  pop = NULL, allpops = F, statfun = c("mean", "sd"),
+  statvar = c("x", "y", "z", "gp", "ilp", "p", "w"), outputrate = 1,
+  vt = NULL, theta = NULL, prop = TRUE, repro = "asex",
+  selection = T)
 }
 \arguments{
 \item{tstep}{if theta is null, the number of time steps for the generated environment}

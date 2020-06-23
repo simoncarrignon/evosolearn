@@ -14,59 +14,6 @@ line2user <- function(line, side) {
 i_sls <- 1:4 #a  global variable to store the indices of individidual socil laerning strategies
 names(i_sls) <- c("best","parents","average","random")
 
-#' @export
-plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,t=NULL,...){
-    varnames=NULL
-    if(!is.null(vars))varnames=vars
-    if(!is.null(results$allpop)){
-        allsd=sapply(results$allpop,function(i)apply(i[,vars],2,sd))
-        allmean=sapply(results$allpop,function(i)apply(i[,vars],2,mean))
-        if(is.null(vars))varnames=rownames(allsd)
-    }
-    else{
-        if(is.null(vars))varnames=names(results$allpop[[1]])
-    }
-    cols=c(rainbow(length(varnames)))
-    names(cols)=varnames
-    par(mfrow=c(length(vars)+1,1),mar=c(0,4,2,4))
-    for(i in 1:(length(varnames))){
-        varname=varnames[i]
-        if(hdr){
-            yvalues=lapply(results$allpop,"[[",varname)
-            ylim=range(yvalues)
-            if(varname %in% c("y","z"))ylim=c(0,1)
-            hdr.boxplot(yvalues,border=NA,pch=".",outline=F,col=cols[varname],prob=c(50,75,99),space=0,ylab=varname,ylim=ylim,h=.01,...)
-            if(varname %in% c("x","ilp","gp","p") & !is.null(theta))
-                lines(theta,col="red",lwd=1,lty=1)
-        }
-        else {
-            if(!is.null(results$allpop)){
-                meanvar=allmean[varname,]
-                sdvar=allsd[varname,]
-            }
-            else{
-                meanvar=results$mean[[varname]]
-                sdvar=results$sd[[varname]]
-            }
-            lims=range(c(meanvar+sdvar,meanvar-sdvar))
-            plot(meanvar,ylab=varname,sls="l",col=cols[varname],ylim=lims,xaxt='n',lwd=2,...)
-            lines(meanvar+sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
-            lines(meanvar-sdvar,ylab=varname,col=cols[varname],lwd=2,lty=3)
-        }
-        par(mar=c(0,4,0,4))
-    }
-
-    t=t[!is.na(t)]
-    par(mar=c(2,4,0,4))
-    varname=varnames[length(varnames)]
-    plot(sapply(results$allpop,nrow),ylab="N",xaxt="n",type="l") 
-    i=axis(1,labels=NA,col=NA)
-    if(!is.null(t))axis(1,at=i,labels=t[seq(1,length(t),length.out=length(i))])
-    par(new=T)
-    plot(theta,xlab="",type="l",col="red",yaxt="n",xaxt="n",bty="n",ylab="")
-    axis(4,col="red",col.axis="red")
-    mtext(expression(theta),4,2,col="red")
-}
 
 #wrappers for exploration
 #' @export
@@ -79,7 +26,6 @@ replicateNTime <- function(repet,n,tstep,omega,delta,b,K,mu,E,sigma,pop,m){
 #' get some useful summary stat from model run
 #' @param nstep how many timestep should we use to compute the summary statitistic 
 #' @param sumstat function used to compute the summary statistic
-#' @export
 getVarXMeanW <- function(n,tstep,omega,delta,b,K,mu,E,sigma,pop,m,gene,nstep,sumstat){
     t=evosolearn(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
     res=c()
@@ -141,7 +87,6 @@ getTraj  <-  function(filename,var){
     return(res)
 }
 
-#' @export
 writeResults <- function(final,var,gene){
     pdf(paste0("explore_",var,"_",gene,".pdf"),width=10)
     par(mfrow=c(1,2))
