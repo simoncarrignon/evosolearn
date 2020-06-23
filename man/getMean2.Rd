@@ -2,7 +2,7 @@
 % Please edit documentation in R/environment.R
 \name{getMean2}
 \alias{getMean2}
-\title{create an evenly spaced vector of date and associate to it the mean of the datapoints falling within the new intervals from the original dataset}
+\title{Resample using mean}
 \usage{
 getMean2(data, year, by)
 }

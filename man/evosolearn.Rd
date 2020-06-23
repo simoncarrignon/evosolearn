@@ -13,6 +13,8 @@ evosolearn(n, tstep, E = c(x = 0.01, y = 0.01, z = 0.01), sigma = c(s =
   repro = "asex", selection = T)
 }
 \arguments{
+\item{tstep}{if theta is null, the number of time steps for the generated environment}
+
 \item{pop}{the current population upon wihch statistics have to be calculated}
 
 \item{statfun}{a vector with the different function we apply on the population}

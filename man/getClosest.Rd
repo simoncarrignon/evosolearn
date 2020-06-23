@@ -2,7 +2,8 @@
 % Please edit documentation in R/environment.R
 \name{getClosest}
 \alias{getClosest}
-\title{create an evenly spaced vector of date and associate to it the closest datapoint from the original dataset}
+\title{Resample using closest data
+create an evenly spaced vector of date and associate to it the closest datapoint from the original dataset}
 \usage{
 getClosest(data, year, by)
 }
@@ -17,5 +18,6 @@ getClosest(data, year, by)
 a two columns data frame. Each column is of dimension: seq(min(year),max(year),by=by), one with the years and other with associated theta
 }
 \description{
+Resample using closest data
 create an evenly spaced vector of date and associate to it the closest datapoint from the original dataset
 }

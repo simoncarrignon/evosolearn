@@ -36,6 +36,7 @@ updateOutputLine <- function(pop,statfun,statvar,getname=F,prop=T){
 #' @param statfun a vector with the different function we apply on the population
 #' @param statvar a vector with the different varaible we measure in the population
 #' @param prop if the proporition of different strategies should be ouptut
+#' @param tstep if theta is null, the number of time steps for the generated environment 
 #' @export
 evosolearn <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE,repro="asex",selection=T){
 

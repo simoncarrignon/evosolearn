@@ -1,6 +1,6 @@
 
-#Function from tuneR package
-#Based on Timmer and Koening 1995: https://ui.adsabs.harvard.edu/abs/1995A%26A...300..707T/abstract
+#' From tuneR package
+#' Based on Timmer and Koening 1995: https://ui.adsabs.harvard.edu/abs/1995A%26A...300..707T/abstract
 #' @param alpha: the slope of the power distribution (called omega in whitehead)
 #' @param N: the length of the timeserie to generate
 #' @export
@@ -93,8 +93,7 @@ interpolate <- function(theta,times,finalres,delta=0,omega=0,delta2=NULL){
 }
 
 
-#return the coefficient of a linear fit to the spectrum decomposition of a time serie t
-#' @export
+#' return the coefficient of a linear fit to the spectrum decomposition of a time serie t
 getOmega <- function(t){
 	y=getSpectrum(t) #get spectrum of the environment generated
 	x=1:length(y)
@@ -103,24 +102,28 @@ getOmega <- function(t){
 
 }
 
-#Convert suite of delta 18 O and convert it to temperature
+#' delta 18 O convert
+#' Convert suite of delta 18 O and convert it to temperature
+#' @param d a real or vector of real representing values of delta 18 0
 #' @export
 convertEpstein <- function(d) return(16.5-4.5*d+.14*d^2)
 
-#get the lowest resolution of the
+#' Get Lowest Resolution
+#' get the lowest resolution of the vector years
+#' @param years a vector of years
 #' @export
 getDateResolution <- function(years) years[2:length(years)]-years[1:(length(years)-1)]
 
 ##wrapers to functionalise simple subsetting call
-#' @export
 getLast <- function(x)return(x[1])
-#' @export
 getFirst <- function(x)return(x[length(x)])
-#' @export
 applySampling <- function(x,y,fun)tapply(y,x,fun)
 ###
 
+#' Resample using mean
+#'
 #' create an evenly spaced vector of date and associate to it the mean of the datapoints falling within the new intervals from the original dataset 
+#'
 #' @param data a vector of measure
 #' @param year a vector of date
 #' @param by the ne sampling rate in year
@@ -140,6 +143,7 @@ getMean2 <- function(data,year,by){
     return(cbind.data.frame(data=newdata[-1],year=newyearsmean))
 }
 
+#' Resample using closest data
 #' create an evenly spaced vector of date and associate to it the closest datapoint from the original dataset 
 #' @param data a vector of measure
 #' @param year a vector of date
@@ -163,7 +167,9 @@ getClosest <- function(data,year,by){
     return(cbind.data.frame(data=newdata,year=newyears))
 }
 
-##wrapper to calculate the spectrum decomposition of a timeserie using Multitaper Methods
+#' wrapper to calculate the spectrum decomposition of a timeserie using Multitaper Methods
+#' @param data a vector of measure
+#' @param freq a vector of time at which each measure of \emph{data} has been done
 #' @export
 getSpectrumMTM <- function(data,freq,nw=2.0,k=3,...){
     require(multitaper)
