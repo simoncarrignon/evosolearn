@@ -3,6 +3,7 @@
 #Based on Timmer and Koening 1995: https://ui.adsabs.harvard.edu/abs/1995A%26A...300..707T/abstract
 #' @param alpha: the slope of the power distribution (called omega in whitehead)
 #' @param N: the length of the timeserie to generate
+#' @export
 TK95 <- function(N, alpha = 1){ 
     f <- seq(from=0, to=pi, length.out=(N/2+1))[-c(1,(N/2+1))] # Fourier frequencies
     f_ <- 1 / f^alpha # Power law
@@ -18,6 +19,7 @@ TK95 <- function(N, alpha = 1){
 }
 
 #return spectrum of a timeserie
+#' @export
 getSpectrum <- function(x){
 	N <- length(x)
     pw=8
@@ -33,6 +35,7 @@ getSpectrum <- function(x){
 }
 
 #return a 1/f environment of N steps with sd = delta and the slope of it's spectrum decompoistion = -omega + possibility to increase the mean of the environment at a rate vt (in wich case the slop may not be -omega)
+#' @export
 environment <- function(N,omega,delta,vt=NULL){
     ts=TK95(N,omega)
     ts=delta*ts/sd(ts)
@@ -41,6 +44,7 @@ environment <- function(N,omega,delta,vt=NULL){
 }
 
 # white noise
+#' @export
 gauss <- function(N,mean,delta,v){
     sapply(1:N,function(t)rnorm(1,mean*v,delta))
 }
@@ -56,6 +60,7 @@ gauss <- function(N,mean,delta,v){
 #' @param delta: variance of the noise used for bigger gap
 #' @param delta2: variance of the noise used for smaller gaps
 #' @return a two columns data frame. Each column is a of dimension: seq(1,length(times),by=finalres), one with the years and other with associated theta
+#' @export
 interpolate <- function(theta,times,finalres,delta=0,omega=0,delta2=NULL){
     if(is.null(delta2))delta2=delta
     newtheta=c()
@@ -89,6 +94,7 @@ interpolate <- function(theta,times,finalres,delta=0,omega=0,delta2=NULL){
 
 
 #return the coefficient of a linear fit to the spectrum decomposition of a time serie t
+#' @export
 getOmega <- function(t){
 	y=getSpectrum(t) #get spectrum of the environment generated
 	x=1:length(y)
@@ -98,14 +104,19 @@ getOmega <- function(t){
 }
 
 #Convert suite of delta 18 O and convert it to temperature
+#' @export
 convertEpstein <- function(d) return(16.5-4.5*d+.14*d^2)
 
 #get the lowest resolution of the
+#' @export
 getDateResolution <- function(years) years[2:length(years)]-years[1:(length(years)-1)]
 
 ##wrapers to functionalise simple subsetting call
+#' @export
 getLast <- function(x)return(x[1])
+#' @export
 getFirst <- function(x)return(x[length(x)])
+#' @export
 applySampling <- function(x,y,fun)tapply(y,x,fun)
 ###
 
@@ -114,6 +125,7 @@ applySampling <- function(x,y,fun)tapply(y,x,fun)
 #' @param year a vector of date
 #' @param by the ne sampling rate in year
 #' @return a two columns data frame. Each column is of dimension: seq(min(year),max(year),by=by), one with the years and other with associated theta
+#' @export
 getMean2 <- function(data,year,by){
     newyears=rev(seq(max(year),min(year),-by))
     newdata=sapply(1:length(newyears),function(y,data,oldyear)
@@ -133,6 +145,7 @@ getMean2 <- function(data,year,by){
 #' @param year a vector of date
 #' @param by the ne sampling rate in year
 #' @return a two columns data frame. Each column is of dimension: seq(min(year),max(year),by=by), one with the years and other with associated theta
+#' @export
 getClosest <- function(data,year,by){
     newyears=rev(seq(max(year),min(year),-by))
     newdata=sapply(newyears,function(y,data,oldyear)
@@ -151,6 +164,7 @@ getClosest <- function(data,year,by){
 }
 
 ##wrapper to calculate the spectrum decomposition of a timeserie using Multitaper Methods
+#' @export
 getSpectrumMTM <- function(data,freq,nw=2.0,k=3,...){
     require(multitaper)
     res=unique(getDateResolution(freq))
@@ -161,6 +175,7 @@ getSpectrumMTM <- function(data,freq,nw=2.0,k=3,...){
 }
 
 #' Get the absolute slope of a linear fit between two vectors, possibility to limit the fit to a region of the data (using u and sp)
+#' @export
 getOmega2 <- function(x,y,u=NULL,sp=.5){
     w=T
     if(!is.null(u)){
@@ -170,6 +185,7 @@ getOmega2 <- function(x,y,u=NULL,sp=.5){
     return(abs(fitw$coefficients[[2]]))
 }
 
+#' @export
 plotSpectrum <- function(data,year,add=F,...){
     logyx=getLogSpec(data,year)
     if(add)
@@ -182,6 +198,7 @@ plotSpectrum <- function(data,year,add=F,...){
 }
 
 #' Get the log10 of the spectrum density and frequencies of a vector
+#' @export
 getLogSpec <- function(data,year){
     m.spec=getSpectrumMTM(data,year)
     x=log10(m.spec$freq)
@@ -190,11 +207,13 @@ getLogSpec <- function(data,year){
 }
 
 #' apply the function f on subsets of size w of the vector data
+#' @export
 getWindows<-function(data,w,f)sapply(1:(length(data)-w),function(i,w)f(data[i:(i+w)]),w=w) 
 
 #' getOmegaWrap return the slope of the spectrum decomposition of a vector
 #' @param data a vector 
 #' @return a double 
+#' @export
 getOmegaWrap <- function(data){
     sp=getSpectrumMTM(data,1:length(data))
     return(getOmega2(log10(sp$freq[2:length(sp$freq)]),log10(sp$spec[2:length(sp$freq)])))

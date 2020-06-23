@@ -5,6 +5,7 @@
 #' @param n:numeric value for the size of the pop (redundant/should be equal to length(w))
 #' @param K:environment carrying capacity
 #' @return: numeric vector of probabilities
+#' @export
 selection <- function(w,b,n,K) 1/(1+(b-1)*(n/(K*w)))
 
 
@@ -14,6 +15,7 @@ selection <- function(w,b,n,K) 1/(1+(b-1)*(n/(K*w)))
 #' @param statfun a vector with the different function we apply on the population
 #' @param statvar a vector with the different varaible we measure in the population
 #' @param prop if the proporition of different strategies should be ouptut
+#' @export
 updateOutputLine <- function(pop,statfun,statvar,getname=F,prop=T){
     res=c()
     if(getname){
@@ -34,6 +36,7 @@ updateOutputLine <- function(pop,statfun,statvar,getname=F,prop=T){
 #' @param statfun a vector with the different function we apply on the population
 #' @param statvar a vector with the different varaible we measure in the population
 #' @param prop if the proporition of different strategies should be ouptut
+#' @export
 evosolearn <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE,repro="asex",selection=T){
 
     if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
@@ -160,6 +163,7 @@ evosolearn <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega
     return(output)
 }
 
+#' @export
 fitness <- function(p,theta,x,y,z,sigma_s,sigma_y,sigma_z){
         w = exp(-(p-theta)^2/(2*sigma_s^2)- y^2/(2*sigma_y^2)-z^2/(2*sigma_z^2))
         return(w)
@@ -170,6 +174,7 @@ fitness <- function(p,theta,x,y,z,sigma_s,sigma_y,sigma_z){
 #' @param reference: a dataframe with phenotype and agents ID
 #' @param sls: a string define the sls of copy to be done: in "parents","best","average","randon"
 #' @return: a unique numeric value or a vector of size nrow(newpop) with phenotypes to be copied 
+#' @export
 socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
 
     ##Checking for imature
@@ -226,6 +231,7 @@ socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
 
 
 #' @param distrib should be a list with 3 elements x yz)
+#' @export
 generatePop <- function(n,distrib,df=F){
     if(length(distrib)!=3)stop("please give distribution for the 3 genes")
     if(sum(sapply(distrib,length))!= n * 3)stop("please give the full distribution (for each n individuals) for the 3 genes")
@@ -244,6 +250,7 @@ generatePop <- function(n,distrib,df=F){
 #' @param pop the current population upon wihch statistics have to be calculated
 #' @param statfun a vector with the different function we apply on the population
 #' @param statvar a vector with the different varaible we measure in the population
+#' @export
 updateOutput <- function(output=NULL,pop,statfun,statvar){
 
     if(is.null(output) || sum(statvar %in% colnames(pop))<length(statvar))
@@ -260,6 +267,7 @@ updateOutput <- function(output=NULL,pop,statfun,statvar){
 #' @param selected a vector with the id of the selected individuals
 #' @param nchilds a vector with the number of children for each individual 
 #' @return a matrix qiht the list of children
+#' @export
 reproduction <- function(pop,selected,nchilds){
         childs=matrix(nrow=sum(nchilds),ncol=ncol(pop))
         colnames(childs)=colnames(pop)

@@ -7,7 +7,8 @@ library(devtools)
 devtools::install_github("simoncarrignon/evosolearn")
 ```
 
-## Modify as a package
+## ModiInstallfy as a package
+
 --- 
 
 Below's indication should'nt be used anymore

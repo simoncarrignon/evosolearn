@@ -1,3 +1,4 @@
+#' @export
 line2user <- function(line, side) {
   lh <- par('cin')[2] * par('cex') * par('lheight')
   x_off <- diff(grconvertX(c(0, lh), 'inches', 'npc'))
@@ -13,6 +14,7 @@ line2user <- function(line, side) {
 i_sls <- 1:4 #a  global variable to store the indices of individidual socil laerning strategies
 names(i_sls) <- c("best","parents","average","random")
 
+#' @export
 plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,t=NULL,...){
     varnames=NULL
     if(!is.null(vars))varnames=vars
@@ -67,6 +69,7 @@ plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,t=NULL,...){
 }
 
 #wrappers for exploration
+#' @export
 replicateNTime <- function(repet,n,tstep,omega,delta,b,K,mu,E,sigma,pop,m){
 
     do.call("rbind",replicate(repet,getVarXMeanW(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m),simplify=F))
@@ -76,6 +79,7 @@ replicateNTime <- function(repet,n,tstep,omega,delta,b,K,mu,E,sigma,pop,m){
 #' get some useful summary stat from model run
 #' @param nstep how many timestep should we use to compute the summary statitistic 
 #' @param sumstat function used to compute the summary statistic
+#' @export
 getVarXMeanW <- function(n,tstep,omega,delta,b,K,mu,E,sigma,pop,m,gene,nstep,sumstat){
     t=evosolearn(n=n,tstep=tstep,omega = omega,delta = delta ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m)
     res=c()
@@ -94,6 +98,7 @@ getVarXMeanW <- function(n,tstep,omega,delta,b,K,mu,E,sigma,pop,m,gene,nstep,sum
 #' @param sumstat function used to compute the summary statistic
 #' @param fullmat a matrice with the result of a simulation
 #' @param vars a vector with the variable we want to summarize using sumstat
+#' @export
 getSummary <- function(fullmat,nstep,sumstat=mean,vars){
     res=c()
     tstep=nrow(fullmat)
@@ -136,6 +141,7 @@ getTraj  <-  function(filename,var){
     return(res)
 }
 
+#' @export
 writeResults <- function(final,var,gene){
     pdf(paste0("explore_",var,"_",gene,".pdf"),width=10)
     par(mfrow=c(1,2))
@@ -145,6 +151,7 @@ writeResults <- function(final,var,gene){
 }
 
 
+#' @export
 plotAlldimensions <- function(alldata,gene,y,dim1="K",dim2="E",dim3="sigma",dim4="m",dim5="mu",dir="images/",pref="explore",write=F,points=F){
     if(write)dir.create(dir,recursive = T)
     data=alldata[[gene]]
@@ -193,6 +200,7 @@ plotAlldimensions <- function(alldata,gene,y,dim1="K",dim2="E",dim3="sigma",dim4
     return(storename)
 }
 
+#' @export
 printOne <- function(alldata,gene,y,K,E,sigma,m,mu,dir="images/",pref="one",write=F){
     data=alldata[[gene]]
     if(y=="var")
@@ -216,6 +224,7 @@ printOne <- function(alldata,gene,y,K,E,sigma,m,mu,dir="images/",pref="one",writ
     if(write)dev.off()
 }
 
+#' @export
 plotTraj <- function(x,alltraj,col=1,ylim=NULL,xlim=NULL,add=F,lty=1,lwd=1.4,mean=F,...){
     #mn=apply(alltraj,1,mean)
     #sd=apply(alltraj,1,sd)
@@ -228,6 +237,7 @@ plotTraj <- function(x,alltraj,col=1,ylim=NULL,xlim=NULL,add=F,lty=1,lwd=1.4,mea
     if(!mean)lines(x,qts[2,],col=col,lwd=lwd/14,lty=lty)
 }
 
+#' @export
 addMeanSD <- function(x,y,col=1,plot=T){
     meany=tapply(y,x,mean)
     sdy=tapply(y,x,sd)
@@ -236,6 +246,7 @@ addMeanSD <- function(x,y,col=1,plot=T){
     return(rbind(meany+sdy,meany,meany-sdy))
 }
 
+#' @export
 getFullExperimentSummary <- function(fold,exclude=NULL){
     allfolds=list.dirs(fold,recursive=F)
     allsummary=c()
@@ -250,6 +261,7 @@ getFullExperimentSummary <- function(fold,exclude=NULL){
     return(allsummary)
 }
 
+#' @export
 getSubsetWithTraj <- function(summarydataset,m,sigma,E,K,mu,delta=0,var="var_x",traj=T){
     res=list()
     res$summary=summarydataset[summarydataset$mu %in% mu & summarydataset$sigma %in% sigma & summarydataset$m %in% m & summarydataset$E %in% E & summarydataset$delta %in% delta & summarydataset$K %in% K,]
@@ -262,6 +274,7 @@ getSubsetWithTraj <- function(summarydataset,m,sigma,E,K,mu,delta=0,var="var_x",
 #' A simple function to change the opacity of a color
 #' @param  color the name or idea of a R color
 #' @param  alpha a value in [0,1] defining the opacity wanted.
+#' @export
 alpha <- function(color,alpha) rgb(t(col2rgb(color)/255),alpha=alpha)
 
 #' Shades
@@ -269,14 +282,19 @@ alpha <- function(color,alpha) rgb(t(col2rgb(color)/255),alpha=alpha)
 #' A simple function to genarte shade of one color by changing its opacity
 #' @param  color the name or idea of a R color
 #' @param  n number or shades wanted
+#' @export
 shades<-function(color,n) sapply(seq(0,1,length.out=n+1),alpha,color=color)[2:(n+1)]
 
+#' @export
 eq2833a <- function(n,mu,sigma,m)return(mu*m^2*n)
 
+#' @export
 eq2830a <- function(n,mu,sigma,m)return((4*mu*sigma)/(1+sigma/(n*m^2)))
 
+#' @export
 eq2829c <- function(n,mu,sigma,m)return(m^2/4 * (sqrt(1+(16*mu*sigma)/(m^2))-1))
 
+#' @export
 eq2833b <- function(n,mu,sigma,m){
     gamma=m^2/(2*sigma^2)
     return(1*m^2*(gamma*n+1)/(4*gamma*n)*(sqrt(1+2*(gamma*n*4*mu*n)/(gamma*n+1)^2)-1))
@@ -287,6 +305,7 @@ eq2833b <- function(n,mu,sigma,m){
 #' A function to count the number of pure social learning and pure individual learner
 #' @param  upperlim the minimum value for the gene (y or z) to be considered as "pure" learning
 #' @param  lowerlim the maximum value for the other gene (y or z) to be considered as "pure" learning
+#' @export
 countStrategies <- function(pop,lowerlim=.25,upperlim=.75){
     soc=sum(pop[,"z"] > upperlim & pop[,"y"]< lowerlim)/nrow(pop)
     il=sum(pop[,"y"] > upperlim & pop[,"z"]< lowerlim)/nrow(pop)
@@ -311,6 +330,7 @@ countStrategies <- function(pop,lowerlim=.25,upperlim=.75){
 #'      for(v  in vars) mat_allexp[[v]][i,]=summary[,v]
 #'  }
 #'  sum_mat=lapply(mat_allexp,function(m)apply(m,2,quantile,probs=c(.05,.5,.95),na.rm=T))
+#' @export
 plotMatrixStrateAndEn <- function(sum_mat,environment,epochs=NULL){
     nsteps=ncol(sum_mat[[1]])
     if(is.null(epochs))epochs=0:(nsteps-1)
@@ -338,6 +358,7 @@ plotMatrixStrateAndEn <- function(sum_mat,environment,epochs=NULL){
 }
 
 
+#' @export
 plotTres <- function(u,col=1,...){
     plot(u[2,],col=col,axes=F,type="l",...)
     lines(u[1,],col=col,lwd=.1)
@@ -346,6 +367,7 @@ plotTres <- function(u,col=1,...){
 
 
 # trying to write a solid wrapper to take care of different file load/filename for uneique dataset stoage
+#' @export
 getUniqueExp <- function(filename){
     if(is.factor(filename))
         filename=as.character(filename)
@@ -372,6 +394,7 @@ getUniqueExp <- function(filename){
 #' Calculate the CCFD following \emph{Vosoughi et al. (2018)}
 #'@param size : sample of sizes
 #'@return a order table with two column with first column : frequency and second column the probality of the frequency  
+#' @export
 ccfd <- function(size){
     total=length(size) 
     size=size[order(size)]
@@ -387,6 +410,7 @@ ccfd <- function(size){
 #' randomCascades: A slightly (almost not) modified version of the original model by Alex & Damien
 #' Original model is in tools/FNM.R
 #' @return dataframe that allow to compare easily to the result of the model of the cascade
+#' @export
 randomCascades <- function(Nmin=100000,Nmax=50000,t_steps=50,y_max=1,runs=1,mu=0.00001,tau = 1,alpha=0,conformity=F,beta=-2,topfive=F,TF=5,C=.1,alberto=F){
 
     t<-seq(1,t_steps)
@@ -464,6 +488,7 @@ randomCascades <- function(Nmin=100000,Nmax=50000,t_steps=50,y_max=1,runs=1,mu=0
 
 
 ## Function to compute distances of all simulations  to an optimal distance
+#' @export
 distFivePercent <- function(data,clm){
     allexp=as.character(getUniqeSet(data,clm)$filename)
 
@@ -482,11 +507,14 @@ distFivePercent <- function(data,clm){
     return(s)
 }
 
+#' @export
 distT<-function(u,n) 1-(abs(u-n)/(sqrt(abs(u^2-n^2))))
 
+#' @export
 distU<-function(u,n) 1-(1/abs(u^2-n^2))
 
 
+#' @export
 getUniqeSet <- function(data,vect,out){
     sub=rep(TRUE,nrow(data))
     for(cn in names(vect)){

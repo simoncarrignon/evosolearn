@@ -1,4 +1,5 @@
 
+#' @export
 plotAllVariableSummaries <- function(summaryresults,E,estimate=NULL,ylim=NULL,var="var_x"){
     Ks=sort(unique(summaryresults$K))
     mus=sort(unique(summaryresults$mu))
@@ -96,6 +97,7 @@ plotAllVariableSummaries <- function(summaryresults,E,estimate=NULL,ylim=NULL,va
 
 
 #this function use the filename stored in an summarized ouput  to get the individual trajectory for each experimetn an trace them.
+#' @export
 plotAllTrajVar <- function(summaryresults,obs="N",m,E,ylim=NULL,legside="topleft"){
     Ks=sort(unique(summaryresults$K))
     mus=sort(unique(summaryresults$mu))
@@ -168,6 +170,7 @@ plotAllTrajVar <- function(summaryresults,obs="N",m,E,ylim=NULL,legside="topleft
 
 
 ## this funciton take all experiment from one or more folders and return it as a unique dataframe
+#' @export
 getAlllSummaries <- function(folder,exclude=NULL){
     allsummaries=lapply(folder,getFullExperimentSummary,exclude=exclude)
     names(allsummaries)=folder
@@ -182,6 +185,7 @@ getAlllSummaries <- function(folder,exclude=NULL){
     return(df.allexp)
 }
 
+#' @export
 updateScale <- function(df.exp){
     df.exp$extinction=(df.exp$extinction-1)*unique(df.exp$outputrate)+1
     return(df.exp)
@@ -189,6 +193,7 @@ updateScale <- function(df.exp){
 
 
 #plot tow lines: distance to optimum and fintes
+#' @export
 plotDistVsFitness <- function(summaryresults,ylim=NULL,legside="topleft",...){
     Ks=sort(unique(summaryresults$K))
     mus=sort(unique(summaryresults$mu))
@@ -249,6 +254,7 @@ plotDistVsFitness <- function(summaryresults,ylim=NULL,legside="topleft",...){
 
 
 #plot tow lines: distance to optimum and fintes
+#' @export
 plot3Genes <- function(summaryresults,ylim=NULL,side="topright",...){
     Ks=sort(unique(summaryresults$K))
     mus=sort(unique(summaryresults$mu))
@@ -313,6 +319,7 @@ plot3Genes <- function(summaryresults,ylim=NULL,side="topright",...){
 
 
 #plot tow lines: distance to optimum and fintes
+#' @export
 plotProp <- function(summaryresults,ylim=NULL,side="topright",...){
     Ks=sort(unique(summaryresults$K))
     mus=sort(unique(summaryresults$mu))
@@ -362,6 +369,7 @@ plotProp <- function(summaryresults,ylim=NULL,side="topright",...){
 
 
 #this function use the filename stored in an summarized ouput  to get the individual trajectory for each experimetn an trace them.
+#' @export
 plotAllProp <- function(summaryresults,obs="prop",m,E,ylim=NULL,legside="topleft"){
     Ks=sort(unique(summaryresults$K))
     mus=sort(unique(summaryresults$mu))
