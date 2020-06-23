@@ -1,4 +1,19 @@
 source("protomodels.R")
+realdata=read.csv("data/theta_real.csv")
+plot(realdata$years,realdata$permille,ylab=expression(delta[18]*O),xlab="Age (year BP)",type="l")
+theta=rev(tapply(realdata$permille,realdata$years.BP.2000,mean))
+plot(theta,type="l")
+w=100
+plot(sapply(1:(length(theta)-w),function(i)
+       {
+       y=getSpectrum(theta[i:(i+w)]) #get spectrum of the environment generated
+       x=1:length(y)
+       fit=lm(log(y)~log(x),cbind.data.frame(x=1:length(y),y=y)) #fit a linear model to check slope
+       return(fit$coefficients[2])
+}
+)
+,ylab="",type="l")
+
 
 pop=cbind.data.frame(agent=1:100,parent=1:100,x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1),w=1:100)
 
