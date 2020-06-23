@@ -1,4 +1,4 @@
-source("protomodels.R")
+source("corefunctionss.R")
 getFirst <- function(allpopres){
     for(i in 2:length(allpopres$allpop)){
         ctsls=table(factor(allpopres$allpop[[i]][,"sls"],levels=c(-1,0,2,3)))

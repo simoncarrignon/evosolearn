@@ -1,4 +1,4 @@
-source("protomodels.R")
+source("corefunctionss.R")
 
 
 n=200

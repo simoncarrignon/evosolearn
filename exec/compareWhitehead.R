@@ -19,7 +19,7 @@ print(paste0("Abc will be stored in folder: ",fold))
 dir.create(fold)
 
 
-source("protomodels.R")
+source("corefunctionss.R")
 library(parallel)
 allparameters=list()
 allparameters[["mu"]]=c(0.001,0.01)
