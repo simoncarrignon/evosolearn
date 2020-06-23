@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualisation.R
 \name{plotResults}
 \alias{plotResults}
-\title{Plot all}
+\title{Plot single run}
 \usage{
 plotResults(results, statfun = c("mean", "sd"), statvar = c("w", "p",
   "x", "y", "z"), multi = F, N = T, theta = T, addrgb = T)
