@@ -31,20 +31,34 @@ updateOutputLine <- function(pop,statfun,statvar,getname=F,prop=T){
 
 
 #' Main function
+#'
+#' Main function that runs the model
+#'
 #' @param ouptut a current output to be update or initialized if NULL
 #' @param pop the current population upon wihch statistics have to be calculated
-#' @param statfun a vector with the different function we apply on the population
-#' @param statvar a vector with the different varaible we measure in the population
-#' @param prop if the proporition of different strategies should be ouptut
+#' @param statfun a vector with the different functions we apply on the population
+#' @param statvar a vector with the different variable we measure in the population
+#' @param prop if the proportion of different strategies should be ouptuted
+#' @param sls a string that define which social learning strategies is used
+#' @param log if TRUE each time step is logged in the command line
+#' @param selection if FALSE the fitness isn't computed
+#' @param theta a list of optimum. if null tstep, omega, delta and vt can be passed to the function to generate a random list of optimum
+#' @param repro a string to choose with reproduction used. Should be in "sex","asex","unique"
+#' @param genes a vector of characters that gives which genes will be evolved ( to speed up simulations where not all genes evolve). value in the vector should be in "x","y","z"
+#' @param sigma a 3-values vector storing the strength of selection sigma_s and the selection over y and z. Should be of the form: sigma[s,y,z]
+#' @param E a 3-values vector storing the standard deviation of the error in the expression of each gene. Should be of the form: E[x,y,z]
+#' @param mu a 3-values vector storing the mutation rate for each gene. Should be of the form: mu[x,y,z]
+#' @param m a 3-values vector storing the standard deviation of the mutation effect for each gene. Should be of the form: m[x,y,z]
 #' @param tstep if theta is null, the number of time steps for the generated environment 
+#' @return if allpops=F a list with the full populations at each time step, if not, a matrix of n*(tstep/outputrate) (or length(theta) instead of tstep if theta is provided)
 #' @export
-evosolearn <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega,delta,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE,repro="asex",selection=T){
+evosolearn <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega=0,delta=0,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE,repro="asex",selection=T){
 
     if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
 	if(is.null(theta)){
 	   theta=environment(tstep,omega,delta,vt)
 	}
-    tstep=min(length(theta),tstep)
+    tstep=length(theta)
 
     #Generate initial population (here all gene are randomly selected
     if(is.null(pop))pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=runif(n,0,1),z=runif(n,0,1)),df=F)

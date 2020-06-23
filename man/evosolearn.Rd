@@ -5,9 +5,9 @@
 \title{Main function}
 \usage{
 evosolearn(n, tstep, E = c(x = 0.01, y = 0.01, z = 0.01), sigma = c(s =
-  1, y = 1, z = 1), omega, delta, b, K, mu = c(x = 0.3, y = 0.3, z =
-  0.3), genes = c("x", "y", "z"), m = c(x = 0.3, y = 0.3, z = 0.3),
-  sls = "best", log = F, pop = NULL, allpops = F,
+  1, y = 1, z = 1), omega = 0, delta = 0, b, K, mu = c(x = 0.3, y =
+  0.3, z = 0.3), genes = c("x", "y", "z"), m = c(x = 0.3, y = 0.3, z =
+  0.3), sls = "best", log = F, pop = NULL, allpops = F,
   statfun = c("mean", "var"), statvar = c("x", "y", "z", "gp", "ilp",
   "p", "w"), outputrate = 1, vt = NULL, theta = NULL, prop = TRUE,
   repro = "asex", selection = T)
@@ -15,16 +15,39 @@ evosolearn(n, tstep, E = c(x = 0.01, y = 0.01, z = 0.01), sigma = c(s =
 \arguments{
 \item{tstep}{if theta is null, the number of time steps for the generated environment}
 
+\item{E}{a 3-values vector storing the standard deviation of the error in the expression of each gene. Should be of the form: E[x,y,z]}
+
+\item{sigma}{a 3-values vector storing the strength of selection sigma_s and the selection over y and z. Should be of the form: sigma[s,y,z]}
+
+\item{mu}{a 3-values vector storing the mutation rate for each gene. Should be of the form: mu[x,y,z]}
+
+\item{genes}{a vector of characters that gives which genes will be evolved ( to speed up simulations where not all genes evolve). value in the vector should be in "x","y","z"}
+
+\item{m}{a 3-values vector storing the standard deviation of the mutation effect for each gene. Should be of the form: m[x,y,z]}
+
+\item{sls}{a string that define which social learning strategies is used}
+
+\item{log}{if TRUE each time step is logged in the command line}
+
 \item{pop}{the current population upon wihch statistics have to be calculated}
 
-\item{statfun}{a vector with the different function we apply on the population}
+\item{statfun}{a vector with the different functions we apply on the population}
 
-\item{statvar}{a vector with the different varaible we measure in the population}
+\item{statvar}{a vector with the different variable we measure in the population}
 
-\item{prop}{if the proporition of different strategies should be ouptut}
+\item{theta}{a list of optimum. if null tstep, omega, delta and vt can be passed to the function to generate a random list of optimum}
+
+\item{prop}{if the proportion of different strategies should be ouptuted}
+
+\item{repro}{a string to choose with reproduction used. Should be in "sex","asex","unique"}
+
+\item{selection}{if FALSE the fitness isn't computed}
 
 \item{ouptut}{a current output to be update or initialized if NULL}
 }
+\value{
+if allpops=F a list with the full populations at each time step, if not, a matrix of n*(tstep/outputrate) (or length(theta) instead of tstep if theta is provided)
+}
 \description{
-Main function
+Main function that runs the model
 }
