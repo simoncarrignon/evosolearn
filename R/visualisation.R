@@ -82,7 +82,7 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
             x=seq_along(results[,"theta"])
             if(!is.null(year))
                 x=seq(min(year),max(year),length.out=length(x))
-            plot(x,results[,"theta"],type="l",ylab="",main="",bty="n",xlab="t",axes=F,col="black")
+            plot(x,results[,"theta"],xlim=range(x,0),type="l",ylab="",main="",xlab="t",axes=F,col="black")
             axis(2,xaxs="i")
             mtext(expression(theta),2,3)
         }
