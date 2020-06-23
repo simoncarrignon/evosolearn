@@ -52,7 +52,7 @@ updateOutputLine <- function(pop,statfun,statvar,getname=F,prop=T){
 #' @param tstep if theta is null, the number of time steps for the generated environment 
 #' @return if allpops=F a list with the full populations at each time step, if not, a matrix of n*(tstep/outputrate) (or length(theta) instead of tstep if theta is provided)
 #' @export
-evosolearn <- function(n,tstep,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega=0,delta=0,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE,repro="asex",selection=T){
+evosolearn <- function(n=1000,tstep=100,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega=0,delta=0,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","var"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE,repro="asex",selection=T){
 
     if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
 	if(is.null(theta)){
