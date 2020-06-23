@@ -1,0 +1,66 @@
+# LR04 stack + interpolation
+
+
+## Dataset 
+
+```{r echo=FALSE, message=FALSE}
+folderexpe="exploreRealEnvRANDOMNoisyHigherRes"
+idexpe="stackLR04InterpolNoisyRescale"
+
+ns=length(list.files(path=folderexpe,recursive=T,full.names=T,pattern="*cross*"))
+
+realdata=read.csv("data/lr04.csv")
+newt=interpolate(realdata$dOsea,realdata$year,finalres=250)
+epoch=min(-realdata$year):max(-realdata$year)
+epoch=epoch*1000
+
+binded=do.call("rbind",lapply(list.files(path=folderexpe,recursive=T,full.names=T,pattern="*cross*"),function(u){load(u);return(binded)}))
+allEs=unique(binded$E)
+allSigmas=unique(binded$sigma)
+
+load(file=as.character(binded$filename[1]))
+nsteps=nrow(summary)
+
+
+
+binded=binded[binded$sigma==0.5,]
+binded=binded[binded$E==.2,]
+
+```
+
+For this sexperiment we test the data from the stack LR04
+Stack LR04 is made of `r nrow(realdata)` records, describing between 1000 and 2500 years, for a total of mor than 5M years, shown in Figure \@ref(fig:realdataLR04). But to icrease the resolution of this dataset we interpolate date point between the one we have.
+
+
+## General properties at the end of the simulation
+
+```{r}
+t=c("NA","N","3Genes")
+allsummaries=unlist(lapply(allSigmas,function(s)paste0('images/',idexpe,t,'_sigma',s,'_E.png')))
+```
+
+```{r outputEndNI, out.width = "30%", fig.cap="Summary output at the end of the simulation (from top to bottom $\\sigma_s = 0.5,1$)",fig.show="hold",fig.link=allsummaries}
+knitr::include_graphics(as.character(allsummaries))
+```
+
+
+## Strategies Distribution Through Time Vertical visualisation
+ 
+Rows in those graphs represent 500 years from -120,000 (top) to 0 (the year 2000) at the bottom. Columns represents different  parameter combination. The main order is the cost of $y$, then the cost of $z$ and the smaller level of orderare the parameter related to mutation (from left to right $\mu \times m$ increase).  Each figure shows a different $\sigma_s$.
+
+```{r}
+allimg=unlist(lapply(allSigmas[2],function(s)paste0("images/vertical_",idexpe,"_sigma",s,"_E",allEs,".png")))
+```
+
+```{r compactNoisyRandomNI, out.width = "24%", fig.cap="Compact vertical trajectories (from top to bottom $\\sigma_s = 0.5,1$, from left to right, $E=0,0.2,0.6,1$)",fig.show="hold",fig.link=allimg}
+knitr::include_graphics(as.character(allimg))
+```
+
+ 
+
+```{r}
+allimg=unlist(lapply(allSigmas[2],function(s)paste0("images/verticalMHghRes_",idexpe,"_sigma",s,"_E",allEs,".png")))
+```
+```{r individualTraj, out.width = "24%", fig.cap="Compact vertical trajectories  for individual trajectories:(from top to bottom $\\sigma_s = 0.5,1$, from left to right, $E=0,0.2,0.6,1$)",fig.show="hold",fig.link=allimg}
+knitr::include_graphics(as.character(allimg))
+```

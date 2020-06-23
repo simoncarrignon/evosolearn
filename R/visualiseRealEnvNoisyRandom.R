@@ -31,7 +31,9 @@ setAxis <- function(data){
 #' @param subnb if ind is TRUE, number of uindividual run to plot by experiments
 #' @param limit number of step (ie generation) to visualise 
 #' @param prop realtive width of the environment plot wrt the rgb matrix
-printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.width=600,img.height=800,img.pointsize=14,env=NULL,prop=.1)
+#' @param varcol withc variable use forthe color
+#' @param palette the color palette to use
+printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.width=600,img.height=800,img.pointsize=14,env=NULL,prop=.1,ordered=NULL,varcol="rgb",palette=colorRampPalette(c("grey","yellow","dark green"))(1200))
 {
 
     mum=as.data.frame(expand.grid(m=unique(data$m),mu=unique(data$mu)))
@@ -67,24 +69,41 @@ printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.wi
                 subb=droplevels(data[data$mu ==mu &data$m ==m &data$E ==e & data$k_z ==kz & data$k_y ==ky,])
                 nexpe=nrow(subb)
                 if(ind){
-                    for(f in sample.int(nexpe,subnb)){
+                    subselect=sample.int(nexpe,subnb)
+                    if(is.null(ordered))ordered="n"
+                    if(ordered=="z"){
+                    reorder=sapply(subselect,function(f)sum(getUniqueExp(subb$filename[f])[,"mean_z"],na.rm=T))
+                    subselect=subselect[order(reorder)]
+                    }
+                    if(ordered=="y"){
+                    reorder=sapply(subselect,function(f)sum(getUniqueExp(subb$filename[f])[,"mean_y"],na.rm=T))
+                    subselect=subselect[order(reorder)]
+                    }
+                    for(f in subselect){
                         pxl=c()
                         summary=getUniqueExp(subb$filename[f])
                         na=which.max(is.na(summary[,1]))#find the first na ie when pop get extinct
                         if(na>1) summary=summary[1:(na-1),,drop=F]
-                        alphalvl=sapply(summary[,"N"]/1000,function(i)min(i,1))
-                        pxl=rgb(summary[,"mean_y" ],.5,summary[,"mean_z"],alphalvl)
+                        if(varcol=="rgb"){
+                            alphalvl=sapply(summary[,"N"]/1000,function(i)min(i,1))
+                            pxl=rgb(summary[,"mean_y" ],.5,summary[,"mean_z"],alphalvl)
+                        }
+                        else{
+                            pxl=palette[summary[,varcol]]
+                        }
+
                         bicpic[1:length(pxl),p]=pxl
                         p=p+1
                         print(paste("individual run",p,"/",ncol(bicpic)))
                     }
                 }
                 else{ 
-                    vars=c("mean_y","mean_z")
+                    if(varcol=="rgb") vars=c("mean_y","mean_z")
+                    else vars=varcol
                     names(vars)=vars
                     mat_allexp= lapply(vars,function(i)matrix(NA,nexpe,tlim))
                     for(i in 1:nexpe){
-                        load(as.character(subb$filename[i]))
+                        summary=getUniqueExp(subb$filename[i])
                         rng=(nrow(summary)-tlim+1):nrow(summary)
                         for(v  in vars){
                             if(length(mat_allexp[[v]][i,])!=length(summary[rng,v]))
@@ -95,14 +114,21 @@ printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.wi
                         }
                     }
                     sum_mat=lapply(mat_allexp,function(m)apply(m,2,mean,na.rm=T))
-                    sum_mat$na=apply(mat_allexp$mean_y,2,function(i)sum(is.na(i)))
+                    if(varcol=="rgb")
+                        sum_mat$na=apply(mat_allexp$mean_y,2,function(i)sum(is.na(i)))
+                    else
+                        sum_mat$na=apply(mat_allexp[[varcol]],2,function(i)sum(is.na(i)))
                     sum_mat=lapply(sum_mat,function(m)m[!is.na(m)])
                     if(length(sum_mat$mean_y)>1){
                         if(is.na(sum_mat$na[1]))
                             pxl=NA
-                        else
+                        else{
                             #pxl=rgb(sum_mat$mean_y,.5,sum_mat$mean_z,alpha=1)
+                        if(varcol=="rgb")    
                             pxl=rgb(sum_mat$mean_y,.5,sum_mat$mean_z,alpha=1-sum_mat$na/nexpe)
+                        else    
+                            pxl=alpha(palette[sum_mat[[varcol]]],alpha=1-sum_mat$na/nexpe)
+                        }
                         bicpic[1:length(pxl),p]=pxl
                     }
 
@@ -112,7 +138,7 @@ printRGBpixels <- function(data,filename,ind=FALSE,tlimit=NULL,subnb=NULL,img.wi
             }
             scale=1 #to convert time scale in year
             png(filename,width=img.width,height=img.height,pointsize=img.pointsize)
-            par(mar=rep(.5,4),oma=c(4,4,4,1))
+            par(mar=rep(.5,4),oma=c(3,4,4,1))
 
             layout(matrix(c(1,2),ncol=2,nrow=1),width=c(prop,1-prop))
 
@@ -186,7 +212,7 @@ idexpe=exp$idexpe
 ns=length(list.files(path=folder,recursive=T,full.names=T,pattern="*cross*"))
 
 binded=do.call("rbind",lapply(list.files(path=folder,recursive=T,full.names=T,pattern="*cross*"),function(u){print(u);load(u);return(binded)}))
-load(file=as.character(binded$filename[1]))
+summary=getUniqueExp(binded$filename[1])
 nsteps=nrow(summary)
 
 nlines=length(unique(binded$k_z))*length(unique(binded$k_y))
@@ -284,16 +310,34 @@ for(s in unique(binded2$sigma)){
 
 }
 
-for(s in unique(binded2$sigma)){
 
-    binded=binded2[binded2$sigma==s,]
-    env=read.csv(paste0("data/",exp$env,".csv"))
-    for(e in unique(binded$E)){
-        printRGBpixels(data=binded,filename=paste0("images/vertical_",idexpe,"_sigma",s,"_E",e,".png"),ind=F,env=env,img.width=800)
-        printRGBpixels(data=binded,filename=paste0("images/verticalM_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42)
+for( exp in allexp){
+    folder=exp$folder
+    idexpe=exp$idexpe
+    try({
+    binded=do.call("rbind",lapply(list.files(path=folder,recursive=T,full.names=T,pattern="*cross*"),function(u){print(u);load(u);return(binded)}))
+    summary=getUniqueExp(binded$filename[1])
+    nsteps=nrow(summary)
+
+    nlines=length(unique(binded$k_z))*length(unique(binded$k_y))
+    ncols=length(unique(binded$E))
+
+    binded2=binded
+    for(s in unique(binded2$sigma)){
+
+        binded=binded2[binded2$sigma==s,]
+        env=read.csv(paste0("data/",exp$env,".csv"))
+        for(e in unique(binded$E)){
+            printRGBpixels(data=binded,filename=paste0("images/vertical_",idexpe,"_sigma",s,"_E",e,".png"),ind=F,env=env,img.width=800)
+            printRGBpixels(data=binded,filename=paste0("images/verticalM_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42)
+            printRGBpixels(data=binded,filename=paste0("images/verticalMy_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42,ordered="y")
+            printRGBpixels(data=binded,filename=paste0("images/verticalMz_",idexpe,"_sigma",s,"_E",e,".png"),ind=T,env=env,img.width=1800,img.height=1400,img.pointsize=42,ordered="z")
+        }
     }
+    })
+    print(exp$idexpe)
+
 }
-                
                     
 
 

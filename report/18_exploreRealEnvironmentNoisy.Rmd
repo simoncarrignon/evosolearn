@@ -1,0 +1,122 @@
+# Real Environment and Noisy Behaviors
+In this section we add random errors at all stage of maturation.  To represent this random error we introduce three terms ($e',e'',e'''$)  that represents the error randomly generate at the three maturation stage: genetic, individual learning, social learning.  
+
+To represent this error, we use three parameters $E_x,E_y,E_z$ which are the standard deviation of a normal distribution used to  generate this random noise. In this experiment we simplify this by using $E_x=E_y=E_z$. Thus in the following simulations: $e' \sim e'' \sim e''' \sim {\cal N}(0,E)$ :
+
+
+## Dataset and parameters
+
+I than before added the fact that a random error is added to the different stage of maturation 
+
+All parameters with regard to genetic mutation and cost are the same:
+
+*  $\mu_z=\mu_y=\mu_x$ the rate of mutation: $\mu_x \in \{0.001,0.005,0.025,0.125,0.625\}$
+*  $m_z=m_y=m_x$ the variance of the mutation: $m_x \in \{.2,.4,.6,.8,1\}$
+
+As described above, the random errors $e',e'',e'''$ are generate using the same parameter E, the standard deviation of a normally distributed random variable : $ e' \sim e'' \sim e''' \sim {\cal N}(0,E)$:
+*  $E_x=E_y=E_z$ The noise added when behavior is expressed: $E \in \{0,.2,.6,1\}$
+
+
+  When social learning is used at time $t$, agents copy the best behavior among individuals at the previous generation (the one that minimise $|p-\theta_{t-1}|$).   
+
+The cost of $z$, $\sigma_z$, is defined relatively to the cost of $y$, $\sigma_y$, while $\sigma_y$ is defined relatively to the selective pressure $\sigma_s$:
+
+* $\sigma_z = k_z\times\sigma_y$ 
+* $\sigma_y = k_y\times\sigma_s$ 
+* $k_z \in \{1,2,4\}$
+* $k_y \in \{0.5,1,2\}$
+
+To limit the size of the output we run simulations with only $\sigma_s = 2$ 
+
+We repeat `r ns` times each unique set of parameters and monitor the change in population properties for all time steps of all simulations. 
+
+## General properties at the end of the simulation
+
+Following the studies done in the section \@ref(interactiongenenv)  we look at the final outcome of the simulations for different parameters. In the figure below we show, from left to right:
+
+1. the number of extinctions among the `r ns` simulations
+2. the mean population size 
+3. a RGB representation of the combined mean genetic value 
+
+In this experiment columns represent increase level of noise.
+
+<a href="images/exploringRealEnv_E.png"><img src="images/exploringRealEnv_E.png" alt="exemple4" width="30%"/></a>
+<a href="images/exploringRealEnvN_E.png"><img src="images/exploringRealEnvN_E.png" alt="exemple4" width="30%"/></a>
+<a href="images/exploringRealEnv3Genes_E.png"><img src="images/exploringRealEnv3Genes_E.png" alt="exemple4" width="30%"/></a>
+
+The first column of the new graph (above) corresponds to the column $\sigma_s=2$ (the second columns) in the old setup that we reproduce below
+
+<a href="images/exploringRealEnv.png"><img src="images/exploringRealEnv.png" alt="exemple4" width="30%"/></a>
+<a href="images/exploringRealEnvN.png"><img src="images/exploringRealEnvN.png" alt="exemple4" width="30%"/></a>
+<a href="images/exploringRealEnv3Genes.png"><img src="images/exploringRealEnv3Genes.png" alt="exemple4" width="30%"/></a>
+
+Looking at those results we see that introducing noise in the expression of the behaviors reduces the number of extinction (left pane) while also slightly reducing the effective population size when the noise is too high (middle pane). Lastly, in this setup where agents copy the best individual, it greatly increases the probability of evolution of population made of social learners only, as it is shown by the blue pixels in the right panel. 
+
+
+
+## Observe Strategies Distributions full trajectories 
+
+To keep the visualisation of full trajectories manageable we select only simulations with noise standard deviation $E=0.2$.
+
+
+```{r echo=FALSE, message=FALSE}
+environment=theta
+binded=do.call("rbind",lapply(list.files(path="exploreRealEnvBESTNoisy",recursive=T,full.names=T,pattern="*cross*"),function(u){load(u);return(binded)}))
+
+binded=binded[binded$sigma==2,]
+binded=binded[binded$E==.2,]
+
+```
+
+In the next section we explore the proportion of different strategies with different $\mu$ and $m$, but keeping only the results for $\sigma_s=2$ and $E=0.2$:
+
+* $\mu$ decrease from top to bottom following those values:
+$\mu=$ `r paste0(rev(unique(binded$mu))) `
+
+* $m$ increase from left to right following those values:
+$m=$ `r paste0(unique(binded$m)) `
+
+The orange, blue and  purple hard lines represent the median of the proportion of the three strategies within the population for `r ns` repetitions. The lighter lines represents the 5 and 95% percentiles (as we may be interested in situations where social learning, or mixed strategies, emerges, though not often).
+
+```{r,echo=F,fig.width=3,fig.height=3, out.width = "24%", results='asis'}
+for(s in unique(binded$sigma)){
+    for(kz in unique(binded$k_z)){
+        for(ky in unique(binded$k_y)){
+            cat(paste0("### $k_z$ = ",kz," $k_y$ = ",ky,"\n\r"), sep="")
+            for(mu in rev(unique(binded$mu))){
+                for(m in unique(binded$m)){
+                    subb=droplevels(binded[binded$mu ==mu &binded$m ==m &binded$sigma ==s & binded$k_z ==kz & binded$k_y ==ky,])
+                    nexpe=nrow(subb)
+                    vars=c("prop_y","prop_z","mean_x","N","prop_yz","mean_p")
+                    names(vars)=vars
+                    mat_allexp= lapply(vars,function(i)matrix(NA,nexpe,length(theta)))
+
+                    for(i in 1:nexpe){
+                        load(as.character(subb$filename[i]))
+                        for(v  in vars) mat_allexp[[v]][i,]=summary[,v]
+                    }
+                    sum_mat=lapply(mat_allexp,function(m)apply(m,2,quantile,probs=c(.05,.5,.95),na.rm=T))
+                    fname=paste0("traj_s",s,"_m",m,"_mu",mu,"_ky",ky,"_kz",kz,".png")
+                    plotMatrixStrateAndEn(sum_mat,theta)
+                    mtext(bquote(mu == .(mu) ~ m == .(m) ),3,0,outer=T)
+                }
+            }
+            cat(paste0("---\n\r", sep=""))
+        }
+    }
+}
+
+```
+
+## Strategies Distribution Through Time Compact visualisation
+
+<a href="images/vertical_sigma1.png"><img src="images/vertical_E0.2.png" alt="E02" width="40%"/></a>
+<a href="images/vertical_sigma2.png"><img src="images/vertical_E0.6.png" alt="E06" width="40%"/></a>
+<a href="images/vertical_sigma4.png"><img src="images/vertical_E1.png" alt="E1" width="40%"/></a>
+
+```{r compactNoisyBest, out.width = "40%", fig.cap="Compact vertical trajectories",fig.show='hold'}
+for(e in unique(binded$E)){
+knitr::include_graphics(paste0('images/vertical_E',e,'.png'))
+}
+```
+

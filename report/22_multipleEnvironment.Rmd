@@ -17,8 +17,8 @@ For interpolation: findal resolution: every 20years, for resampling: final resol
 
 
 ```{r}
-    namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat")
-    namesFun=c("getMean2","getClosest","interpolate_LinTRUERes20RANDOM","interpolate_LinFALSERes20RANDOM")
+    namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat","ngrip2")
+    namesFun=c("interpolate_LinTRUERes20RANDOM","interpolate_LinFALSERes20RANDOM")
     allEs=c(0.2,.6,1)
     allSigmas=c(1,2)
 
@@ -66,11 +66,7 @@ src <- lapply(namesRealEnv,function(env)c(knitr::knit_expand(text="## {{env}} RA
 
 
 ```{r}
-    namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat")
-    namesFun=c("getMean2BEST","getClosestBEST","interpolate_LinTRUERes20BEST","interpolate_LinFALSERes20BEST")
-    allEs=c(0.2,.6,1)
-    allSigmas=c(1,2)
-
+    namesFun=c("interpolate_LinTRUERes20BEST","interpolate_LinFALSERes20BEST")
 ```
 
 ```{r,include=FALSE,echo=T}
@@ -79,3 +75,34 @@ src <- lapply(namesRealEnv,function(env)c(knitr::knit_expand(text="## {{env}} BE
 ```
 
 `r knitr::knit_child(text=unlist(src))`
+
+```{r}
+
+    namesFun=c("interpolate_LinTRUERes20SlsbestBIS","interpolate_LinTRUERes20SlsrandomBIS","interpolate_LinTRUERes20SlsbestTRIS","interpolate_LinTRUERes20SlsrandomTRIS")
+```
+
+```{r,include=FALSE,echo=T}
+src <- lapply("vostok",function(env)c(knitr::knit_expand(text="## {{env}}",env=env),lapply(namesFun,function(fun)knitr::knit_expand(text=a,id=paste0(env,fun),env=env,fun=fun))))
+
+```
+
+`r knitr::knit_child(text=unlist(src))`
+
+
+## Compare 
+
+```{r}
+listimage=c(
+"images/vertical_vostokinterpolate_LinTRUERes20SlsrandomBIS_sigma2_E0.6.png",
+"images/vertical_vostokinterpolate_LinTRUERes20SlsrandomTRIS_sigma2_E0.6.png",
+"images/vertical_ngrip2interpolate_LinTRUERes20RANDOM_sigma2_E0.6.png",
+"images/vostokinterpolate_LinTRUERes20SlsrandomBIS3Genes_sigma2_E.png",
+"images/vostokinterpolate_LinTRUERes20SlsrandomTRIS3Genes_sigma2_E.png",
+"images/ngrip2interpolate_LinTRUERes20RANDOM3Genes_sigma2_E.png"
+)
+```
+
+Using the most basic interpolation, we can compare NGRIP2 with vostok:
+```{r out.width="33%",fig.show="hold",fig.cap="vostok (left) and ngrip2 (right) with random social learning",fig.link=listimage}
+    knitr::include_graphics(listimage)
+```

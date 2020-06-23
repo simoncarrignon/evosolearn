@@ -4,5 +4,6 @@
 .R*
 *.bin
 *.Rbin
+report/output/*
 
 
