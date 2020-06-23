@@ -9,7 +9,7 @@ plotAllVariableSummaries <- function(summaryresults,E,estimate=NULL,ylim=NULL,va
     if(is.null(omegas))omega=0
     colsK=rev(colorRampPalette(c("red","blue"))(length(Ks)))
 
-    par(mfrow=c(length(vars)+1,1),mar=c(0,0,0,0),oma=c(4,4,1,4))
+    par(mfrow=c(length(sigmas),length(mus)),mar=rep(1,4),oma=c(4,4,1,4))
 
     for(sigma in sigmas){
         for(mu in mus){
