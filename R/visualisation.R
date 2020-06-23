@@ -46,7 +46,7 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
     vcol["y"]=pureIl
     vcol["z"]=pureSl
     if(multi)nlines=nlines+2
-    par(mfrow=c(nlines,1),mar=rep(.5,4),oma=c(5,5,2,1))
+    par(mfrow=c(nlines,1),mar=rep(.5,4),oma=c(5,5,2,1),xaxs="i")
 
     if(typeof(results)=="list")
         allpop=T
@@ -56,7 +56,7 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
     else{
         if(N){
             plot(results[,"N"],type="l",ylab="",main="",bty="n",xlab="t",axes=F,col="dark green")
-            axis(2,xaxs="i")
+            axis(2)
             mtext(expression(N[e]),2,3)
         }
         for(var in statvar){
@@ -64,8 +64,8 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
             meanvar=results[,paste0("mean_",var)]
             if(var %in% c("y","z","w"))yrange=c(0,1)
             else yrange=range(meanvar-sdvar,meanvar+sdvar,na.rm=T)
-            plot(meanvar,type="l",ylim=yrange,ylab="",main="",bty="n",xlab="t",axes=F,col=vcol[var],xaxs="i")
-            axis(2,xaxs="i")
+            plot(meanvar,type="l",ylim=yrange,ylab="",main="",bty="n",xlab="t",axes=F,col=vcol[var])
+            axis(2)
             mtext(parse(text=paste0("bar(",var,")")),2,3,cex=.9)
             lines(meanvar+sdvar,lty=3,col=vcol[var])
             lines(meanvar-sdvar,lty=3,col=vcol[var])
@@ -94,7 +94,7 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
     axis(1)
     mtext(expression(theta),2,3)
     mtext("Single run summary",3,0,outer=T)
-    par(mfrow=defpar$mfrow,mar=defpar$mar,oma=defpar$oma)
+    par(mfrow=defpar$mfrow,mar=defpar$mar,oma=defpar$oma,xaxs=defpar$xaxs)
 }
 
 
