@@ -51,8 +51,9 @@ updateOutputLine <- function(pop,statfun,statvar,getname=F,prop=T){
 #' @param m a 3-values vector storing the standard deviation of the mutation effect for each gene. Should be of the form: m[x,y,z]
 #' @param tstep if theta is null, the number of time steps for the generated environment 
 #' @return if allpops=F a list with the full populations at each time step, if not, a matrix of n*(tstep/outputrate) (or length(theta) instead of tstep if theta is provided)
+#' @param maxn limits the number of people in the reference from which actually copy. If <1, a percentage of the initial population, if > 1 an absolute number
 #' @export
-evosolearn <- function(n=1000,tstep=100,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega=0,delta=0,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","sd"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE,repro="asex",selection=T){
+evosolearn <- function(n=1000,tstep=100,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z=1),omega=0,delta=0,b,K,mu=c(x=.3,y=.3,z=.3),genes=c("x","y","z"),m=c(x=.3,y=.3,z=.3),sls="best",log=F,pop=NULL,allpops=F,statfun=c("mean","sd"),statvar=c("x","y","z","gp","ilp","p","w"),outputrate=1,vt=NULL,theta=NULL,prop=TRUE,repro="asex",selection=T,maxn=NULL){
 
     if(length(mu)==1)mu=c(x=mu,y=mu,z=mu)
 	if(is.null(theta)){
@@ -98,7 +99,7 @@ evosolearn <- function(n=1000,tstep=100,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z
 
         ##social learning phase
         if(sum(pop[,"z"])>0)
-            P=socialLearning(pop,reference=parents,sls=sls,thetat=theta[t]) #get the list of which phenotype is socially copied by every agent
+            P=socialLearning(pop,reference=parents,sls=sls,thetat=theta[t],maxn=maxn) #get the list of which phenotype is socially copied by every agent
         else
             P=0
         #e3=rnorm(n,0,E['z'])
@@ -198,14 +199,15 @@ fitness <- function(p,theta,x,y,z,sigma_s,sigma_y,sigma_z){
 #' @return: a unique numeric value or a vector of size nrow(newpop) with phenotypes to be copied 
 #' @export
 socialLearning <- function(newpop,reference,thetat=NULL,sls="random",maxn=NULL){
-    if(!is.null(maxn)){
-        if(maxn<nrow(reference))
-            reference=reference[sample.int(nrow(reference),maxn),]
-    }
     ##Checking for imature
     if(is.null(reference))reference=newpop #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
     if(is.null(reference[,"p"]))reference[,"p"]=reference[,"ilp"] #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
     if(anyNA(reference[,"p"]))reference[,"p"][is.na(reference[,"p"])]=reference[,"ilp"][is.na(reference[,"p"])] #if some of the reference group 
+
+    if(!is.null(maxn)){
+        if(maxn<nrow(reference))
+            reference=reference[sample.int(nrow(reference),maxn),]
+    }
 
     if(sls=="parents")
         return(unname(reference[,"p"][match(newpop[,"parent_id"],reference[,"id"])]))
