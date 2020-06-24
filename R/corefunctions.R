@@ -194,10 +194,14 @@ fitness <- function(p,theta,x,y,z,sigma_s,sigma_y,sigma_z){
 #' @param reference a dataframe with phenotype and agents ID
 #' @param sls a string define the sls of copy to be done: in "parents","best","average","randon"
 #' @param theta the value of the optimum
+#' @param maxn limits the number of people in the reference from which actually copy. If <1, a percentage of the initial population, if > 1 an absolute number
 #' @return: a unique numeric value or a vector of size nrow(newpop) with phenotypes to be copied 
 #' @export
-socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
-
+socialLearning <- function(newpop,reference,thetat=NULL,sls="random",maxn=NULL){
+    if(!is.null(maxn)){
+        if(maxn<nrow(reference))
+            reference=reference[sample.int(nrow(reference),maxn),]
+    }
     ##Checking for imature
     if(is.null(reference))reference=newpop #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
     if(is.null(reference[,"p"]))reference[,"p"]=reference[,"ilp"] #What happen for the first time step when the reference group doesn't have any final phenotype? should we choose phenotype before social learning? random social learning effect? 
@@ -218,7 +222,11 @@ socialLearning <- function(newpop,reference,thetat=NULL,sls="random"){
         return(unname(reference[,"p"][match(selected,reference[,"id"])]))
     }
     if(sls=="fitprop"){
-        selected=sample(reference[,"id"],nrow(newpop),replace=T) #we radomly assign a teacher for each individual of the new newpop
+        if(sum(reference[,"w"])>0)
+            probas=reference[,"w"]/sum(reference[,"w"]) #if non null fitness: P(p_i) = f_i/sum(f)
+        else
+            probas=rep(1/nrow(reference),nrow(reference))
+        selected=sample(reference[,"id"],nrow(newpop),prob=probas,replace=T) #we radomly assign a teacher for each individual of the new newpop
         return(unname(reference[,"p"][match(selected,reference[,"id"])]))
     }
     if(sls=="mixed"){
