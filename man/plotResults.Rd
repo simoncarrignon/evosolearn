@@ -5,10 +5,23 @@
 \title{Plot single run}
 \usage{
 plotResults(results, statfun = c("mean", "sd"), statvar = c("w", "p",
-  "x", "y", "z"), multi = F, N = T, theta = T, addrgb = T)
+  "x", "y", "z"), multi = F, N = T, theta = T, addrgb = T,
+  year = NULL)
 }
 \arguments{
-\item{restults}{the output of evosolearn()}
+\item{results}{the output of evosolearn()}
+
+\item{statvar}{a vector with the different variable to plot}
+
+\item{multi}{if true, add some comparison at the end}
+
+\item{N}{if true, add effective pop size}
+
+\item{theta}{if true, add the optimum list}
+
+\item{addrgb}{if true, add rgb scale}
+
+\item{year}{if not null label theta axis using the range of years}
 }
 \description{
 Function that plot mean and standard for all values

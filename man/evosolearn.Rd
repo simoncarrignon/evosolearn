@@ -11,7 +11,7 @@ evosolearn(n = 1000, tstep = 100, E = c(x = 0.01, y = 0.01, z =
   pop = NULL, allpops = F, statfun = c("mean", "sd"),
   statvar = c("x", "y", "z", "gp", "ilp", "p", "w"), outputrate = 1,
   vt = NULL, theta = NULL, prop = TRUE, repro = "asex",
-  selection = T)
+  selection = T, maxn = NULL)
 }
 \arguments{
 \item{tstep}{if theta is null, the number of time steps for the generated environment}
@@ -43,6 +43,8 @@ evosolearn(n = 1000, tstep = 100, E = c(x = 0.01, y = 0.01, z =
 \item{repro}{a string to choose with reproduction used. Should be in "sex","asex","unique"}
 
 \item{selection}{if FALSE the fitness isn't computed}
+
+\item{maxn}{limits the number of people in the reference from which actually copy. If <1, a percentage of the initial population, if > 1 an absolute number}
 
 \item{ouptut}{a current output to be update or initialized if NULL}
 }

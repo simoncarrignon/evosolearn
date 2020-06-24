@@ -1,3 +1,19 @@
+#' Plot single run
+#' 
+#' RGB Scale
+#'
+#' Function that gives the rgb scale of a results
+#' 
+#' @param results the output of evosolearn()
+#' @export
+getRgbScale <- function(results){
+    res=rep(NA,nrow(results))
+    nas=is.na(results[,"mean_y"])
+    res[!nas]=rgb(results[!nas,"mean_y"],.5,results[!nas,"mean_z"])
+return(res)
+}
+
+
 ### Set some global variable
 slpalette <- colorRampPalette(c(rgb(1,.5,0),rgb(0,.5,1)))
 ilpalette <- colorRampPalette(c(rgb(0,.5,0),rgb(1,.5,0)))
@@ -12,9 +28,16 @@ pureGl <- rgb(0,.5,0)
 #' 
 #' Function that plot mean and standard for all values
 #' 
-#' @param restults the output of evosolearn()
+#' @param statvar a vector with the different variable to plot 
+#' @param multi if true, add some comparison at the end
+#' @param N if true, add effective pop size
+#' @param addrgb if true, add rgb scale
+#' @param theta if true, add the optimum list
+#' @param year if not null label theta axis using the range of years
+#' @param results the output of evosolearn()
 #' @export
-plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y","z"),multi=F,N=T,theta=T,addrgb=T){
+plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y","z"),multi=F,N=T,theta=T,addrgb=T,year=NULL){
+	defpar=par()
     allpop=F
     nlines=length(statvar)
     if(N)nlines=nlines+1
@@ -26,7 +49,7 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
     vcol["y"]=pureIl
     vcol["z"]=pureSl
     if(multi)nlines=nlines+2
-    par(mfrow=c(nlines,1),mar=rep(.5,4),oma=c(5,5,2,1))
+    par(mfrow=c(nlines,1),mar=rep(.5,4),oma=c(5,5,2,1),xaxs="i")
 
     if(typeof(results)=="list")
         allpop=T
@@ -36,7 +59,7 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
     else{
         if(N){
             plot(results[,"N"],type="l",ylab="",main="",bty="n",xlab="t",axes=F,col="dark green")
-            axis(2,xaxs="i")
+            axis(2)
             mtext(expression(N[e]),2,3)
         }
         for(var in statvar){
@@ -45,20 +68,24 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
             if(var %in% c("y","z","w"))yrange=c(0,1)
             else yrange=range(meanvar-sdvar,meanvar+sdvar,na.rm=T)
             plot(meanvar,type="l",ylim=yrange,ylab="",main="",bty="n",xlab="t",axes=F,col=vcol[var])
-            axis(2,xaxs="i")
+            axis(2)
             mtext(parse(text=paste0("bar(",var,")")),2,3,cex=.9)
             lines(meanvar+sdvar,lty=3,col=vcol[var])
             lines(meanvar-sdvar,lty=3,col=vcol[var])
+			box()
         }
         if(addrgb){
             cls=matrix(nrow=1,ncol=nrow(results))
-            cls[1,]=rgb(test[,"mean_y"],.5,test[,"mean_z"])
+            cls[1,]=getRgbScale(results)
             plot.new()
             rasterImage(cls, 0, 0.2, 1, .8,interpolate=F,ylim=c(0,1))
-            mtext("rgb(y,z)",2,0,cex=.8)
+            mtext("rgb(y,z)",2,1,cex=.8)
         }
         if(theta){
-            plot(results[,"theta"],type="l",ylab="",main="",bty="n",xlab="t",axes=F,col="black")
+            x=seq_along(results[,"theta"])
+            if(!is.null(year))
+                x=seq(min(year),max(year),length.out=length(x))
+            plot(x,results[,"theta"],xlim=range(x,0),type="l",ylab="",main="",xlab="t",axes=F,col="black")
             axis(2,xaxs="i")
             mtext(expression(theta),2,3)
         }
@@ -70,6 +97,7 @@ plotResults <- function(results,statfun=c("mean","sd"),statvar=c("w","p","x","y"
     axis(1)
     mtext(expression(theta),2,3)
     mtext("Single run summary",3,0,outer=T)
+    par(mfrow=defpar$mfrow,mar=defpar$mar,oma=defpar$oma,xaxs=defpar$xaxs)
 }
 
 
@@ -102,7 +130,7 @@ plotThetaPhenotypes <- function(results,...){
         lines(meanr+sdr,lty=3)
         lines(meanr-sdr,lty=3)
         par(new=T)
-        plot(results[,"theta"],type="l",col="blue",yaxt="n",xaxt="n",ylim=range(meanr-sdr,meanr+sdr,na.rm=T),ylab="",bty="n",axes=F,xlab="")
+        plot(results[,"theta"],type="l",col="blue",yaxt="n",xaxt="n",ylab="",bty="n",axes=F,xlab="")
         axis(4,col="blue",col.axis="blue")
         mtext(expression(theta),4,2,col="blue")
     }
@@ -204,7 +232,7 @@ plotAllVariable <- function(results,hdr=F,vars=NULL,theta=NULL,t=NULL,...){
     i=axis(1,labels=NA,col=NA)
     if(!is.null(t))axis(1,at=i,labels=t[seq(1,length(t),length.out=length(i))])
     par(new=T)
-    plot(theta,xlab="",type="l",col="red",yaxt="n",xaxt="n",bty="n",ylab="")
+    plot(x,theta,xlab="",type="l",col="red",yaxt="n",xaxt="n",bty="n",xlab="y",ylab="")
     axis(4,col="red",col.axis="red")
     mtext(expression(theta),4,2,col="red")
 }

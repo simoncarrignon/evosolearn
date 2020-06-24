@@ -9,9 +9,9 @@ nsm=args[2]#second argument the number of simulation
 mainfold=args[3] #third argument = name of the folder wher to store the results
 env_i=args[4]
 fun_i=args[5]
-res=as.numeric(args[6])
-lin=args[7]
-sls=args[8]
+res=20
+lin=TRUE
+sls=args[6]
 
 if(is.na(mainfold) | mainfold=="") mainfold=Sys.info()['nodename']
 
@@ -43,10 +43,8 @@ if(fun_i != "interpolate"){
         env=realdata$dTsVscales
     }else{
         if(lin){
-            env=f(realdata$dTsVscales,realdata$year,res)$data
-        }else{
-            env=interpolate(theta=realdata$dTsVscales,times=realdata$year,finalres=20,delta=.8,omega=0.41)$data
-            env=getClosest(data=env$data,year=env$year,by=20)
+            env=interpolate(theta=realdata$dTsVscales,times=realdata$year,finalres=20,delta=1.3,omega=1.41,delta2=.38)
+            env=getClosest(data=env$data,year=env$year,by=20)$data
         }
     }
 }
@@ -58,13 +56,13 @@ allparameters[["K"]]=c(1000)
 allparameters[["m"]]=(.2*(1:3))
 allparameters[["E"]]=.2*(c(1,3,5))
 #allparameters[["sigma"]]=(2^(0:4))[1]
-allparameters[["sigma"]]=c(1,2)
+allparameters[["sigma"]]=c(2,3)
 #allparameters[["delta"]]=2^(0:4)
 #allparameters[["vt"]]=(5^(0:4)*10^-3)[1:4]
 #allparameters[["omega"]]=2^(-1:3)
 allparameters[["outputrate"]]=ceiling(1/500*tstep)
 allparameters[["k_z"]]=c(2,4,8)
-allparameters[["k_y"]]=c(.3,.6,.9)
+allparameters[["k_y"]]=c(.1,.3,.6)
 #allparameters[["sls"]]=c("random","best")
 parameters=as.data.frame(expand.grid(allparameters))
 repet=nsm

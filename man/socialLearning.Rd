@@ -4,7 +4,8 @@
 \alias{socialLearning}
 \title{Social Learning}
 \usage{
-socialLearning(newpop, reference, thetat = NULL, sls = "random")
+socialLearning(newpop, reference, thetat = NULL, sls = "random",
+  maxn = NULL)
 }
 \arguments{
 \item{newpop}{a dataframe with fitness and agents ID}
@@ -12,6 +13,8 @@ socialLearning(newpop, reference, thetat = NULL, sls = "random")
 \item{reference}{a dataframe with phenotype and agents ID}
 
 \item{sls}{a string define the sls of copy to be done: in "parents","best","average","randon"}
+
+\item{maxn}{limits the number of people in the reference from which actually copy. If <1, a percentage of the initial population, if > 1 an absolute number}
 
 \item{theta}{the value of the optimum}
 }
