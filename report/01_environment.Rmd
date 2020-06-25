@@ -203,8 +203,17 @@ to translate measured $\delta^{18}O$ in temperature.
 
 The $\delta D$ measured by in NGRIP and EPICA dataset, is a measure of the ratio between two isotopes of the Hydrogen. It measures the ratio of hydrogen isotop deposited in the ice on the  floor but of the Antartic. [Petit et al. (1999)](https://sci-hub.tw/https://pubs.geoscienceworld.org/gsa/gsabulletin/article-abstract/64/11/1315/4537) propose an estimation of the Temperature given the $\delta D$ and a general and standard $\delta^{18}O$.
 
-to translate measured $\delta^{18}O$ in temperature. 
+To translate measured $\delta^{18}O$ in temperature Petit et al. use the fact :
 
+> the isotopic content of snow in East Antarctica ($\delta D$ or $\delta^{18}O$) is linearly related to the temperature above the inversion level, $T_I$, where precipitation forms, and also to the surface temperature of the precipitation site, $T_S$.
+
+While the inversion level and the surface temperature are likned by the relation $\Delta T_I=0.67\Delta T_S$, while the relation between the isotop fraction and the ice formed in the atmosphere and the inversion level is given by:
+
+$$ \Oelta T_I = (\Delta \delta D_{ice} − 8\Delta\delta^{18}O_{sw})/9 $$
+
+where $\Delta\delta^{18}O_{sw}$ is the globally averaged change from today's value of seawater $\delta^18_O$
+
+The, authors use sediment records from Bassinot et al. 1994 to estimate the past value for $\delta^{18}O_{sw}$.
 ```{r real-autocorelation,fig.show="hold",out.width="33%",fig.cap="Visual representation of the autocorleation of each environment."}
 for(e in namesRealEnv){
     env=get(e)
@@ -216,7 +225,10 @@ for(e in namesRealEnv){
 
 ### Scale of variation
 
-As we can see the previous scales are not the same. to rescale all in siilar environment we match the variation of the changes during the time for VOSTOK dataset at the same scale as VOSTOK.
+As we can see, the scales of change of every environment isn't the same, as they rely on the measure of different isotopoes, which in turne are correlated throught different relation to temperature, as we have seen beween the ice $\delta_D$ and benthic $\delta^{18}O$ which both use different equations.
+
+Nontheless, minimal and maximal variations are reached roughly at the same time suggesting  those variation could  be rescaled one scale to another. 
+to rescale all in siilar environment we match the variation of the changes during the time for VOSTOK dataset at the same scale as VOSTOK.
 
 
 ```{r rescale,out.width="80%",fig.show="hold",fig.width=8,fig.height=6,fig.cap="Rescale following Vostok Temperature, exept for Martrat dataset which has it's own temperature scale that we will use for following experiments"}
@@ -392,41 +404,6 @@ summaryEnv=sapply(allRealEnv,function(env){
 knitr::kable(as.data.frame(t(summaryEnv)),digits=c(1))
 ```
 
-#### Interpolation of new data points {#interpol}
-But undersampling means that we loose lot of real data.
-
-How can we add realistic data points between inteveral? Using the slope of the noise of the current environment (stack LR04, 5 millions years, highest resolution: 1000 years) doesn't sound right as it implies to generate a noise using a slope calculated from frequencies lower than the frequencies of the noise generated. (_ie_ we use the slope of the noise calculated with climate changes happening at the level of thousand of years to estimates the frequencies of changes at the level of hundred of years). One solution could be to utilise a "likely" slope, estimated from data available at those same, high, frequency that the noise we want to generate.
-
-<!--
-To do so we estimate the slope of the noise for 500 years time series from the data of the NGRIP project (Andersen 2004, 50year high resolution, using slope calculated with 10 datapoints). This gives us a distribution of slopes for 500years slices and we use the one with the highest probability (represented as the red vertical line).
--->
-
-
-```{r, out.width = "45%",fig.cap="distributions of $\\omega$ for 500 years time series in data from Andersen 2004/NGRIP project",fig.show="hold",eval=FALSE}
-
-#realdata=read.csv("data/41586_2004_BFnature02805_MOESM1_ESM.csv")
-#theta=realdata$dOsea
-### calculate mean for smaller time windows
-#the order and signe of the timeseries dosent matter: omega(a) == omega(-rev(a))
-
-w=10
-#omega_w=sapply(1:(length(theta)-w),function(i)getOmega(theta[i:(i+w)]) )
-#saveRDS(file="data/omega_w.bin",omega_w)
-omega_w=readRDS(file="data/omega_w.bin")
-plot(omega_w,xlab="time units (500 years)",ylab=expression(omega))
-plot(density(omega_w),ylab="proba",xlab=expression(omega))
-#omw=hdr(omega_w)[["mode"]]
-#saveRDS(file="data/omw.bin",omw)
-omw=readRDS(file="data/omw.bin")
-abline(v=omw,col="red")
-```
-<!--
-As the scale between the two environments is not the same, the variations (_ie_ $\delta$)  can't be compared. For now I just use the distribution of the  standard deviation for 2105 slice of 5000 years from the LR04 stack (cf : http://www.dysoc.org/~simon/report/real-environment.html, figure Figure 19.3). Maybe once Liesiecki 2005 and Andersen 2004 are on similar scale we can use the $\delta$ from the second. And this is wha
-
-As the scale between the two environments are now scaled to match Vostok Temperature , the variations (_ie_ $\delta$)  can be compared. Thus I will use the mode of the distribution of $\delta$ for 500 years windows from NGRIP dataset.
-
--->
-
 ```{r, out.width = "45%",fig.cap="distributions of $\\delta$ for 500 years time series in data from NGRIP dataset",fig.show="hold",eval=F}
 ngrip=read.csv("data/ngrip.csv")
 theta=ngrip$dTsVscales
@@ -527,7 +504,7 @@ We can see that most of the gaps last betwen 20 to 50 years, and some of them la
 
 Mitsui et al 2019 have shown that for cycles betweeen $10^{2.5}$  to $10^{3.5}$ the amplitude of cycles of decreasing length is approximate by a log-log linear fit of slope -1.41 wherease the ampltitude of shorter cycle ($<100$) is closer to white noise. 
 
-To generate new datapoints we use our function to generate noise of a certain slope when the gap are bigger than 100 years and for gap smaller than 100 years we generate a white noise. Both type of noise are then added to the straight line between the points around the gap.
+
 
 To know the amplitude (ie the variation) of the noise we need to add to the line, we compute  the variation of sliding windows of the size of the gap.
 
@@ -540,8 +517,21 @@ for(w in c(100,500,1000)){
     plot(density(dw),ylab="proba",xlab=expression(delta),main=paste("w=",w))
     mdw=readRDS(file=paste0("data/dt",w,".bin"))
     abline(v=mdw,col="red")
+    text(mdw,0,round(mdw,digits=2),col="red",pos=4)
 }
+mdw=readRDS(file=paste0("data/dt",100,".bin"))
 ```
+
+To generate new datapoints we use our function to generate noise of a certain slope when the gap are bigger than 100 years and for gap smaller than 100 years we generate a white noise. Both type of noise are then added to the straight line between the points around the gap.
+
+
+For all environment, we aim at having a final resolution of 20 years. All environment should be rescaled at in to have variation at comparable scale ; this hav ebeen done by rescaling all environment using the Vostok estimates of temperature.
+
+1. We go from all data measurment and the date associated
+2. When two measures are separated by less than 100 years( 5 times the resolution we want), but by a distance more than twice the highest resolution (40years), we add datapoints (3 if the resolution wanted is 20 years). Those data point are added to be regularly spaced on a straight line between the two orignal points. Then noise is added to the point, the noise being  calculated as $N(0,.38)$ , 0.38 (mdw=`r mdw`) being the mode of the standard variation calculated in windows of 100years from ngrip2 shown in the Figure\@ref(fig:deltaW).
+3. When two measures are separated by less than 20 years we keep the original dataset
+4. When two measures are separated by more than 100 years we add regularly spaced datapoints that follow the a straight line between the two orignal points. Then we add noise, but this time generate using the function `environment` which generate noise given a slope $\omega$ and a standard variation $\delta$. We use the slope calculaded by Mitsui et al. of $1.41$ as the cycles generated willl be all between 100 to 6000 years. For the detla we use this time the value calculated for 1000 years windows which gives a value of $\delta=1.35$
+
 
 From this we can interpolate new points. To do so we take the linear interpolation and  add  a noise generated given the value of $\omega$ and $\delta$ as calculated before. Let's check an exemple using the data point 100 and 101  from the lr04 stack, which represent the temperature scaled to Vostok temperature from $\delta^{18}O$ for the year `r lr04$year[100]` and the year `r lr04$year[101]`
 
@@ -557,7 +547,7 @@ points(datin[-reald],intLin[-reald],col="green",pch=20,type="b")
 legend("topright",c("real data","interpolate"),col=c(1,2),pch=20)
 
 omw=1.41
-nois=environment(length(intLin),omega=omw,delta=mdw)
+nois=environment(length(intLin),omega=1.41,delta=1.37)
 plot(datin[-reald],nois[-reald],ylab="unit of noise",xlab="year",pch=20,col=2,type="b")
 plot(u$year,u$dTsVscales,ylab=expression(delta^18*O),xlab="year",pch=20,ylim=range(intLin+nois))
 points(datin[-reald],intLin[-reald],col="green",pch=20,type="b")
@@ -697,4 +687,41 @@ listimage=c(
 ```{r out.width="33%",fig.show="hold",fig.cap="vostok with inperpolation computed with different $\\omega$ (from left to right: $\\omega$ = 1,1.41,1.81)",fig.link=listimage}
     knitr::include_graphics(listimage)
 ```
+
+
+
+<!-- Some interpolation old garbage:
+But undersampling means that we loose lot of real data.
+
+How can we add realistic data points between inteveral? Using the slope of the noise of the current environment (stack LR04, 5 millions years, highest resolution: 1000 years) doesn't sound right as it implies to generate a noise using a slope calculated from frequencies lower than the frequencies of the noise generated. (_ie_ we use the slope of the noise calculated with climate changes happening at the level of thousand of years to estimates the frequencies of changes at the level of hundred of years). One solution could be to utilise a "likely" slope, estimated from data available at those same, high, frequency that the noise we want to generate.
+
+To do so we estimate the slope of the noise for 500 years time series from the data of the NGRIP project (Andersen 2004, 50year high resolution, using slope calculated with 10 datapoints). This gives us a distribution of slopes for 500years slices and we use the one with the highest probability (represented as the red vertical line).
+-->
+
+
+```{r, out.width = "45%",fig.cap="distributions of $\\omega$ for 500 years time series in data from Andersen 2004/NGRIP project",fig.show="hold",eval=FALSE}
+
+#realdata=read.csv("data/41586_2004_BFnature02805_MOESM1_ESM.csv")
+#theta=realdata$dOsea
+### calculate mean for smaller time windows
+#the order and signe of the timeseries dosent matter: omega(a) == omega(-rev(a))
+
+w=10
+#omega_w=sapply(1:(length(theta)-w),function(i)getOmega(theta[i:(i+w)]) )
+#saveRDS(file="data/omega_w.bin",omega_w)
+omega_w=readRDS(file="data/omega_w.bin")
+plot(omega_w,xlab="time units (500 years)",ylab=expression(omega))
+plot(density(omega_w),ylab="proba",xlab=expression(omega))
+#omw=hdr(omega_w)[["mode"]]
+#saveRDS(file="data/omw.bin",omw)
+omw=readRDS(file="data/omw.bin")
+abline(v=omw,col="red")
+```
+<!--
+As the scale between the two environments is not the same, the variations (_ie_ $\delta$)  can't be compared. For now I just use the distribution of the  standard deviation for 2105 slice of 5000 years from the LR04 stack (cf : http://www.dysoc.org/~simon/report/real-environment.html, figure Figure 19.3). Maybe once Liesiecki 2005 and Andersen 2004 are on similar scale we can use the $\delta$ from the second. And this is wha
+
+As the scale between the two environments are now scaled to match Vostok Temperature , the variations (_ie_ $\delta$)  can be compared. Thus I will use the mode of the distribution of $\delta$ for 500 years windows from NGRIP dataset.
+
+-->
+
 
