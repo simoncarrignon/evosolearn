@@ -53,7 +53,7 @@ By tuning $\omega$ we can change the level of auto-correlation
 
 ## Real Environments {#real-env}
 
-### General Description
+### General Description {#general}
 
 Dataset :
 
@@ -223,7 +223,7 @@ for(e in namesRealEnv){
 }
 ```
 
-### Scale of variation
+### Scale of variation {#rescale}
 
 As we can see, the scales of change of every environment isn't the same, as they rely on the measure of different isotopoes, which in turne are correlated throught different relation to temperature, as we have seen beween the ice $\delta_D$ and benthic $\delta^{18}O$ which both use different equations.
 
@@ -504,9 +504,7 @@ We can see that most of the gaps last betwen 20 to 50 years, and some of them la
 
 Mitsui et al 2019 have shown that for cycles betweeen $10^{2.5}$  to $10^{3.5}$ the amplitude of cycles of decreasing length is approximate by a log-log linear fit of slope -1.41 wherease the ampltitude of shorter cycle ($<100$) is closer to white noise. 
 
-
-
-To know the amplitude (ie the variation) of the noise we need to add to the line, we compute  the variation of sliding windows of the size of the gap.
+To know the amplitude (ie the variation) of the noise to add, we compute the standard variation of sliding windows of different sizes -- orresponding to what would be  gap of different size, using the data from NGRIP2.
 
 
 ```{r deltaW,out.width="33%",fig.show="hold",fig.cap="variation of the standard deviation for different windows size. The red line represent the mode of the distribution."}
@@ -522,18 +520,26 @@ for(w in c(100,500,1000)){
 mdw=readRDS(file=paste0("data/dt",100,".bin"))
 ```
 
-To generate new datapoints we use our function to generate noise of a certain slope when the gap are bigger than 100 years and for gap smaller than 100 years we generate a white noise. Both type of noise are then added to the straight line between the points around the gap.
+To generate new datapoints we use our function to generate $1/f$ noise with slope $\omega$ and standard deviation $\delta$ when the gaps are bigger than 100 years, for lower gaps we add white noise. Both type of noise are then added to the straight line between the points around the gap.
 
 
-For all environment, we aim at having a final resolution of 20 years. All environment should be rescaled at in to have variation at comparable scale ; this hav ebeen done by rescaling all environment using the Vostok estimates of temperature.
+For all environment, we aim at having a final resolution of 20 years. All environments need to be rescaled to same scale variations; this has been done by using the Vostok estimates of temperature (cf section \@ref(general) and \@ref(rescale))
+
+Quick summary of the process:
 
 1. We go from all data measurment and the date associated
 2. When two measures are separated by less than 100 years( 5 times the resolution we want), but by a distance more than twice the highest resolution (40years), we add datapoints (3 if the resolution wanted is 20 years). Those data point are added to be regularly spaced on a straight line between the two orignal points. Then noise is added to the point, the noise being  calculated as $N(0,.38)$ , 0.38 (mdw=`r mdw`) being the mode of the standard variation calculated in windows of 100years from ngrip2 shown in the Figure\@ref(fig:deltaW).
 3. When two measures are separated by less than 20 years we keep the original dataset
 4. When two measures are separated by more than 100 years we add regularly spaced datapoints that follow the a straight line between the two orignal points. Then we add noise, but this time generate using the function `environment` which generate noise given a slope $\omega$ and a standard variation $\delta$. We use the slope calculaded by Mitsui et al. of $1.41$ as the cycles generated willl be all between 100 to 6000 years. For the detla we use this time the value calculated for 1000 years windows which gives a value of $\delta=1.35$
+   Here is the central central equationn used to generate $1/f$-noise, from a time serie of normally distributed noise  ($N(0,1)$) $Y(t=1,...,T)$ to a $1/f$ noise of slope $\omega$ and standard deviation $\delta$.
+   $$ y=\frac{ \delta \times S^{-1}[S(Y)^{-\omega}]}{SD(S^{-1}[S(Y)^{-\omega}])} $$  (from Whitehead 2007)
+ $S$ is the Fourier transform, and $S^{-1}$ the inverse Fourier transform .  
+The equation  is implemented in the function `environment` and ($S^{-1}[S(Y)^{-\omega}]$) is implmented by `TK95`, borrowed from the package from tuneR package,  based on [Timmer and Koening 1995](https://ui.adsabs.harvard.edu/abs/1995A\%26A...300..707T/abstract)'s paper.
 
 
-From this we can interpolate new points. To do so we take the linear interpolation and  add  a noise generated given the value of $\omega$ and $\delta$ as calculated before. Let's check an exemple using the data point 100 and 101  from the lr04 stack, which represent the temperature scaled to Vostok temperature from $\delta^{18}O$ for the year `r lr04$year[100]` and the year `r lr04$year[101]`
+Using this process we can add data points when the datasets are too sparse. Nonetheless, as some datasets have very unequal sampling and higer resolution than 20 years (16,17 year in Vostok), it's still usefull to resampled the data using the functions presented above. In the current implementation, we do so using the function `getClosest`s, that  generates an evenly spaced vector of dates and we associated to each one the closest in the real dataset.  We could use the mean of the datapoints falling withing the new interval but it's very rare that we have more than one points (3 cases within all datasets).
+
+Let's check an exemple using the data point 100 and 101 from the lr04 stack, which represent the temperature scaled to Vostok temperature from $\delta^{18}O$ for the year `r lr04$year[100]` and the year `r lr04$year[101]`
 
 ```{r, fig.width=7,out.width = "45%",fig.cap="step for interpolating gaps",fig.show="hold"}
 u=lr04[100:101,]
@@ -555,15 +561,15 @@ points(datin,c(u$dTsVscales[1],intLin[-reald]+nois[-reald],u$dTsVscales[2]),col=
 points(u$year,u$dTsVscales,pch=20)
 ```
 
-Thus we can apply that to all gap in the dataset 
+Once applied to all dataset:
 
-```{r interpolNgripFull, fig.width=14,out.width = "100%",fig.cap="interpolation linear + noise full dataset", fig.link="_main_files/figure-html/interpolNgripFull-1.png"}
+```{r interpolNgripFull, fig.width=14,out.width = "100%",fig.cap="interpolation linear + noise full dataset LR04", fig.link="_main_files/figure-html/interpolNgripFull-1.png"}
 
     newt=interpolate(lr04$dTsVscales,lr04$year,finalres=250)$data
 	#linear interpolation
     newy=seq(min(lr04$year),max(lr04$year),250)
 	#linear + noise
-    newtN=interpolate(lr04$dTsVscales,lr04$year,finalres=250,omega=omw,delta=mdw)$data
+    newtN=interpolate(lr04$dTsVscales,lr04$year,finalres=250,omega=omw,delta=1.31,delta2=.38)$data
     plot(lr04$year,lr04$dTsVscales,type="l",lwd=5,xlab="years",ylab="scaled delta temp")
     lines(newy,newtN,type="l",col="red",lwd=2)
     lines(newy,newt,type="l",col="green")
@@ -571,7 +577,7 @@ Thus we can apply that to all gap in the dataset
 
 The green line represents the linear interpolation while the red one the linea + noise.
 
-Let see when we zoom on the first and last 30,000 years 
+Let see when we zoom on the first and last 30,000 years :
 
 ```{r, fig.width=4,fig.height=4,out.width = "40%",fig.cap="Zoom on the first (left) and last (right) 30,000 years interpolation linear + noise",fig.show="hold"}
     plot(lr04$year,lr04$dTsVscales,type="l",lwd=8,xlim=c(-5320000,-5290000),xlab="years")
@@ -582,8 +588,7 @@ Let see when we zoom on the first and last 30,000 years
     lines(newy,newt,type="l",col="green")
 ```
 
-Let see know how the parameter of our  interpolation impact the properties of our environments: 
-
+Let see know how the parameter of our  interpolation impact the properties of our environments. $X_{ni}$ represents the metrics for the environment with the noisy missing point, $X_{li}$ for simple linear interpolation.
 
 
 ```{r}
@@ -643,8 +648,8 @@ knitr::kable(as.data.frame(t(summaryEnv)),digits=c(1))
 
 
 
-In the figure below we apply this method to generate missing data for a few dataset. The red curve represent the dataset subsampled at is lowest resolution. The black line represent the dataset plus the 
-new data points while the green line represent the spectrum for the ngrip2 dataset.
+In the figure below we apply this method to generate missing data for a few dataset. The red curve represent the dataset subsampled at is lowest resolution. The black line represent the dataset plus the new data points, the green line represent the spectrum for the ngrip2 dataset.
+
 
 ```{r resample-vostok,fig.cap="Interpoling missing data for different environment using NGRIP2 Power Sprectral Density",out.width="50%",fig.show="hold"}
 #tstv=interpolate(theta=vostok$dTsVscales,times=vostok$year,finalres=20,delta=1.2,omega=1.41,delta2=0.38)
