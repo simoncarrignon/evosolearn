@@ -16,13 +16,11 @@ link-citations: yes
 ```{r setup, include=FALSE}
 library(magrittr)
 library(scales)
+library(devtools)
+load_all("../")
 knitr::opts_chunk$set(collapse=TRUE)
 knitr::opts_chunk$set(echo=FALSE)
 knitr::opts_chunk$set(warning=FALSE,message=FALSE,out.width='60%',fig.align="center")
-source("../R/tools.R")
-source("../R/corefunctions.R")
-source("../R/toolsSummariesAndTraj.R")
-source("../R/environment.R")
 ```
 
 ```{r write-bib, include=FALSE}
