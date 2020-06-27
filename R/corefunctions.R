@@ -86,7 +86,7 @@ evosolearn <- function(n=1000,tstep=100,E=c(x=.01,y=.01,z=.01),sigma=c(s=1,y=1,z
     if(allpops)allpop=list()
     modt=1
     for( t in 1:tstep){
-        if(log &&  ((t %% outputrate) == 0))print(paste(" timestep:",t))
+        if(log &&  ((t %% outputrate) == 0))print(paste0("generation #",t,"/",tstep))
 
         ##genetic phase
         if(err1)e1=rnorm(n,0,E['x'])else e1=0
@@ -208,7 +208,8 @@ socialLearning <- function(newpop,reference,thetat=NULL,sls="random",maxn=NULL){
         if(maxn<nrow(reference))
             reference=reference[sample.int(nrow(reference),maxn),]
     }
-
+    if(nrow(reference)==1)
+        return(unname(reference[,"p"]))
     if(sls=="parents")
         return(unname(reference[,"p"][match(newpop[,"parent_id"],reference[,"id"])]))
 
@@ -224,10 +225,12 @@ socialLearning <- function(newpop,reference,thetat=NULL,sls="random",maxn=NULL){
         return(unname(reference[,"p"][match(selected,reference[,"id"])]))
     }
     if(sls=="fitprop"){
+        
         if(sum(reference[,"w"])>0)
             probas=reference[,"w"]/sum(reference[,"w"]) #if non null fitness: P(p_i) = f_i/sum(f)
         else
             probas=rep(1/nrow(reference),nrow(reference))
+        #print(paste0(length(probas),nrow(reference)))
         selected=sample(reference[,"id"],nrow(newpop),prob=probas,replace=T) #we radomly assign a teacher for each individual of the new newpop
         return(unname(reference[,"p"][match(selected,reference[,"id"])]))
     }
@@ -266,12 +269,17 @@ socialLearning <- function(newpop,reference,thetat=NULL,sls="random",maxn=NULL){
 #' Function that generates a population
 #' 
 #' @param n number of agents in the population
-#' @param distrib should be a list with 3 elements x yz)
-#' @param df if TRUE return a data.frame (easier to handle but much much slower, default is FALSE)
+#' @param if not NULL, `distrib` should be a list with 3 elements x,y,z; if NULL, the 3 genes are initialized at 0
+#' @param df if TRUE return a `data.frame` (easier to handle but much much slower, default is FALSE)
 #' @export
-generatePop <- function(n,distrib,df=F){
-    if(length(distrib)!=3)stop("please give distribution for the 3 genes")
-    if(sum(sapply(distrib,length))!= n * 3)stop("please give the full distribution (for each n individuals) for the 3 genes")
+generatePop <- function(n,distrib=NULL,df=F){
+    if(!is.null(distrib)){
+        if(length(distrib)!=3)stop("please give distribution for the 3 genes")
+        if(sum(sapply(distrib,length))!= n * 3)stop("please give the full distribution (for each n individuals) for the 3 genes")
+    }
+    else{
+        distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n))
+    }
     a=1:n
     pop=c()
     if(df)pop=cbind.data.frame(id=a,parent_id=a,x=distrib$x,y=distrib$y,z=distrib$z,w=rep(0,n))
