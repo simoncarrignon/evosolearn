@@ -301,3 +301,66 @@ dev.off()
 ```{r rogerEvoslow,out.width="50%",fig.align="center",fig.cap="When environment change is slow,social learning is selected"}
 knitr::include_graphics("images/illuRogerEvoSlowchange.png")
 ```
+
+
+## Test Fitness Proportional Learning
+
+```{r fitprop-illu,cahe=TRUE,fig.cap="compare effect of fitprop social learning vs random social learning. 100 Agents"}
+pop=generatePop(100)
+pop[,"p"]=sample.int(200,100)
+pop[,"x"]=0
+pop[,"z"]=1
+allrandom=replicate(10,evosolearn(pop=pop,tstep=100,theta=rep(250,100),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="random",allpop=F,selection=F,repro="unique")[,"mean_p"],simplify=F)
+allfitprop=replicate(10,evosolearn(pop=pop,tstep=100,theta=rep(250,100),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="fitprop",allpop=F,selection=F,repro="unique")[,"mean_p"],simplify=F)
+plot(1,1,xlim=c(0,100),ylim=c(-50,300),type="n",xlab="time",ylab=expression(bar(p)))
+abline(h=250,col="red")
+lapply(allrandom,lines)
+lapply(allfitprop,lines,col="green")
+legend("bottomleft",lwd=2,col=c("black","green","red"),legend=c("random","fitprop",expression(theta)))
+```
+
+
+
+```{r bigger-popsize-fitprop,cache=TRUE,fig.cap="compare effect of fitprop social learning vs random social learning. 1000 Agents"}
+n=1000
+pop=generatePop(n)
+pop[,"p"]=sample.int(200,n,replace=T)
+pop[,"x"]=0
+pop[,"z"]=1
+allrandom=replicate(10,evosolearn(pop=pop,tstep=100,theta=rep(250,100),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="random",allpop=F,selection=F,repro="unique")[,"mean_p"],simplify=F)
+allfitprop=replicate(10,evosolearn(pop=pop,tstep=100,theta=rep(250,100),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="fitprop",allpop=F,selection=F,repro="unique")[,"mean_p"],simplify=F)
+plot(1,1,xlim=c(0,100),ylim=c(-50,300),type="n",xlab="time",ylab=expression(bar(p)))
+abline(h=250,col="red")
+lapply(allrandom,lines)
+lapply(allfitprop,lines,col="green")
+legend("bottomleft",lwd=2,col=c("black","green","red"),legend=c("random","fitprop",expression(theta)))
+```
+
+```{r fitprop-limited,cache=TRUE,fig.cap="Compare effect of choosing among a subgroup of the population. 1000 Agents"}
+n=500
+pop=generatePop(n)
+pop[,"p"]=sample.int(200,n,replace=T)
+pop[,"x"]=0
+pop[,"z"]=1
+
+maxns=seq(.1,1,.05)
+listmaxns=list()
+theta=100
+tsteps=100
+for( mn in maxns){
+    listmaxns[[as.character(mn)]]=replicate(50,abs(evosolearn(pop=pop,tstep=tsteps,theta=rep(theta,tsteps),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="fitprop",allpop=F,selection=F,repro="unique",maxn=mn)[,"mean_p"]-theta),simplify=F)
+}
+
+mncols=colorRampPalette(c("yellow","red","blue"))(length(maxns))
+names(mncols)=as.character(maxns)
+
+plot(1,1,xlim=c(0,tsteps),ylim=c(0,50),type="n",xlab="time",ylab=expression(abs(theta-bar(p))))
+abline(h=250,col="red")
+for( mn in maxns){
+    lapply(listmaxns[[as.character(mn)]],lines,col=mncols[as.character(mn)])
+}
+
+summarized=do.call("rbind",lapply(maxns,function(mn)cbind(mn,dist=sapply(listmaxns[[as.character(mn)]],function(u)mean(u[10:tsteps])))))
+
+plot(summarized[,1],summarized[,2],col=mncols[as.character(summarized[,1])],pch=20,xlab="% of the pop",ylab=expression(abs(theta-bar(p))))
+```
