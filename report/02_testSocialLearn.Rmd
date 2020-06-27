@@ -336,7 +336,7 @@ lapply(allfitprop,lines,col="green")
 legend("bottomleft",lwd=2,col=c("black","green","red"),legend=c("random","fitprop",expression(theta)))
 ```
 
-```{r fitprop-limited,cache=TRUE,fig.cap="Compare effect of choosing among a subgroup of the population. 1000 Agents"}
+```{r fitprop-limited,cache=TRUE,fig.show="hold",fig.cap="Compare effect of choosing among a subgroup of the population. 1000 Agents"}
 n=500
 pop=generatePop(n)
 pop[,"p"]=sample.int(200,n,replace=T)
@@ -351,7 +351,7 @@ for( mn in maxns){
     listmaxns[[as.character(mn)]]=replicate(50,abs(evosolearn(pop=pop,tstep=tsteps,theta=rep(theta,tsteps),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="fitprop",allpop=F,selection=F,repro="unique",maxn=mn)[,"mean_p"]-theta),simplify=F)
 }
 
-mncols=colorRampPalette(c("yellow","red","blue"))(length(maxns))
+mncols=colorRampPalette(c("yellow","purple","blue"))(length(maxns))
 names(mncols)=as.character(maxns)
 
 plot(1,1,xlim=c(0,tsteps),ylim=c(0,50),type="n",xlab="time",ylab=expression(abs(theta-bar(p))))
@@ -363,4 +363,17 @@ for( mn in maxns){
 summarized=do.call("rbind",lapply(maxns,function(mn)cbind(mn,dist=sapply(listmaxns[[as.character(mn)]],function(u)mean(u[10:tsteps])))))
 
 plot(summarized[,1],summarized[,2],col=mncols[as.character(summarized[,1])],pch=20,xlab="% of the pop",ylab=expression(abs(theta-bar(p))))
+```
+
+
+```{r profiling-fitprop,fig.cap="profilingfitprop", cache=TRUE}
+timings=lapply(maxns,function(mn){
+         microbenchmark(
+            evosolearn(pop=pop,tstep=tsteps,theta=rep(theta,tsteps),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="fitprop",allpop=F,selection=F,repro="unique",maxn=mn),
+                            times=5,
+                            unit="s")
+}
+             )
+timings=sapply(timings,function(i)mean(i[,"time"])/10000000000)
+plot(maxns.timings)
 ```
