@@ -205,6 +205,8 @@ socialLearning <- function(newpop,reference,thetat=NULL,sls="random",maxn=NULL){
     if(anyNA(reference[,"p"]))reference[,"p"][is.na(reference[,"p"])]=reference[,"ilp"][is.na(reference[,"p"])] #if some of the reference group 
 
     if(!is.null(maxn)){
+        if(maxn<=0)stop("social learning needs to be done among a positive number of individuals")
+        if(maxn<=1) maxn=maxn*nrow(reference)
         if(maxn<nrow(reference))
             reference=reference[sample.int(nrow(reference),maxn),]
     }
