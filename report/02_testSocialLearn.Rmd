@@ -1,6 +1,10 @@
-# Check Social Learning Strategies
+# Social Learning Strategies
 
-## Compare with Bentley Neutral Model
+## Random copy 
+
+Agents randomly copy  phenotypes from a reference groupe. Actual simulations are done with this reference group being the parents (the surviving individuals) from the previous generation.
+
+### Compare with Bentley Neutral Model
 
 To compare the model with the neutral model usually studied in cultural evolution, a few adjustement has to be made:
 In the traditional model agents are both social and "individual" learner. When they "learn" individually, they inovate at a rate $\mu$ other was they randomly copy another agent. In the current model, if social learner learn only through social learning (ie $z=1$), they can't innovate $p=p''+z(P-p'')\Rightarrow p=P$ where P is the phenotype copied.  To emulate the inovation rate of the neutral model we setup a population made of a percentage of $\mu$ individual learners that generate new phenotypes at each generation (with $\mu_x=1$) while the rest of the population ($1-\mu$) are social learn ($x,y=0,z=1$). All other mutation rates are set to 0, thus we have a rate of apparition of new phenotype of $\mu$.
@@ -17,7 +21,7 @@ pop[,"p"]=pop[,"x"]
 png(paste0("images/ccfdPhenotype_MU",mu,"_N",n,".png")) 
 plot(1,1,log="xy",xlab="phenotype frequencies",ylab="ccfd (%)",xlim=c(1,10000),ylim=c(0.01,100),type="n",main=bquote(mu == .(mu) ~ N == .(n)))
 for(i in 1:10){
-    soci=evosolearn(pop = pop, tstep = 50,log=T,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="random") 
+    soci=evosolearn(pop = pop, tstep = 50,log=F,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="random") 
     u=unlist(sapply(soci$allpop,function(s)s[,"p"]))
     freqt=table(u)
     cc=ccfd(freqt)
@@ -54,7 +58,7 @@ pop[,"p"]=pop[,"x"]
 png(paste0("images/ccfdPhenotypeGrowth_MU",mu,"_N",n,".png")) 
 plot(1,1,log="xy",xlab="phenotype frequencies",ylab="ccfd (%)",xlim=c(1,10000),ylim=c(0.01,100),type="n",main=bquote(mu == .(mu) ~ N == .(n)))
 for(i in 1:10){
-    soci=evosolearn(pop = pop, tstep = 50,log=T,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=n,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="asex",selection=T,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="random") 
+    soci=evosolearn(pop = pop, tstep = 50,log=F,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=n,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="asex",selection=T,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="random") 
     u=unlist(sapply(soci$allpop,function(s)s[,"p"]))
     freqt=table(u)
     cc=ccfd(freqt)
@@ -89,7 +93,7 @@ pop[,"p"]=pop[,"x"]
 png(paste0("images/ccfdPhenotypeBEST_MU",mu,"_N",n,".png")) 
 plot(1,1,log="xy",xlab="phenotype frequencies",ylab="ccfd (%)",xlim=c(1,100000),ylim=c(0.1,100),type="n",main=bquote(mu == .(mu) ~ N == .(n)))
 for(i in 1:10){
-    soci=evosolearn(pop = pop, tstep = 50,log=T,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="asex",selection=T,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="best") 
+    soci=evosolearn(pop = pop, tstep = 50,log=F,theta=rep(0,1000),sigma=c(s=10000,y=10000,z=10000),omega=0,delta=0,b=2,K=1000,m=c(x=.1,y=0,z=0),mu=c(x=mu,y=0,z=0),allpops=T,repro="asex",selection=T,statvar=c("p","x","z"),statfun="mean",E=c(x=0,y=0,z=0),sls="best") 
     u=unlist(sapply(soci$allpop,function(s)s[,"p"]))
     freqt=table(u)
     cc=ccfd(freqt)
@@ -116,7 +120,7 @@ knitr::include_graphics(allimages)
 ```
 
 
-## Reproduce Rogers paradox
+### Reproduce Rogers paradox
 
 We detected  the Rogers paradox in our simulation when counting the proportion of different strategies n our population, we show that, by looking at large set of simulation with different mutation rate, $k_z$ and $k_y$,  when population tends to be made of only social learner the fitness of this population drop drastically ([here](http://www.dysoc.org/~simon/report/exploring-impact-of-cost-and-selective-pressure-sexual-reproduction.html) and [here](http://www.dysoc.org/~simon/report/exploring-impact-of-cost-and-selective-pressure-asexual-reproduction.html)).
 
@@ -160,7 +164,7 @@ allfitness=lapply(freqSL,function(percentage){
                   pop[sl,"z"]=1
                   pop[il,"y"]=1
 
-                  soci=evosolearn(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="random")
+                  soci=evosolearn(pop = pop, tstep = tsteps,log=F,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="random")
                   soci
 
 })
@@ -182,198 +186,170 @@ dev.off()
 knitr::include_graphics(c("images/rogerFig1.png","images/illuRoger.png"))
 ```
  
-If social learner can copy the best phenotype this disappear as unless ther eis no individual learner at all, all social learner can find and copy the good phenotype. 
-```{r,eval=F,echo=F}
+If social learners can copy the best phenotype this disappear, unless there is no individual learner at all, all social learner can find and copy the good phenotype. 
 
-allfitness=lapply(freqSL,function(percentage){
-                  n=1000
-                  pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)))
-                  pop[,"p"]=env[1]
-                  sl=1:(n*percentage)
-                  il=(n*percentage+1):n
-                  pop[sl,"z"]=1
-                  pop[il,"y"]=1
+```{r rogerFitprop,out.width="50%",fig.align="center",fig.cap="When social learners are able to know about the fitness of the individual and select a phenotypes giben this information, the Rogers effect disappear",cache=TRUE}
 
-                  soci=evosolearn(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="best")
-                  soci
+for( sls in c("best","fitprop")){
+    tsteps=1000
+    env=rep(1,tsteps)
+    for(i in 2:length(env)){
+        if(runif(1)<.8){
+            if(runif(1)<.5)
+                env[i]=env[i-1]+1
+            else
+                env[i]=env[i-1]
+        }
+        else env[i]=env[i-1]
+    }
 
-})
-meanAll=sapply(allfitness,function(soci){
-                  cbind(y=mean(sapply(soci$allpop,function(i){mean(i[i[,"y"]==1,"w"])}),na.rm=T),
-                        z=mean(sapply(soci$allpop,function(i){mean(i[i[,"z"]==1,"w"])}),na.rm=T),
-                        pop=mean(sapply(soci$allpop,function(i){mean(i[,"w"])}),na.rm=T))
-})
+    freqSL=seq(.001,.999,length.out=10)
+    allfitness=lapply(freqSL,function(percentage){
+                      n=1000
+                      pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)))
+                      pop[,"p"]=env[1]
+                      sl=1:(n*percentage)
+                      il=(n*percentage+1):n
+                      pop[sl,"z"]=1
+                      pop[il,"y"]=1
 
-png("images/illuRogerBest.png")
-plot(1,1,type="n",ylim=c(0,1),xlim=c(0,1),xlab="% social learner",ylab="fitness")
-for(i in 1:3){
-   lines(freqSL,meanAll[i,],col=i,lwd=3)
+                      soci=evosolearn(pop = pop, tstep = tsteps,log=F,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),allpops=T,repro="unique",selection=F,statvar=c("p","x","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="fitprop")
+                      soci
+
+    })
+    meanAll=sapply(allfitness,function(soci){
+                      cbind(y=mean(sapply(soci$allpop,function(i){mean(i[i[,"y"]==1,"w"])}),na.rm=T),
+                            z=mean(sapply(soci$allpop,function(i){mean(i[i[,"z"]==1,"w"])}),na.rm=T),
+                            pop=mean(sapply(soci$allpop,function(i){mean(i[,"w"])}),na.rm=T))
+    })
+
+    plot(1,1,type="n",ylim=c(0,1),xlim=c(0,1),xlab="% social learner",ylab="fitness")
+    for(i in 1:3){
+       lines(freqSL,meanAll[i,],col=i,lwd=3)
+    }
+    legend("bottom",legend=c("IL","SL","pop"),col=1:3,lwd=3)
 }
-legend("bottom",legend=c("IL","SL","pop"),col=1:3,lwd=3)
-dev.off()
-```
-```{r rogerBest,out.width="50%",fig.align="center",fig.cap="When social learning is able to spot the best individual the Rogers effect disappear"}
-knitr::include_graphics("images/illuRogerBest.png")
 ```
 
  
 At an evolutionary level, the expected outcome of Rogers paradox is that Social learning should not evolve when environment is changing, as in the long term the mean fitness of a population made of social learners will decrease. Though our mutation process isn't exactly the same than Rogers (in his experiments phenotypes flip from social learners to individual learner randomly), this is what we observe with mutation and asexual reproduction (cf below). When the rate of change is high enough ($u=.8$ in Rogers model), social learning is not selected no matter the proportion of social learners in the initial population, with the risks that the whole population get extinct if social learning is fixed. 
 
-```{r,eval=F,echo=F}
-tsteps=40
-env=rep(1,tsteps)
-for(i in 2:length(env)){
-    if(runif(1)<.8){
-        if(runif(1)<.5)
-            env[i]=!env[i-1]
-        else
-            env[i]=env[i-1]
-    }
-    else env[i]=env[i-1]
-}
-
-freqSL=seq(.001,.999,length.out=10)
-allfitness=lapply(freqSL,function(percentage){
-                  n=1000
-                  pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)))
-                  pop[,"p"]=env[1]
-                  sl=1:(n*percentage)
-                  il=(n*percentage+1):n
-                  pop[sl,"z"]=1
-                  pop[il,"y"]=1
-
-                  soci=evosolearn(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=1,z=1),mu=c(x=0,y=.01,z=.01),allpops=T,repro="asex",selection=T,statvar=c("p","y","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="best")
-                  soci
-
-})
-png("images/illuRogerEvo.png")
-plot(1,1,type="n",ylim=c(0,1),xlim=c(0,tsteps),ylab="mean value of z",xlab="time")
-cols=heat.colors(length(freqSL))
-for(i in 1:length(freqSL)){
-   lines(allfitness[[i]]$summary[,"mean_z"],col=cols[i],lwd=3)
-}
-legend("right",title="SL init.",legend=round(freqSL,digit=1)[seq(1,10,length.out=5)],col=cols[seq(1,10,length.out=5)],lwd=3)
-dev.off()
-```
-
-```{r rogerEvo,out.width="50%",fig.align="center",fig.cap="Rogers paradox consequence: social learning isn't selected when environmental change is relatively high"}
-knitr::include_graphics("images/illuRogerEvo.png")
-```
 Whereas this is not the case when environmental changes is very unlikely(here proba of change $u=0.01$)
 
-```{r,eval=F,echo=F}
+```{r rogerEvoslow,out.width="50%",fig.align="center",fig.cap="Social learning is selected when environmental changes is high (left, $u=0.8$) but not when environmental change is slow (right, u=$0.01$)",cache=TRUE,fig.show="hold"}
 tsteps=40
-env=rep(1,tsteps)
-for(i in 2:length(env)){
-    if(runif(1)<.01){
-        if(runif(1)<.5)
-            env[i]=!env[i-1]
-        else
-            env[i]=env[i-1]
+sls="random"
+
+for(u in c(0.8,0.01)){
+    env=rep(1,tsteps)
+    for(i in 2:length(env)){
+        if(runif(1)<u){
+            if(runif(1)<.5)
+                env[i]=!env[i-1]
+            else
+                env[i]=env[i-1]
+        }
+        else env[i]=env[i-1]
     }
-    else env[i]=env[i-1]
+
+    allfitness=lapply(freqSL,function(percentage){
+                      n=1000
+                      pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)))
+                      pop[,"p"]=env[1]
+                      sl=1:(n*percentage)
+                      il=(n*percentage+1):n
+                      pop[sl,"z"]=1
+                      pop[il,"y"]=1
+
+                      soci=evosolearn(pop = pop, tstep = tsteps,log=F,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=1,z=1),mu=c(x=0,y=.01,z=.01),allpops=T,repro="asex",selection=T,statvar=c("p","y","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls=sls)
+                      soci
+
+    })
+    plot(1,1,type="n",ylim=c(0,1),xlim=c(0,tsteps),ylab="mean value of z",xlab="time",main=paste0("sls:",sls,"proba of change of theta:",u))
+    cols=heat.colors(length(freqSL))
+    for(i in 1:length(freqSL)){
+       lines(allfitness[[i]]$summary[,"mean_z"],col=cols[i],lwd=3)
+    }
+    legend("right",title="% SL at t=0",legend=round(freqSL,digit=1)[seq(1,10,length.out=5)],col=cols[seq(1,10,length.out=5)],lwd=3)
 }
 
-freqSL=seq(.001,.999,length.out=10)
-allfitness=lapply(freqSL,function(percentage){
-                  n=1000
-                  pop=generatePop(n,distrib=list(x=rep(0,n),y=rep(0,n),z=rep(0,n)))
-                  pop[,"p"]=env[1]
-                  sl=1:(n*percentage)
-                  il=(n*percentage+1):n
-                  pop[sl,"z"]=1
-                  pop[il,"y"]=1
+```
 
-                  soci=evosolearn(pop = pop, tstep = tsteps,log=T,theta=env,sigma=c(s=.2,y=.8,z=4),omega=0,delta=0,b=2,K=1000,m=c(x=0,y=1,z=1),mu=c(x=0,y=.01,z=.01),allpops=T,repro="asex",selection=T,statvar=c("p","y","z","w"),statfun="mean",E=c(x=0,y=0,z=0),sls="best")
-                  soci
 
-})
-png("images/illuRogerEvoSlowchange.png")
-plot(1,1,type="n",ylim=c(0,1),xlim=c(0,tsteps),ylab="mean value of z",xlab="time")
-cols=heat.colors(length(freqSL))
-for(i in 1:length(freqSL)){
-   lines(allfitness[[i]]$summary[,"mean_z"],col=cols[i],lwd=3)
+## Fitness Proportional Learning
+
+In simulations using this Fitness Proportional Social Learning, individual copy the phenotypes of individual from the reference group with a probability that depends on the fitness of the individuals in the reference group.
+Thus the probability of the individal $i$ to copy the phenotype of individual $j$ is defined as:
+
+
+$$ P(i,j) = \frac{w_j}{\Sigma_{n=0}^{N_e}(w_n)} $$
+
+### Test Fitness Proportional Learning
+
+To test if the fitness proportional learnign is working we setup  a simple experiment where the optimum $\theta$ is a fixe value $\theta_0$. We generate a population that won't evolve genetically, where $x$ and $y$ are set to $0$, and $z=1$ for all the population: agents can changes their phenotypes only by copying socially. AWe initialized all phenotypes randomly as value between $0$ and $200$ while $\theta$ is chosen outside this range, as $\theta_0=250$.  This is outside the initial range sof phenotypes, which means no one has a good phenoty pbut some are closer than other. We then add some noise on the copy of the phenotype: $E_z=5$ , that allows the pool of phenotypes to changes. Reults are the same if $0<\theta_0<200$m convergence is only quicker. Then during the simulation agents are not selected given their phenotypes, they just reproduce themselves once. On the other hand phenotypes are compied and thus changes only du to the social learning strategy.  we e
+
+
+```{r bigger-popsize-fitprop,cache=TRUE,fig.cap="compare effect of fitprop social learning vs random social learning. Population of 100Agents (left) and 1000 Agents (right)",out.width="50%",fig.show="hold"}
+for(n in c(100,1000)){
+    pop=generatePop(n)
+    pop[,"p"]=sample.int(200,100)
+    pop[,"x"]=0
+    pop[,"z"]=1
+    allrandom=replicate(10,evosolearn(pop=pop,tstep=100,theta=rep(250,100),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="random",allpop=F,selection=F,repro="unique")[,"mean_p"],simplify=F)
+    allfitprop=replicate(10,evosolearn(pop=pop,tstep=100,theta=rep(250,100),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="fitprop",allpop=F,selection=F,repro="unique")[,"mean_p"],simplify=F)
+    plot(1,1,xlim=c(0,100),ylim=c(-50,300),type="n",xlab="time",ylab=expression(bar(p)))
+    abline(h=250,col="red")
+    na=lapply(allrandom,lines)
+    na=lapply(allfitprop,lines,col="green")
+    legend("bottomleft",lwd=2,col=c("black","green","red"),legend=c("random","fitprop",expression(theta)))
 }
-legend("right",title="SL init.",legend=round(freqSL,digit=1)[seq(1,10,length.out=5)],col=cols[seq(1,10,length.out=5)],lwd=3)
-dev.off()
-```
-
-```{r rogerEvoslow,out.width="50%",fig.align="center",fig.cap="When environment change is slow,social learning is selected"}
-knitr::include_graphics("images/illuRogerEvoSlowchange.png")
 ```
 
 
-## Test Fitness Proportional Learning
-
-```{r fitprop-illu,cahe=TRUE,fig.cap="compare effect of fitprop social learning vs random social learning. 100 Agents"}
-pop=generatePop(100)
-pop[,"p"]=sample.int(200,100)
-pop[,"x"]=0
-pop[,"z"]=1
-allrandom=replicate(10,evosolearn(pop=pop,tstep=100,theta=rep(250,100),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="random",allpop=F,selection=F,repro="unique")[,"mean_p"],simplify=F)
-allfitprop=replicate(10,evosolearn(pop=pop,tstep=100,theta=rep(250,100),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="fitprop",allpop=F,selection=F,repro="unique")[,"mean_p"],simplify=F)
-plot(1,1,xlim=c(0,100),ylim=c(-50,300),type="n",xlab="time",ylab=expression(bar(p)))
-abline(h=250,col="red")
-lapply(allrandom,lines)
-lapply(allfitprop,lines,col="green")
-legend("bottomleft",lwd=2,col=c("black","green","red"),legend=c("random","fitprop",expression(theta)))
-```
+When we look at how close to the optimu $\theta$ the phenotypes are we can see that having 
 
 
+```{r fitprop-limited,cache=TRUE,out.width="50%",fig.show="hold",fig.cap="Compare effect of choosing among a given proportion from the reference group using randomly choose agent (top) or fitpop (bottom). Population size:  1000 Agents"}
+for(sls in c("random","fitprop")){
+    n=500
+    pop=generatePop(n)
+    pop[,"p"]=sample.int(200,n,replace=T)
+    pop[,"x"]=0
+    pop[,"z"]=1
 
-```{r bigger-popsize-fitprop,cache=TRUE,fig.cap="compare effect of fitprop social learning vs random social learning. 1000 Agents"}
-n=1000
-pop=generatePop(n)
-pop[,"p"]=sample.int(200,n,replace=T)
-pop[,"x"]=0
-pop[,"z"]=1
-allrandom=replicate(10,evosolearn(pop=pop,tstep=100,theta=rep(250,100),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="random",allpop=F,selection=F,repro="unique")[,"mean_p"],simplify=F)
-allfitprop=replicate(10,evosolearn(pop=pop,tstep=100,theta=rep(250,100),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="fitprop",allpop=F,selection=F,repro="unique")[,"mean_p"],simplify=F)
-plot(1,1,xlim=c(0,100),ylim=c(-50,300),type="n",xlab="time",ylab=expression(bar(p)))
-abline(h=250,col="red")
-lapply(allrandom,lines)
-lapply(allfitprop,lines,col="green")
-legend("bottomleft",lwd=2,col=c("black","green","red"),legend=c("random","fitprop",expression(theta)))
-```
+    maxns=seq(.1,1,.1)
+    listmaxns=list()
+    theta=100
+    tsteps=100
+    for( mn in maxns){
+        listmaxns[[as.character(mn)]]=replicate(10,abs(evosolearn(pop=pop,tstep=tsteps,theta=rep(theta,tsteps),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls=sls,allpop=F,selection=F,repro="unique",maxn=mn)[,"mean_p"]-theta),simplify=F)
+    }
 
-```{r fitprop-limited,cache=TRUE,fig.show="hold",fig.cap="Compare effect of choosing among a subgroup of the population. 1000 Agents"}
-n=500
-pop=generatePop(n)
-pop[,"p"]=sample.int(200,n,replace=T)
-pop[,"x"]=0
-pop[,"z"]=1
+    mncols=colorRampPalette(c("yellow","purple","blue"))(length(maxns))
+    names(mncols)=as.character(maxns)
 
-maxns=seq(.1,1,.05)
-listmaxns=list()
-theta=100
-tsteps=100
-for( mn in maxns){
-    listmaxns[[as.character(mn)]]=replicate(50,abs(evosolearn(pop=pop,tstep=tsteps,theta=rep(theta,tsteps),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="fitprop",allpop=F,selection=F,repro="unique",maxn=mn)[,"mean_p"]-theta),simplify=F)
+    plot(1,1,xlim=c(0,tsteps),ylim=range(unlist(listmaxns),na.rm=T),type="n",xlab="time",ylab=expression(abs(theta-bar(p))),main=paste0("SLS=",sls))
+    for( mn in maxns){
+        na=lapply(listmaxns[[as.character(mn)]],lines,col=mncols[as.character(mn)])
+    }
+
+    summarized=do.call("rbind",lapply(maxns,function(mn)cbind(mn,dist=sapply(listmaxns[[as.character(mn)]],function(u)mean(u[10:tsteps])))))
+
+    plot(summarized[,1],summarized[,2],col=mncols[as.character(summarized[,1])],pch=20,xlab="% of the pop",ylab=expression(abs(theta-bar(p))),main=paste0("SLS=",sls))
 }
-
-mncols=colorRampPalette(c("yellow","purple","blue"))(length(maxns))
-names(mncols)=as.character(maxns)
-
-plot(1,1,xlim=c(0,tsteps),ylim=c(0,50),type="n",xlab="time",ylab=expression(abs(theta-bar(p))))
-abline(h=250,col="red")
-for( mn in maxns){
-    lapply(listmaxns[[as.character(mn)]],lines,col=mncols[as.character(mn)])
-}
-
-summarized=do.call("rbind",lapply(maxns,function(mn)cbind(mn,dist=sapply(listmaxns[[as.character(mn)]],function(u)mean(u[10:tsteps])))))
-
-plot(summarized[,1],summarized[,2],col=mncols[as.character(summarized[,1])],pch=20,xlab="% of the pop",ylab=expression(abs(theta-bar(p))))
 ```
 
+The effect of fitprop copying  on the speed of the code has no impact:
 
-```{r profiling-fitprop,fig.cap="profilingfitprop", cache=TRUE}
+```{r profiling-fitprop,fig.cap="profilingfitprop", fig.show="hold",cache=TRUE}
+library(microbenchmark)
 timings=lapply(maxns,function(mn){
          microbenchmark(
-            evosolearn(pop=pop,tstep=tsteps,theta=rep(theta,tsteps),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="fitprop",allpop=F,selection=F,repro="unique",maxn=mn),
+            evosolearn(pop=pop,tstep=tsteps,theta=rep(theta,2000),b=2,K=100,m=c(x=0,y=0,z=0),mu=c(x=0,y=0,z=0),E=c(x=0,y=0,z=5),sigma=c(s=100,y=100,z=100),log=F,sls="fitprop",allpop=F,selection=F,repro="unique",maxn=mn),
                             times=5,
                             unit="s")
 }
              )
 timings=sapply(timings,function(i)mean(i[,"time"])/10000000000)
-plot(maxns.timings)
+plot(maxns,timings)
 ```
