@@ -24,7 +24,7 @@ for(alpha in 0:2){ #alpha as used in YK95 as our $\omega$
 
 ### Check $\delta$ (variance) of noise
 
-```{r deltacheck,fig.cap="Environment generator changing $\\delta$"}
+```{r deltacheck,fig.cap="Environment generator changing $\\delta$",cache=TRUE}
 t=1000 #number of timestep
 par(mfrow=c(3,1),mar=c(5,4,3,1))
 for(d in c(1,2,4)){ 
@@ -65,7 +65,7 @@ Dataset :
 * EPICA:  Antartic, $\delta D$ (deuterium) , [Augustin et al (2004)](https://www.nature.com/articles/nature0259)
 * Martrat: Iberian Margin sediments , $ U^{k'}_{37} $ alkenone- SST (Sea Surface Temperature), [Martrat et al (2007)](https://science.sciencemag.org/content/317/5837/502)
 
-```{r allenvironment,out.width="90%",fig.width=10,fig.height=8,fig.show="hold",fig.cap="preview of all datasets scaled with martrat total length (note that lr04 goes almost 10 times before martrat and is thus hidden here)",fig.link="_main_files/figure-html/allenvironment-1.png"}
+```{r allenvironment,out.width="90%",fig.width=10,fig.height=8,fig.show="hold",fig.cap="preview of all datasets scaled with martrat total length (note that lr04 goes almost 10 times before martrat and is thus hidden here)",fig.link="_main_files/figure-html/allenvironment-1.png",cache=TRUE}
 ### the following can be used to regenerate environment from their original datasets
     #ngripR=read.csv("data/ngripRAW.csv")
     #ngrip$year=-(ngripR$years.BP.2000)
@@ -214,7 +214,7 @@ $$ \Oelta T_I = (\Delta \delta D_{ice} − 8\Delta\delta^{18}O_{sw})/9 $$
 where $\Delta\delta^{18}O_{sw}$ is the globally averaged change from today's value of seawater $\delta^18_O$
 
 The, authors use sediment records from Bassinot et al. 1994 to estimate the past value for $\delta^{18}O_{sw}$.
-```{r real-autocorelation,fig.show="hold",out.width="33%",fig.cap="Visual representation of the autocorleation of each environment."}
+```{r real-autocorelation,fig.show="hold",out.width="33%",fig.cap="Visual representation of the autocorleation of each environment.",cache=TRUE}
 for(e in namesRealEnv){
     env=get(e)
     t=2:(length(env[,2]))
@@ -231,7 +231,7 @@ Nontheless, minimal and maximal variations are reached roughly at the same time 
 to rescale all in siilar environment we match the variation of the changes during the time for VOSTOK dataset at the same scale as VOSTOK.
 
 
-```{r rescale,out.width="80%",fig.show="hold",fig.width=8,fig.height=6,fig.cap="Rescale following Vostok Temperature, exept for Martrat dataset which has it's own temperature scale that we will use for following experiments"}
+```{r rescale,out.width="80%",fig.show="hold",fig.width=8,fig.height=6,fig.cap="Rescale following Vostok Temperature, exept for Martrat dataset which has it's own temperature scale that we will use for following experiments",cache=TRUE}
 
  # rescale all temperature differences  using vostok temperature
 par(mfrow=c(length(namesRealEnv),1))
@@ -492,7 +492,7 @@ axis(2)
 
 ## Combine Real Data with simulated noise
 
-As we have seen every dataset gives us proxy for the climate at different resolutions, whcih means that using the environment as is in our simulation will creat generation spanning uneven time. We need to interpolate new datapoint to fill the gaps. 
+As we have seen, every dataset gives us proxy for the climate at different resolutions, whcih means that using the environment as is in our simulation will creat generation spanning uneven time. We need to interpolate new datapoint to fill the gaps. 
 
 The biggest gap are in the LR04 stack and epica,, the ones describing the largest time scale and are respectively of `r max(getDateResolution(lr04$year))` years. But the length of those gap varying infrom each dataset, here is the distribution
 
@@ -591,7 +591,7 @@ Let see when we zoom on the first and last 30,000 years :
 Let see know how the parameter of our  interpolation impact the properties of our environments. $X_{ni}$ represents the metrics for the environment with the noisy missing point, $X_{li}$ for simple linear interpolation.
 
 
-```{r}
+```{r,cache=TRUE}
 summaryEnv=sapply(allRealEnv[-3],function(env)
                   {
                       t=2:(length(env[,"dTsVscales"]))
@@ -623,7 +623,7 @@ summaryEnv=sapply(allRealEnv[-3],function(env)
 knitr::kable(as.data.frame(t(summaryEnv)),digits=c(1))
 ```
 
-```{r}
+```{r,cache=TRUE}
 summaryEnv=sapply(allRealEnv[-3],function(env){
        ri=range(getDateResolution(env$year))
        if(sd(ri)==0)
@@ -651,7 +651,7 @@ knitr::kable(as.data.frame(t(summaryEnv)),digits=c(1))
 In the figure below we apply this method to generate missing data for a few dataset. The red curve represent the dataset subsampled at is lowest resolution. The black line represent the dataset plus the new data points, the green line represent the spectrum for the ngrip2 dataset.
 
 
-```{r resample-vostok,fig.cap="Interpoling missing data for different environment using NGRIP2 Power Sprectral Density",out.width="50%",fig.show="hold"}
+```{r resample-vostok,fig.cap="Interpoling missing data for different environment using NGRIP2 Power Sprectral Density",out.width="50%",fig.show="hold",cache=TRUE}
 #tstv=interpolate(theta=vostok$dTsVscales,times=vostok$year,finalres=20,delta=1.2,omega=1.41,delta2=0.38)
 #tstv=getClosest(tstv$data,tstv$year,by=20)
 #saveRDS(file="data/vostokInterpol.rds",tstv)
