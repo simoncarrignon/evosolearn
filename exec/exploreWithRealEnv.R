@@ -53,9 +53,9 @@ if(fun_i != "interpolate"){
 
 tstep=length(env)
 allparameters=list()
-allparameters[["mu"]]=10^(-5:-3)
+allparameters[["mu"]]=10^(seq(-6,-2,0.5))
 allparameters[["K"]]=c(1000)
-allparameters[["m"]]=(.2*(1:3))
+allparameters[["m"]]=1
 allparameters[["E"]]=1
 #allparameters[["sigma"]]=(2^(0:4))[1]
 allparameters[["sigma"]]=c(3,4,5)
@@ -63,16 +63,14 @@ allparameters[["sigma"]]=c(3,4,5)
 #allparameters[["vt"]]=(5^(0:4)*10^-3)[1:4]
 #allparameters[["omega"]]=2^(-1:3)
 allparameters[["outputrate"]]=ceiling(1/500*tstep)
-allparameters[["k_z"]]=c(10,20,40)
-allparameters[["k_y"]]=c(.02,.1,.3)
+allparameters[["k_z"]]=seq(10,100,10)
+allparameters[["k_y"]]=sort(2^(-seq(1,6,1)))
 #allparameters[["sls"]]=c("random","best")
 parameters=as.data.frame(expand.grid(allparameters))
 repet=nsm
 parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
 b=2
 mu=c(x=0,y=0,z=0)
-E=c(x=0,y=0,z=0)
-m=c(x=0,y=0,z=0)
 sigma=c(s=1,y=1,z=1)
 
 genes=c("x","y","z")
@@ -81,11 +79,11 @@ cl <- makeForkCluster(ns,outfile="")
 ##Reset all variable and population
 mu=c(x=0,y=0,z=0)
 E=c(x=.1,y=1,z=.5)
-m=c(x=0,y=0,z=0)
+m=c(x=.25,y=.1,z=.1)
 sigma=c(s=1,y=1,z=1)
 
 explore=do.call("rbind.data.frame",
-                parLapply(cl,1:nrow(parameters),function(v,parameters,env)
+                parLapply(cl,1:nrow(parameters),function(v,parameters,env,E,m)
                           {
                               print(paste0(paste0("g",genes,collapse=" "),", sim #",v,"/",nrow(parameters)))
                               #delta=parameters[v,"delta"]
@@ -95,8 +93,8 @@ explore=do.call("rbind.data.frame",
                               n=parameters[v,"K"]
                               outputrate=parameters[v,"outputrate"]
                               mu[genes]=parameters[v,"mu"]
-                              m[genes]=parameters[v,"m"]
-                              E[genes]=parameters[v,"E"]
+                              #m[genes]=parameters[v,"m"]
+                              #E[genes]=parameters[v,"E"]
                               sigma["s"]=parameters[v,"sigma"]
 			      #sls=parameters[v,"sls"]
                               pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
@@ -107,7 +105,7 @@ explore=do.call("rbind.data.frame",
                               summary=fullmat
                               saveRDS(file=filename_mat,summary)
                               c(as.list(getSummary(summary,nstep=0,vars=c(paste0("mean_",genes),paste0("var_",genes),"N","mean_w","mean_p","theta"))),filename=filename_mat)
-                          },parameters=parameters,env=env)
+                          },parameters=parameters,env=env,E=E,m=m)
                 )
 
 stopCluster(cl)
