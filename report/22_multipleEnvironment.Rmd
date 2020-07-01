@@ -7,49 +7,57 @@ For each environment we run a set of simulation exploring different parameters. 
 All data are used after being rescaled following Vostok temperature estimates.
 The resample/interpolation function used are
 
-1. `getMean2`: evenly resampling and taking the mean of all data
+1. `Noisy Interpolation`: generating missing datapoints be using the random noise generator using parameter calculate from NGRIP dataset.
 2. `getClosest`: evenly resampling and taking the closest data points
-3. `Linear Interpolation`: generating missing datapoints be using a straight line between to data points
-4. `Noisy Interpolation`: generating missing datapoints be using the random noise generator using parameter calculate from NGRIP dataset.
 
-For interpolation: findal resolution: every 20years, for resampling: final resolution equal to the the lowest resolution of each dataset.
+Final resolution: every 20years, 
 
 
 
 ```{r}
-    namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat","ngrip2")
-    namesFun=c("interpolate_LinTRUERes20RANDOM","interpolate_LinFALSERes20RANDOM")
-    allEs=c(0.2,.6,1)
-    allSigmas=c(1,2)
+    #namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat","ngrip2")
+    namesRealEnv=c("vostok","ngrip2","martrat","ngrip","ls16")
+    namesFun=c("interpolate_Sls")
+    namesSLS=c("random","fitprop")
+    suf="NEWF"
+    allEs=1
+    allSigmas=3:5
 
 ```
 
 ```{r}
-      #"## {{env}}",
 
+basecaption1=paste0('(from top to bottom $\\\\sigma_s =',paste0(allSigmas, collapse = ","),'$, real E: $E_x=0.1,E_y=1,E_z=.5$, SLS:{{sls}} Environment:{{env}})')
+basecaption2=paste0('(from top to right $\\\\sigma_s =',paste0(allSigmas, collapse = ","),'$, real E: $E_x=0.1,E_y=1,E_z=.5$, SLS:{{sls}} Environment:{{env}})')
 a=c(
-    "### Function {{fun}}",
+    "### {{sls}}",
     '```{r}',
     'idexpe="{{id}}"',
-    't=c("NA","N","3Genes")',
-    'allsummaries=unlist(lapply(allSigmas,function(s)paste0("images/",idexpe,t,"_sigma",s,"_E.png")))',
+    #'t=c("NA","N","3Genes")',
+    #'allsummaries=unlist(lapply(allSigmas,function(s)paste0("images/",idexpe,t,"_sigma",s,"_E.png")))',
+    'allimg=unlist(lapply(allSigmas,function(s)paste0("images/vertical_",idexpe,"_sigma",s,"_E1.png")))',
     '```',
-    "#### Last step summary",
-    paste0('```{r summary-last-{{id}}, out.width = "33%", fig.cap="Summary output for last step, from top to bottom  $\\\\sigma_s =',paste0(allSigmas, collapse = ","),'$, from left to right: number of extinction, mean population size and mean genotype at the end of the simulation. Environment:{{env}}, subsampling function:{{fun}}",fig.show="hold",fig.link=allsummaries}'),
-    'knitr::include_graphics(as.character(allsummaries))',
-    '```',
-    '```{r}',
-    'allimg=unlist(lapply(allSigmas,function(s)paste0("images/vertical_",idexpe,"_sigma",s,"_E",allEs,".png")))',
-    '```',
+    #"#### Last step summary",
+    #paste0('```{r summary-last-{{id}}, out.width = "33%", fig.cap="Summary output for last step',basecaption1,'",fig.show="hold",fig.link=allsummaries}'),
+    #'knitr::include_graphics(as.character(allsummaries))',
+    #'```',
     "#### Vertical summary",
-    paste0('```{r traj-summary-{{id}}, out.width = "33%", fig.cap="Summarized vertical trajectories (from top to bottom $\\\\sigma_s =',paste0(allSigmas, collapse = ","),'$, from left to right, $E=',paste0(allEs, collapse = ","),'$). Environment:{{env}}, subsampling function:{{fun}}",fig.show="hold",fig.link=allimg}'),
+    paste0('```{r traj-{{id}}, out.width = "33%", fig.cap="Summarized vertical trajectories',basecaption2,'",fig.show="hold",fig.link=allimg}'),
     'knitr::include_graphics(as.character(allimg))',
     '```',
     '```{r}',
-    'allimg=unlist(lapply(allSigmas,function(s)paste0("images/verticalM_",idexpe,"_sigma",s,"_E",allEs,".png")))',
+    'allimg=unlist(lapply(allSigmas,function(s)paste0("images/verticalMz_",idexpe,"_sigma",s,"_E",allEs,".png")))',
     '```',
     "#### Vertical run indiv",
-    paste0('```{r traj-indv-{{id}}, out.width = "33%", fig.cap="Vertical trajectories for 20 individual runs (from top to bottom $\\\\sigma_s =',paste0(allSigmas, collapse = ","),'$, from left to right, $E=',paste0(allEs, collapse = ","),'$). Environment:{{env}}, subsampling function:{{fun}}",fig.show="hold",fig.link=allimg}'),
+    paste0('```{r traj-ind-{{id}}, out.width = "33%", fig.cap="Vertical trajectories for 20 individual runs',basecaption2,'",fig.show="hold",fig.link=allimg}'),
+    'idexpe="{{id}}"',
+    'knitr::include_graphics(as.character(allimg))',
+    '```',
+    '```{r}',
+    'allimg=unlist(lapply(allSigmas,function(s)paste0("images/vertical_N_Mz_",idexpe,"_sigma",s,"_E",allEs,".png")))',
+    '```',
+    "#### Vertical run indiv: $N_e$",
+    paste0('```{r traj-indN-{{id}}, out.width = "33%", fig.cap="Vertical trajectories for 20 individual runs, $N_e$',basecaption2,'",fig.show="hold",fig.link=allimg}'),
     'idexpe="{{id}}"',
     'knitr::include_graphics(as.character(allimg))',
     '```'
@@ -58,51 +66,10 @@ a=c(
 ```
 
 ```{r,include=FALSE,echo=T}
-src <- lapply(namesRealEnv,function(env)c(knitr::knit_expand(text="## {{env}} RANDOM",env=env),lapply(namesFun,function(fun)knitr::knit_expand(text=a,id=paste0(env,fun),env=env,fun=fun))))
+src <- lapply(namesRealEnv,function(env)c(knitr::knit_expand(text="## {{env}} ",env=env),lapply(namesSLS,function(sls)knitr::knit_expand(text=a,id=paste0(env,namesFun,sls,suf),env=env,sls=sls))))
 
 ```
 
 `r knitr::knit_child(text=unlist(src))`
 
 
-```{r}
-    namesFun=c("interpolate_LinTRUERes20BEST","interpolate_LinFALSERes20BEST")
-```
-
-```{r,include=FALSE,echo=T}
-src <- lapply(namesRealEnv,function(env)c(knitr::knit_expand(text="## {{env}} BEST",env=env),lapply(namesFun,function(fun)knitr::knit_expand(text=a,id=paste0(env,fun),env=env,fun=fun))))
-
-```
-
-`r knitr::knit_child(text=unlist(src))`
-
-```{r}
-
-    namesFun=c("interpolate_LinTRUERes20SlsbestBIS","interpolate_LinTRUERes20SlsrandomBIS","interpolate_LinTRUERes20SlsbestTRIS","interpolate_LinTRUERes20SlsrandomTRIS")
-```
-
-```{r,include=FALSE,echo=T}
-src <- lapply("vostok",function(env)c(knitr::knit_expand(text="## {{env}}",env=env),lapply(namesFun,function(fun)knitr::knit_expand(text=a,id=paste0(env,fun),env=env,fun=fun))))
-
-```
-
-`r knitr::knit_child(text=unlist(src))`
-
-
-## Compare 
-
-```{r}
-listimage=c(
-"images/vertical_vostokinterpolate_LinTRUERes20SlsrandomBIS_sigma2_E0.6.png",
-"images/vertical_vostokinterpolate_LinTRUERes20SlsrandomTRIS_sigma2_E0.6.png",
-"images/vertical_ngrip2interpolate_LinTRUERes20RANDOM_sigma2_E0.6.png",
-"images/vostokinterpolate_LinTRUERes20SlsrandomBIS3Genes_sigma2_E.png",
-"images/vostokinterpolate_LinTRUERes20SlsrandomTRIS3Genes_sigma2_E.png",
-"images/ngrip2interpolate_LinTRUERes20RANDOM3Genes_sigma2_E.png"
-)
-```
-
-Using the most basic interpolation, we can compare NGRIP2 with vostok:
-```{r out.width="33%",fig.show="hold",fig.cap="vostok (left) and ngrip2 (right) with random social learning",fig.link=listimage}
-    knitr::include_graphics(listimage)
-```

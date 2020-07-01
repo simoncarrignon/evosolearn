@@ -4,14 +4,14 @@
 \alias{generatePop}
 \title{Generate population}
 \usage{
-generatePop(n, distrib, df = F)
+generatePop(n, distrib = NULL, df = F)
 }
 \arguments{
 \item{n}{number of agents in the population}
 
-\item{distrib}{should be a list with 3 elements x yz)}
+\item{df}{if TRUE return a `data.frame` (easier to handle but much much slower, default is FALSE)}
 
-\item{df}{if TRUE return a data.frame (easier to handle but much much slower, default is FALSE)}
+\item{if}{not NULL, `distrib` should be a list with 3 elements x,y,z; if NULL, the 3 genes are initialized at 0}
 }
 \description{
 Function that generates a population
