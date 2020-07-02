@@ -58,37 +58,25 @@ env=realdata$dTsVscales
 
 tstep=length(env)
 allparameters=list()
-allparameters[["mu"]]=10^(-5:-3)
+allparameters[["mu_x"]]=10^runif(1,-5,-2)
+allparameters[["mu_y"]]=10^runif(1,-5,-2)
+allparameters[["mu_z"]]=10^runif(1,-5,-2)
 allparameters[["K"]]=c(1000)
-allparameters[["m"]]=(.2*(1:3))
-allparameters[["E"]]=seq(.5,1.5,.2)
-#allparameters[["sigma"]]=(2^(0:4))[1]
+allparameters[["m_x"]]=runif(1)
+allparameters[["m_y"]]=runif(1)
+allparameters[["m_z"]]=runif(1)
+allparameters[["E_x"]]=runif(1,.1,1.5)
+allparameters[["E_y"]]=runif(1,.1,1.5)
+allparameters[["E_z"]]=runif(1,.1,1.5)
 allparameters[["sigma"]]=c(2)
-#allparameters[["delta"]]=2^(0:4)
-#allparameters[["vt"]]=(5^(0:4)*10^-3)[1:4]
-#allparameters[["omega"]]=2^(-1:3)
 allparameters[["outputrate"]]=1
-allparameters[["k_z"]]=seq(1,10,1)
-allparameters[["k_y"]]=seq(.5,.9,.05)
-#allparameters[["sls"]]=c("random","best")
-parameters=as.data.frame(expand.grid(allparameters))
-repet=nsm
-parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
-b=2
-mu=c(x=0,y=0,z=0)
-E=c(x=0,y=0,z=0)
-m=c(x=0,y=0,z=0)
-sigma=c(s=1,y=1,z=1)
 
 lengthtocheck=10000/20
+parameters=as.data.frame(allparameters)
+repet=nsm
+parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
 genes=c("x","y","z")
 cl <- makeForkCluster(ns,outfile="")
-
-##Reset all variable and population
-mu=c(x=0,y=0,z=0)
-E=c(x=0,y=0,z=0)
-m=c(x=0,y=0,z=0)
-sigma=c(s=1,y=1,z=1)
 
 explore=do.call("rbind.data.frame",
                 parLapply(cl,1:nrow(parameters),function(v,parameters,env)
