@@ -3,9 +3,9 @@ old <- Sys.time()
 args=commandArgs(trailingOnly = TRUE) #pass number of slave by comand line, should be #node - 1 as one node is used by the master 
 
 ns=args[1]#first argument is the number of slave
-nsm=args[2]#second argument the number of simulation 
+nsm=args[2]#second argument the number of simulation  #here will be 160 in any case
 mainfold=args[3] #third argument = name of the folder wher to store the results
-env_i=args[4]
+env_i=args[4] #for nwo will  be only NGRIP2 to avoid bad interpol
 #fun_i=args[5]
 #res=as.numeric(args[6])
 #lin=args[7]
@@ -24,15 +24,18 @@ print(paste0("Abc will be stored in folder: ",fold))
 dir.create(fold)
 
 
-source("corefunctions.R")
+source("R/corefunctions.R")
+source("R/tools.R")
+source("R/environment.R")
 library(parallel)
 
 ##print(paste("resolution should be",res))
 ##Manage Environment 
 
-realdata=read.csv(paste0("data/",env_i,".csv"))
+#realdata=read.csv(paste0("data/",env_i,".csv"))
+realdata=read.csv(paste0("report/data/ngrip2.csv"))
 env=realdata$dTsVscales
-#:assign("f",get(fun_i))
+#assign("f",get(fun_i))
 #if(fun_i != "interpolate"){
 #    new=f(realdata$dTsVscales,realdata$year,max(getDateResolution(realdata$year)))
 #    env=new$data
@@ -58,57 +61,51 @@ env=realdata$dTsVscales
 
 tstep=length(env)
 allparameters=list()
-allparameters[["mu"]]=10^(-5:-3)
+allparameters[["mu_x"]]=10^runif(1,-5,-2)
+allparameters[["mu_y"]]=10^runif(1,-5,-2)
+allparameters[["mu_z"]]=10^runif(1,-5,-2)
 allparameters[["K"]]=c(1000)
-allparameters[["m"]]=(.2*(1:3))
-allparameters[["E"]]=seq(.5,1.5,.2)
-#allparameters[["sigma"]]=(2^(0:4))[1]
-allparameters[["sigma"]]=c(2)
-#allparameters[["delta"]]=2^(0:4)
-#allparameters[["vt"]]=(5^(0:4)*10^-3)[1:4]
-#allparameters[["omega"]]=2^(-1:3)
+allparameters[["m_x"]]=runif(1)
+allparameters[["m_y"]]=runif(1)
+allparameters[["m_z"]]=runif(1)
+allparameters[["E_x"]]=runif(1,.1,1.5)
+allparameters[["E_y"]]=runif(1,.1,1.5)
+#while(allparameters[["E_y"]]<allparameters[["E_x"]])allparameters[["E_y"]]=runif(1,.1,1.5)
+allparameters[["E_z"]]=runif(1,.1,1.5)
+#while(allparameters[["E_z"]]>allparameters[["E_y"]])allparameters[["E_z"]]=runif(1,.1,1.5)
+allparameters[["sigma_s"]]=runif(1,1,10)
+allparameters[["sigma_y"]]=runif(1,0,2)
+while(allparameters[["sigma_y"]]>allparameters[["sigma_s"]])allparameters[["sigma_y"]]=runif(1,0,2)
+allparameters[["sigma_z"]]=runif(1,1,100)
+while(allparameters[["sigma_z"]]<allparameters[["sigma_y"]])allparameters[["sigma_z"]]=runif(1,1,100)
+
 allparameters[["outputrate"]]=1
-allparameters[["k_z"]]=seq(1,10,1)
-allparameters[["k_y"]]=seq(.5,.9,.05)
-#allparameters[["sls"]]=c("random","best")
-parameters=as.data.frame(expand.grid(allparameters))
-repet=nsm
-parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
-b=2
-mu=c(x=0,y=0,z=0)
-E=c(x=0,y=0,z=0)
-m=c(x=0,y=0,z=0)
-sigma=c(s=1,y=1,z=1)
 
 lengthtocheck=10000/20
+parameters=as.data.frame(allparameters)
+repet=160
+parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
 genes=c("x","y","z")
 cl <- makeForkCluster(ns,outfile="")
-
-##Reset all variable and population
-mu=c(x=0,y=0,z=0)
-E=c(x=0,y=0,z=0)
-m=c(x=0,y=0,z=0)
-sigma=c(s=1,y=1,z=1)
 
 explore=do.call("rbind.data.frame",
                 parLapply(cl,1:nrow(parameters),function(v,parameters,env)
                           {
                               print(paste0(paste0("g",genes,collapse=" "),", sim #",v,"/",nrow(parameters)))
-                              #delta=parameters[v,"delta"]
-                              #omega=parameters[v,"omega"]
-                              #vt=parameters[v,"vt"]
                               K=parameters[v,"K"]
                               n=parameters[v,"K"]
                               outputrate=parameters[v,"outputrate"]
-                              mu[genes]=parameters[v,"mu"]
-                              m[genes]=parameters[v,"m"]
-                              E[genes]=parameters[v,"E"]
-                              sigma["s"]=parameters[v,"sigma"]
-			      #sls=parameters[v,"sls"]
+                              mu=parameters[v,paste("mu",genes,sep="_")]
+                              names(mu)=genes
+                              m=parameters[v,paste("m",genes,sep="_")]
+                              names(m)=genes
+                              E=parameters[v,paste("E",genes,sep="_")]
+                              names(E)=genes
+                              sigma=parameters[v,paste("sigma",c("s","y","z"),sep="_")]
+                              names(sigma)=c("s","y","z")
                               pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
                               pop[,"x"]=rnorm(n,mean(env[1]),sd(env[1:5]))
-                              sigma=c(s=parameters[v,"sigma"],y=parameters[v,"sigma"]*parameters[v,"k_y"],z=parameters[v,"sigma"]*parameters[v,"k_y"]*parameters[v,"k_z"])
-                              fullmat=evosolearn(n=n,tstep=tstep,omega = 0,delta = 0 ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls=sls,allpop=F,repro="sex",prop=T,theta=env)
+                              fullmat=evosolearn(b=2,K=K,mu=unlist(mu),E=unlist(E),sigma=unlist(sigma),pop=pop,m=unlist(m),outputrate=outputrate,sls="fitprop",allpop=F,repro="sex",theta=env,statfun=c("mean","var"))
                               filename_mat=file.path(fold,paste0("fullmat",v,".rds"))
                               saveRDS(file=filename_mat,fullmat[(nrow(fullmat)-lengthtocheck):nrow(fullmat),])
                               c(as.list(getSummary(fullmat,nstep=5,vars=c(paste0("mean_",genes),paste0("var_",genes),"N","mean_w","mean_p","theta"))),filename=filename_mat)
