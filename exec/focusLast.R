@@ -24,14 +24,16 @@ print(paste0("Abc will be stored in folder: ",fold))
 dir.create(fold)
 
 
-source("corefunctions.R")
+source("R/corefunctions.R")
+source("R/tools.R")
+source("R/environment.R")
 library(parallel)
 
 ##print(paste("resolution should be",res))
 ##Manage Environment 
 
 #realdata=read.csv(paste0("data/",env_i,".csv"))
-realdata=read.csv(paste0("data/ngrip2.csv"))
+realdata=read.csv(paste0("report/data/ngrip2.csv"))
 env=realdata$dTsVscales
 #assign("f",get(fun_i))
 #if(fun_i != "interpolate"){
@@ -103,7 +105,7 @@ explore=do.call("rbind.data.frame",
                               names(sigma)=c("s","y","z")
                               pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
                               pop[,"x"]=rnorm(n,mean(env[1]),sd(env[1:5]))
-                              fullmat=evosolearn(n=n,tstep=tstep,omega = 0,delta = 0 ,b=b,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,vt=vt,sls=sls,allpop=F,repro="sex",prop=T,theta=env)
+                              fullmat=evosolearn(b=2,K=K,mu=mu,E=E,sigma=sigma,pop=pop,m=m,outputrate=outputrate,sls="fitprop",allpop=F,repro="sex",theta=env)
                               filename_mat=file.path(fold,paste0("fullmat",v,".rds"))
                               saveRDS(file=filename_mat,fullmat[(nrow(fullmat)-lengthtocheck):nrow(fullmat),])
                               c(as.list(getSummary(fullmat,nstep=5,vars=c(paste0("mean_",genes),paste0("var_",genes),"N","mean_w","mean_p","theta"))),filename=filename_mat)
