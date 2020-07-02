@@ -83,7 +83,7 @@ allparameters[["outputrate"]]=1
 
 lengthtocheck=10000/20
 parameters=as.data.frame(allparameters)
-repet=1
+repet=160
 parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
 genes=c("x","y","z")
 cl <- makeForkCluster(ns,outfile="")
@@ -105,7 +105,7 @@ explore=do.call("rbind.data.frame",
                               names(sigma)=c("s","y","z")
                               pop=generatePop(n,distrib=list(x=runif(n,-1,1),y=rep(0,n),z=rep(0,n)),df=F)
                               pop[,"x"]=rnorm(n,mean(env[1]),sd(env[1:5]))
-                              fullmat=evosolearn(b=2,K=K,mu=unlist(mu),E=unlist(E),sigma=unlist(sigma),pop=pop,m=unlist(m),outputrate=outputrate,sls="fitprop",allpop=F,repro="sex",theta=env)
+                              fullmat=evosolearn(b=2,K=K,mu=unlist(mu),E=unlist(E),sigma=unlist(sigma),pop=pop,m=unlist(m),outputrate=outputrate,sls="fitprop",allpop=F,repro="sex",theta=env,statfun=c("mean","var"))
                               filename_mat=file.path(fold,paste0("fullmat",v,".rds"))
                               saveRDS(file=filename_mat,fullmat[(nrow(fullmat)-lengthtocheck):nrow(fullmat),])
                               c(as.list(getSummary(fullmat,nstep=5,vars=c(paste0("mean_",genes),paste0("var_",genes),"N","mean_w","mean_p","theta"))),filename=filename_mat)
