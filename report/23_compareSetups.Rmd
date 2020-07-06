@@ -118,6 +118,7 @@ Then we could use other terms to  complexify s, here we add standard deviation o
 $$ s=F + sd(Y) + sd(X) $$
 
 
+With limited, subset of parameter:
 ```{r distanceForAllParam,out.width="50%",fig.show="hold",fig.cap="marginal Distribution of s for all parameters",cache=TRUE}
 
 folder="ngrip2_Slsrandom_DIST/"
@@ -127,20 +128,41 @@ simpleDS=unique(distances[,columnparam])
 allscore=apply(simpleDS,1,distFivePercent,data=distances)
 distances=cbind(simpleDS,allscore)
 for(p in columnparam){
-    boxplot(distances$allscore ~ distances[,p],main=p,xlab=parse(p),ylab="distance")
+    boxplot(distances$allscore ~ distances[,p],main=p,xlab=parse(text=p),ylab="s")
 }
 ```
-```{r distanceForAllParamNew,out.width="50%",fig.show="hold",fig.cap="marginal Distribution of s for all parameters",cache=TRUE}
+
+
+Randomly chosen parameters (assuming some condition such as $(\sigma_z \land \sigma_s) >\sigma_y$
+
+```{r distanceForAllParamNew,out.width="50%",fig.show="hold",fig.cap="marginal Distribution of s for all parameters",cache=FALSE}
 genes=c("x","y","z")
 folder="ngrip2interpolate_SlsfitpropRANDOMDIST"
-#distances=getAllFromFolder(folder,"output/")
-#columnparam=c(paste("mu",genes,sep="_"),"K",paste("m",genes,sep="_"),paste("E",genes,sep="_"),paste("sigma",c("s","y","z"),sep="_"))
-#simpleDS=unique(distances[,columnparam])
-#allscore=apply(simpleDS,1,distFivePercent,data=distances,clm=columnparam)
-#distances=cbind(simpleDS,allscore)
-#for(p in columnparam){
-#    boxplot(distances$allscore ~ distances[,p],main=p,xlab=parse(p),ylab="distance")
-#}
+distances=getAllFromFolder(folder,"output/")
+columnparam=c(paste("mu",genes,sep="_"),"K",paste("m",genes,sep="_"),paste("E",genes,sep="_"),paste("sigma",c("s","y","z"),sep="_"))
+simpleDS=unique(distances[,columnparam])
+allscore=apply(simpleDS,1,distFivePercent,data=distances)
+distances=cbind(simpleDS,allscore)
+for(p in columnparam){
+    #test if comment change
+    log=""
+    if(length(grep("mu",p)))log="x"
+    plot(distances$allscore ~ distances[,p],main=p,xlab=parse(text=p),ylab="s",log=log)
+}
+```
+
+```{r paramInter,out.width="100%",fig.width=12, fig.height=12,fig.link="_main_files/figure-html/paramInter-1.png"}
+posteriordistances=distances[distances$allscore >.4,]
+plot(as.data.frame(posteriordistances))
+```
+
+```{r posteriorsParam,out.width="50%",fig.show="hold",fig.cap="marginal Distribution of s for all parameters",cache=FALSE}
+for(p in columnparam){
+    #test if comment change
+    log=""
+    if(length(grep("mu",p)))log="x"
+    plot(density(posteriordistances[,p]),main=p,xlab=parse(text=p),ylab="s",log=log)
+}
 ```
 
 
