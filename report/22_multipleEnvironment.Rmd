@@ -16,7 +16,7 @@ Final resolution: every 20years,
 
 ```{r}
     #namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat","ngrip2")
-    namesRealEnv=c("vostok","ngrip2","martrat","ngrip","ls16")
+    namesRealEnv=c("vostok","ngrip2","martrat","ngrip","ls16","lr04")
     namesFun=c("interpolate_Sls")
     namesSLS=c("random","fitprop")
     suf="NEWF"
@@ -67,6 +67,189 @@ a=c(
 
 ```{r,include=FALSE,echo=T}
 src <- lapply(namesRealEnv,function(env)c(knitr::knit_expand(text="## {{env}} ",env=env),lapply(namesSLS,function(sls)knitr::knit_expand(text=a,id=paste0(env,namesFun,sls,suf),env=env,sls=sls))))
+
+```
+
+`r knitr::knit_child(text=unlist(src))`
+
+
+<!----------------->
+Explore more parameters
+<-->
+
+
+```{r}
+    #namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat","ngrip2")
+    namesRealEnv=c("ngrip2")
+    namesFun=c("interpolate_Sls")
+    namesSLS=c("fitprop")
+    suf="LARGERPARAM"
+    allEs=1
+    allSigmas=3:5
+
+```
+
+```{r}
+
+basecaption1=paste0('(from top to bottom $\\\\sigma_s =',paste0(allSigmas, collapse = ","),'$, real E: $E_x=0.1,E_y=1,E_z=.5$, SLS:{{sls}} Environment:{{env}})')
+basecaption2=paste0('(from top to right $\\\\sigma_s =',paste0(allSigmas, collapse = ","),'$, real E: $E_x=0.1,E_y=1,E_z=.5$, SLS:{{sls}} Environment:{{env}})')
+a=c(
+    "### {{sls}} ",
+    '```{r}',
+    'idexpe="{{id}}"',
+    #'t=c("NA","N","3Genes")',
+    #'allsummaries=unlist(lapply(allSigmas,function(s)paste0("images/",idexpe,t,"_sigma",s,"_E.png")))',
+    'allimg=unlist(lapply(allSigmas,function(s)paste0("images/vertical_",idexpe,"_sigma",s,"_E1.png")))',
+    '```',
+    #"#### Last step summary",
+    #paste0('```{r summary-last-{{id}}, out.width = "33%", fig.cap="Summary output for last step',basecaption1,'",fig.show="hold",fig.link=allsummaries}'),
+    #'knitr::include_graphics(as.character(allsummaries))',
+    #'```',
+    "#### Vertical summary",
+    paste0('```{r traj-{{id}}, out.width = "33%", fig.cap="Summarized vertical trajectories',basecaption2,'",fig.show="hold",fig.link=allimg}'),
+    'knitr::include_graphics(as.character(allimg))',
+    '```',
+    '```{r}',
+    'allimg=unlist(lapply(allSigmas,function(s)paste0("images/verticalMz_",idexpe,"_sigma",s,"_E",allEs,".png")))',
+    '```',
+    "#### Vertical run indiv",
+    paste0('```{r traj-ind-{{id}}, out.width = "33%", fig.cap="Vertical trajectories for 20 individual runs',basecaption2,'",fig.show="hold",fig.link=allimg}'),
+    'idexpe="{{id}}"',
+    'knitr::include_graphics(as.character(allimg))',
+    '```',
+    '```{r}',
+    'allimg=unlist(lapply(allSigmas,function(s)paste0("images/vertical_N_Mz_",idexpe,"_sigma",s,"_E",allEs,".png")))',
+    '```',
+    "#### Vertical run indiv: $N_e$",
+    paste0('```{r traj-indN-{{id}}, out.width = "33%", fig.cap="Vertical trajectories for 20 individual runs, $N_e$',basecaption2,'",fig.show="hold",fig.link=allimg}'),
+    'idexpe="{{id}}"',
+    'knitr::include_graphics(as.character(allimg))',
+    '```'
+    )
+
+```
+
+```{r,include=FALSE,echo=T}
+src <- lapply(namesRealEnv,function(env)c(knitr::knit_expand(text="## {{env}} (more parameters)",env=env),lapply(namesSLS,function(sls)knitr::knit_expand(text=a,id=paste0(env,namesFun,sls,suf),env=env,sls=sls))))
+
+```
+
+`r knitr::knit_child(text=unlist(src))`
+
+
+```{r}
+    #namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat","ngrip2")
+    namesRealEnv=c("ngrip2")
+    namesFun=c("interpolate_Sls")
+    namesSLS=c("fitprop")
+    suf="E025"
+    allEs=1
+    allSigmas=3:5
+
+```
+
+```{r}
+
+basecaption1=paste0('(from top to bottom $\\\\sigma_s =',paste0(allSigmas, collapse = ","),'$, real E: $E_x=0.1,E_y=1,E_z=.25$, SLS:{{sls}} Environment:{{env}})')
+basecaption2=paste0('(from top to right $\\\\sigma_s =',paste0(allSigmas, collapse = ","),'$, real E: $E_x=0.1,E_y=1,E_z=.25$, SLS:{{sls}} Environment:{{env}})')
+a=c(
+    "### {{sls}} ",
+    '```{r}',
+    'idexpe="{{id}}"',
+    #'t=c("NA","N","3Genes")',
+    #'allsummaries=unlist(lapply(allSigmas,function(s)paste0("images/",idexpe,t,"_sigma",s,"_E.png")))',
+    'allimg=unlist(lapply(allSigmas,function(s)paste0("images/vertical_",idexpe,"_sigma",s,"_E1.png")))',
+    '```',
+    #"#### Last step summary",
+    #paste0('```{r summary-last-{{id}}, out.width = "33%", fig.cap="Summary output for last step',basecaption1,'",fig.show="hold",fig.link=allsummaries}'),
+    #'knitr::include_graphics(as.character(allsummaries))',
+    #'```',
+    "#### Vertical summary",
+    paste0('```{r traj-{{id}}, out.width = "33%", fig.cap="Summarized vertical trajectories',basecaption2,'",fig.show="hold",fig.link=allimg}'),
+    'knitr::include_graphics(as.character(allimg))',
+    '```',
+    '```{r}',
+    'allimg=unlist(lapply(allSigmas,function(s)paste0("images/verticalMz_",idexpe,"_sigma",s,"_E",allEs,".png")))',
+    '```',
+    "#### Vertical run indiv",
+    paste0('```{r traj-ind-{{id}}, out.width = "33%", fig.cap="Vertical trajectories for 20 individual runs',basecaption2,'",fig.show="hold",fig.link=allimg}'),
+    'idexpe="{{id}}"',
+    'knitr::include_graphics(as.character(allimg))',
+    '```',
+    '```{r}',
+    'allimg=unlist(lapply(allSigmas,function(s)paste0("images/vertical_N_Mz_",idexpe,"_sigma",s,"_E",allEs,".png")))',
+    '```',
+    "#### Vertical run indiv: $N_e$",
+    paste0('```{r traj-indN-{{id}}, out.width = "33%", fig.cap="Vertical trajectories for 20 individual runs, $N_e$',basecaption2,'",fig.show="hold",fig.link=allimg}'),
+    'idexpe="{{id}}"',
+    'knitr::include_graphics(as.character(allimg))',
+    '```'
+    )
+
+```
+
+```{r,include=FALSE,echo=T}
+src <- lapply(namesRealEnv,function(env)c(knitr::knit_expand(text="## {{env}} (more parameters, $E_z = 0.25$)",env=env),lapply(namesSLS,function(sls)knitr::knit_expand(text=a,id=paste0(env,namesFun,sls,suf),env=env,sls=sls))))
+
+```
+
+`r knitr::knit_child(text=unlist(src))`
+
+
+
+```{r}
+    #namesRealEnv=c("epica","lr04","ls16","vostok","ngrip","martrat","ngrip2")
+    namesRealEnv=c("ngrip2")
+    namesFun=c("interpolate_Sls")
+    namesSLS=c("fitprop")
+    suf="E0125"
+    allEs=1
+    allSigmas=3:5
+
+```
+
+```{r}
+
+basecaption1=paste0('(from top to bottom $\\\\sigma_s =',paste0(allSigmas, collapse = ","),'$, real E: $E_x=0.1,E_y=1,E_z=.125$, SLS:{{sls}} Environment:{{env}})')
+basecaption2=paste0('(from top to right $\\\\sigma_s =',paste0(allSigmas, collapse = ","),'$, real E: $E_x=0.1,E_y=1,E_z=.125$, SLS:{{sls}} Environment:{{env}})')
+a=c(
+    "### {{sls}} ",
+    '```{r}',
+    'idexpe="{{id}}"',
+    #'t=c("NA","N","3Genes")',
+    #'allsummaries=unlist(lapply(allSigmas,function(s)paste0("images/",idexpe,t,"_sigma",s,"_E.png")))',
+    'allimg=unlist(lapply(allSigmas,function(s)paste0("images/vertical_",idexpe,"_sigma",s,"_E1.png")))',
+    '```',
+    #"#### Last step summary",
+    #paste0('```{r summary-last-{{id}}, out.width = "33%", fig.cap="Summary output for last step',basecaption1,'",fig.show="hold",fig.link=allsummaries}'),
+    #'knitr::include_graphics(as.character(allsummaries))',
+    #'```',
+    "#### Vertical summary",
+    paste0('```{r traj-{{id}}, out.width = "33%", fig.cap="Summarized vertical trajectories',basecaption2,'",fig.show="hold",fig.link=allimg}'),
+    'knitr::include_graphics(as.character(allimg))',
+    '```',
+    '```{r}',
+    'allimg=unlist(lapply(allSigmas,function(s)paste0("images/verticalMz_",idexpe,"_sigma",s,"_E",allEs,".png")))',
+    '```',
+    "#### Vertical run indiv",
+    paste0('```{r traj-ind-{{id}}, out.width = "33%", fig.cap="Vertical trajectories for 20 individual runs',basecaption2,'",fig.show="hold",fig.link=allimg}'),
+    'idexpe="{{id}}"',
+    'knitr::include_graphics(as.character(allimg))',
+    '```',
+    '```{r}',
+    'allimg=unlist(lapply(allSigmas,function(s)paste0("images/vertical_N_Mz_",idexpe,"_sigma",s,"_E",allEs,".png")))',
+    '```',
+    "#### Vertical run indiv: $N_e$",
+    paste0('```{r traj-indN-{{id}}, out.width = "33%", fig.cap="Vertical trajectories for 20 individual runs, $N_e$',basecaption2,'",fig.show="hold",fig.link=allimg}'),
+    'idexpe="{{id}}"',
+    'knitr::include_graphics(as.character(allimg))',
+    '```'
+    )
+
+```
+
+```{r,include=FALSE,echo=T}
+src <- lapply(namesRealEnv,function(env)c(knitr::knit_expand(text="## {{env}} (more parameters, $E_z = 0.125$)",env=env),lapply(namesSLS,function(sls)knitr::knit_expand(text=a,id=paste0(env,namesFun,sls,suf),env=env,sls=sls))))
 
 ```
 
