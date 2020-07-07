@@ -104,6 +104,25 @@ interpolate <- function(theta,times,finalres,delta=0,omega=0,delta2=NULL){
     return(cbind.data.frame(data=newtheta,year=year))
 }
 
+#' Function regsum
+#' 
+#' apply a function to some interval of time
+#' 
+#' @param theta: the original theta vector to complete
+#' @param times: the time associated to the thetas
+#' @param finalres: the resolution, in the unit used in the vector times, at which new data had to be generate. if times is in year and finalres is 1, the vector thetat will correspond to data ofr each eyar, if time is in thousand of years (as in LR04 stack) and finalres is 0.5 thus the output will correspond to one point every 500 years.
+#' @param omega: autocorrelation of the noise use to generate interpolate datapoints
+#' @return a two columns data frame. Each column is a of dimension: seq(1,length(times),by=finalres), one with the years and other with associated theta
+#' @export
+regApply <- function(data,year,by,f=var){
+    maxyear=which.min(abs(year-(max(year)-by) ))
+    newdata=sapply(1:maxyear,function(y,data,oldyear)
+                   {
+                       slice= data[ oldyear >=  oldyear[y] & oldyear <  (oldyear[y]+by)]
+                       f(slice)
+                   },data=data,oldyear=year)
+    return(cbind.data.frame(data=newdata,year=year[1:maxyear]))
+}
 
 #' return the coefficient of a linear fit to the spectrum decomposition of a time serie t
 getOmega <- function(t){
