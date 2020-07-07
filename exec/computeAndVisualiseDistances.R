@@ -52,7 +52,7 @@ idexpe="dist"
 
 ns=length(list.files(path=folder,recursive=T,full.names=T,pattern="*cross*"))
 
-distances=do.call("rbind",lapply(list.files(path=folder,recursive=T,full.names=T,pattern="*cross*"),function(u){print(u);load(u);return(binded)}))
+distances=getAllFromFolder(folder)
 onesum=readRDS(file=as.character(binded$filename[1]))
 nsteps=nrow(onesum)
 

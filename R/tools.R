@@ -467,3 +467,16 @@ getUniqeSet <- function(data,vect,out){
     }
     data[sub,]
 }
+
+#' read all experiments from a folder and return all concatened
+#' prefix allows to putsome new folder that were add ed after simulation
+#' it should be noted that in the output of a simulation the path of the full experiment is set when simulation are done. if this path change thus and if this function is call frome somewhere else thus pref is need
+#' @export
+getAllFromFolder <- function(foldername,pref=NULL,log=F){
+    if(!is.null(pref))
+        foldername=file.path(pref,foldername)
+    allexpe=do.call("rbind",lapply(list.files(path=foldername,recursive=T,full.names=T,pattern="*cross*"),function(u){if(log)print(u);load(u);return(binded)}))
+    if(!is.null(pref))
+        allexpe$filename=file.path(pref,allexpe$filename)
+    return(allexpe)
+}

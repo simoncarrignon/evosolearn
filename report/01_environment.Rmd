@@ -278,7 +278,7 @@ Then, as resolution is changing, we need to re-sample the datasets or  interpola
 
 To do so we can remove the high frequencies samples and keep only data points  correspond to one unique frequency, or use the mean (or any other function)  of the all points falling within a same time . We design two functions `getClosest` and `getMean2` that do a regular sampling of our dataset, taking only regularly spaced data points. both function start by using the lowest resolution to split the dataset into evenly distributed measure and then: use the closest point as the metrics for each time sampled (`getClosest`) or take all points between and use the mean of those points as the measure that correspond to the time in between the two frequencies. 
 
-```{r resample,out.width="80%",fig.show="hold",fig.width=8,fig.height=6,fig.cap="Uniform Sampling, blac curve represent the original dataset, the green curve represent the result of the function getClosest and the red curve the results of the getMean2 function"}
+```{r resample,out.width="80%",fig.show="hold",fig.width=8,fig.height=6,fig.cap="Uniform Sampling: black curve represents the original dataset, green curve the result of the function getClosest, red curve the results of the getMean2 function",cache=TRUE}
 
 par(mfrow=c(length(namesRealEnv),1))
 for(e in namesRealEnv){
@@ -299,7 +299,7 @@ for(e in namesRealEnv){
 mtext("year",1,2)
 ```
 
-```{r zoom,out.width="50%",fig.show="hold",fig.width=8,fig.height=6,fig.cap="Uniform Sampling as before but  zoom on the begining(left) and end (right) of the time series"}
+```{r reScale,out.width="50%",fig.show="hold",fig.width=8,fig.height=6,fig.cap="Uniform Sampling as before, zoom on the begining(left) and end (right) of the time series",cache=TRUE}
 par(mfrow=c(length(namesRealEnv),1))
 for(e in namesRealEnv){
     env=allRealEnv[[e]]
@@ -492,20 +492,23 @@ axis(2)
 
 ## Combine Real Data with simulated noise
 
-As we have seen, every dataset gives us proxy for the climate at different resolutions, whcih means that using the environment as is in our simulation will creat generation spanning uneven time. We need to interpolate new datapoint to fill the gaps. 
+As we have seen, every dataset gives us a proxy for temperature changes at different resolutions and scales. 
 
-The biggest gap are in the LR04 stack and epica,, the ones describing the largest time scale and are respectively of `r max(getDateResolution(lr04$year))` years. But the length of those gap varying infrom each dataset, here is the distribution
+Thus, all  environments need to be rescaled to same scale variations; this has been done by using the Vostok estimates of temperature (cf section \@ref(general) and \@ref(rescale))
+
+Then, as for each environment the time interval at which measures are available is chaning, thus we can't use neither directly the measures for  our simulation. When records are uneven, we need to interpolate new datapoints to fill the gaps. 
+
+The biggest gaps are in the LR04 stack and epica, the datasets describing the largest time scales, and are respectively of `r max(getDateResolution(lr04$year))` years. But the length of those gap varies between each dataset. Here is the distribution of the length of time interval for all datasets:
 
 ```{r gapDistrib,fig.cap="Distribution of gap lenght in year for all environments"}
 plot(density(unlist(sapply(allRealEnv,function(e)getDateResolution(e$year)))),xlab="gap size (years)",ylab="density",log="x",main="distribution of gap sizes")
 ```
 
-We can see that most of the gaps last betwen 20 to 50 years, and some of them last mor than 200 years.
+We can see that most of the gaps last betwen 20 to 50 years, but some of them are bigger than 200 years.
 
-Mitsui et al 2019 have shown that for cycles betweeen $10^{2.5}$  to $10^{3.5}$ the amplitude of cycles of decreasing length is approximate by a log-log linear fit of slope -1.41 wherease the ampltitude of shorter cycle ($<100$) is closer to white noise. 
+One good thing is that Mitsui et al 2019 have shown that for cycles betweeen $10^{2.5}$  to $10^{3.5}$ years, the amplitude of cycles of decreasing length is approximated by a log-log linear fit of slope -1.41; while the ampltitude of shorter cycle ($<100$) is closer to white noise. 
 
-To know the amplitude (ie the variation) of the noise to add, we compute the standard variation of sliding windows of different sizes -- orresponding to what would be  gap of different size, using the data from NGRIP2.
-
+To know the amplitude (ie the variation) of the data we need to add to fill the gap, we compute the standard variation of sliding windows of different sizes in years -- corresponding to what would be gaps of different size. We do this using NGRIP2 as it doesn't contain any gap bigger than 20 years.
 
 ```{r deltaW,out.width="33%",fig.show="hold",fig.cap="variation of the standard deviation for different windows size. The red line represent the mode of the distribution."}
 for(w in c(100,500,1000)){
@@ -520,30 +523,27 @@ for(w in c(100,500,1000)){
 mdw=readRDS(file=paste0("data/dt",100,".bin"))
 ```
 
-To generate new datapoints we use our function to generate $1/f$ noise with slope $\omega$ and standard deviation $\delta$ when the gaps are bigger than 100 years, for lower gaps we add white noise. Both type of noise are then added to the straight line between the points around the gap.
+To generate new datapoints we use the function that generates $1/f$-noise with slope $\omega$ and standard deviation $\delta$. When the gaps are bigger than 100 years we use an $\omega=1.41$ and $\delta=1.37$, which is the mode of the standard deviations of variation measured for windows of 500 to 1000 years. For lower gaps we add white noise ($\omega=0$) with $\delta=.38$, the mode of the standard deviation of variation in moving windows of 100 years.  Both type of noises are added to the straight line between the points around the gap.
 
-
-For all environment, we aim at having a final resolution of 20 years. All environments need to be rescaled to same scale variations; this has been done by using the Vostok estimates of temperature (cf section \@ref(general) and \@ref(rescale))
-
-Quick summary of the process:
+Here is how those noises are added step by step:
 
 1. We go from all data measurment and the date associated
-2. When two measures are separated by less than 100 years( 5 times the resolution we want), but by a distance more than twice the highest resolution (40years), we add datapoints (3 if the resolution wanted is 20 years). Those data point are added to be regularly spaced on a straight line between the two orignal points. Then noise is added to the point, the noise being  calculated as $N(0,.38)$ , 0.38 (mdw=`r mdw`) being the mode of the standard variation calculated in windows of 100years from ngrip2 shown in the Figure\@ref(fig:deltaW).
-3. When two measures are separated by less than 20 years we keep the original dataset
-4. When two measures are separated by more than 100 years we add regularly spaced datapoints that follow the a straight line between the two orignal points. Then we add noise, but this time generate using the function `environment` which generate noise given a slope $\omega$ and a standard variation $\delta$. We use the slope calculaded by Mitsui et al. of $1.41$ as the cycles generated willl be all between 100 to 6000 years. For the detla we use this time the value calculated for 1000 years windows which gives a value of $\delta=1.35$
-   Here is the central central equationn used to generate $1/f$-noise, from a time serie of normally distributed noise  ($N(0,1)$) $Y(t=1,...,T)$ to a $1/f$ noise of slope $\omega$ and standard deviation $\delta$.
-   $$ y=\frac{ \delta \times S^{-1}[S(Y)^{-\omega}]}{SD(S^{-1}[S(Y)^{-\omega}])} $$  (from Whitehead 2007)
+2. When two measures are separated by less than 100 years(5 times the resolution we want), but by a time more than twice the highest resolution (40years), we add datapoints (3 if the resolution wanted is 20 years). Those data point are regularly spaced on a straight line between the two orignal points. Then noise is added to the points. This noise is calculated as $\mathcal{N}(0,.38)$ , 0.38 (mdw=`r mdw`) being the mode of the standard variation calculated in windows of 100years from ngrip2, as shown in the Figure\@ref(fig:deltaW).
+3. When two measures are separated by less than 20 years we keep the original data points.
+4. When two measures are separated by more than 100 years, we add regularly spaced datapoints following the a straight line between the two orignal points. Then we add noise, but this time, the noise is generated using the function `environment`, which generates $1/f$-noise given a slope $\omega$ and a standard variation $\delta$. We use the slope calculaded by Mitsui et al. of $1.41$ as the cycles generated at this current step will be all between 100 to 6000 years. For $\delta$ we use the value calculated for 1000 an 500 years windows, which gives a value of $\delta\approx1.37$
+   Here is the central equation used to generate the $1/f$-noise of slope $\omega$ and standard deviation $\delta$ from a time serie of normally distributed noise ($\mathcal(0,1)$) $Y(t=1,...,T)$:    
+   $$ y=\frac{ \delta \times S^{-1}[S(Y)^{-\omega}]}{SD(S^{-1}[S(Y)^{-\omega}])} $$  (from Whitehead 2007)\\
  $S$ is the Fourier transform, and $S^{-1}$ the inverse Fourier transform .  
-The equation  is implemented in the function `environment` and ($S^{-1}[S(Y)^{-\omega}]$) is implmented by `TK95`, borrowed from the package from tuneR package,  based on [Timmer and Koening 1995](https://ui.adsabs.harvard.edu/abs/1995A\%26A...300..707T/abstract)'s paper.
+The equation  is implemented in the function `environment` and ($S^{-1}[S(Y)^{-\omega}]$) is implemented by `TK95`, borrowed from the package from tuneR package,  based on [Timmer and Koening (1995)](https://ui.adsabs.harvard.edu/abs/1995A\%26A...300..707T/abstract)'s paper.
 
 
 Using this process we can add data points when the datasets are too sparse. Nonetheless, as some datasets have very unequal sampling and higer resolution than 20 years (16,17 year in Vostok), it's still usefull to resampled the data using the functions presented above. In the current implementation, we do so using the function `getClosest`s, that  generates an evenly spaced vector of dates and we associated to each one the closest in the real dataset.  We could use the mean of the datapoints falling withing the new interval but it's very rare that we have more than one points (3 cases within all datasets).
 
 Let's check an exemple using the data point 100 and 101 from the lr04 stack, which represent the temperature scaled to Vostok temperature from $\delta^{18}O$ for the year `r lr04$year[100]` and the year `r lr04$year[101]`
 
-```{r, fig.width=7,out.width = "45%",fig.cap="step for interpolating gaps",fig.show="hold"}
+```{r, fig.width=7,out.width = "45%",fig.cap="step for interpolating gaps",fig.show="hold",cache=TRUE}
 u=lr04[100:101,]
-inter=interpolate(u$dTsVscales,u$year,50) 
+inter=interpolate(u$dTsVscales,u$year,20) 
 intLin=inter$data
 reald=c(1,length(intLin)) #real data to be omited
 #plot(u$year,u$dTsVscales,ylab=expression(delta^18*O),xlab="year",pch=20)
@@ -561,34 +561,47 @@ points(datin,c(u$dTsVscales[1],intLin[-reald]+nois[-reald],u$dTsVscales[2]),col=
 points(u$year,u$dTsVscales,pch=20)
 ```
 
-Once applied to all dataset:
+Once applied to full dataset:
 
-```{r interpolNgripFull, fig.width=14,out.width = "100%",fig.cap="interpolation linear + noise full dataset LR04", fig.link="_main_files/figure-html/interpolNgripFull-1.png"}
+```{r interpollr04, fig.width=14,out.width = "100%",fig.cap="interpolation linear + noise full dataset LR04", fig.link="_main_files/figure-html/interpolNgripFull-1.png",cache=TRUE}
 
-    newt=interpolate(lr04$dTsVscales,lr04$year,finalres=250)$data
-	#linear interpolation
-    newy=seq(min(lr04$year),max(lr04$year),250)
-	#linear + noise
-    newtN=interpolate(lr04$dTsVscales,lr04$year,finalres=250,omega=omw,delta=1.31,delta2=.38)$data
-    plot(lr04$year,lr04$dTsVscales,type="l",lwd=5,xlab="years",ylab="scaled delta temp")
-    lines(newy,newtN,type="l",col="red",lwd=2)
-    lines(newy,newt,type="l",col="green")
+#linear
+    newt=interpolate(lr04$dTsVscales,lr04$year,finalres=20)
+#noisy
+    newtN=interpolate(lr04$dTsVscales,lr04$year,finalres=20,omega=omw,delta=1.31,delta2=.38)
+    plot(lr04$year,lr04$dTsVscales,type="l",lwd=5,xlab="years",ylab="scaled delta temp",ylim=range(newtN$data))
+    lines(newtN$year,newtN$data,type="l",col="red",lwd=2)
+    lines(newt$year,newt$data,type="l",col="green")
 ```
 
 The green line represents the linear interpolation while the red one the linea + noise.
 
 Let see when we zoom on the first and last 30,000 years :
 
-```{r, fig.width=4,fig.height=4,out.width = "40%",fig.cap="Zoom on the first (left) and last (right) 30,000 years interpolation linear + noise",fig.show="hold"}
-    plot(lr04$year,lr04$dTsVscales,type="l",lwd=8,xlim=c(-5320000,-5290000),xlab="years")
-    lines(newy,newtN,type="l",col="red",lwd=3)
-    lines(newy,newt,type="l",col="green")
-    plot(lr04$year,lr04$dTsVscales,type="l",lwd=5,xlim=c(-30000,0),xlab="years")
-    lines(newy,newtN,type="l",col="red",lwd=3)
-    lines(newy,newt,type="l",col="green")
+```{r zoomInterpolLR04, fig.width=4,fig.height=4,out.width = "40%",fig.cap="Zoom on the first (left) and last (right) 30,000 years interpolation linear + noise",fig.show="hold"}
+for(xl in list(c(-5320000,-5290000),c(-30000,0))){
+    plot(lr04$year,lr04$dTsVscales,type="l",lwd=5,xlab="years",xlim=xl,ylim=range(newtN$data),ylab="scaled delta temp")
+    lines(newtN$year,newtN$data,type="l",col="red",lwd=2)
+    lines(newt$year,newt$data,type="l",col="green")
+}
 ```
 
-Let see know how the parameter of our  interpolation impact the properties of our environments. $X_{ni}$ represents the metrics for the environment with the noisy missing point, $X_{li}$ for simple linear interpolation.
+Now for all environments:
+```{r interpolallEnv, fig.width=14,out.width = "100%",fig.cap="interpolation linear + noise full dataset",cache=TRUE,fig.show="hold"}
+
+for(e in names(allRealEnv)){
+    env=allRealEnv[[e]]
+    newt=interpolate(env$dTsVscales,env$year,finalres=20)
+    newtN=interpolate(env$dTsVscales,env$year,finalres=20,omega=omw,delta=1.31,delta2=.38)
+    plot(env$year,env$dTsVscales,type="l",lwd=5,xlab="years",ylab="scaled delta temp",ylim=range(newtN$data),main=e)
+    lines(newtN$year,newtN$data,type="l",col="red",lwd=2)
+    lines(newt$year,newt$data,type="l",col="green")
+}
+```
+
+
+
+Let see know how the parameters of our interpolation impact the properties of our environments. $X_{ni}$ represents the metrics for the environment with the noisy missing point, $X_{li}$ for simple linear interpolation.
 
 
 ```{r,cache=TRUE}
