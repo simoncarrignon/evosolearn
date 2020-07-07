@@ -28,6 +28,8 @@ source("R/corefunctions.R")
 source("R/tools.R")
 source("R/environment.R")
 library(parallel)
+RNGkind("L'Ecuyer-CMRG")
+set.seed(unclass(Sys.time())) # something
 
 ##print(paste("resolution should be",res))
 ##Manage Environment 
@@ -87,6 +89,8 @@ repet=160
 parameters=parameters[rep(seq_len(nrow(parameters)),repet),]
 genes=c("x","y","z")
 cl <- makeForkCluster(ns,outfile="")
+
+clusterSetRNGStream(cl)
 
 explore=do.call("rbind.data.frame",
                 parLapply(cl,1:nrow(parameters),function(v,parameters,env)
